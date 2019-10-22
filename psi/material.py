@@ -21,11 +21,11 @@ class Property(object):
 
     @property
     def _data(self):
-        return zip(self._temps, self._values)
+        return list(zip(self._temps, self._values))
 
     @_data.setter
     def _data(self, data):
-        self._temps, self._values = zip(*data)
+        self._temps, self._values = list(zip(*data))
 
     @property
     def value(self):

@@ -6,8 +6,8 @@ L = 10  # ft
 Model('simple')
 
 # attributes
-Pipe.from_file('P1', '10', '40')
-Material.from_file('M1', 'A53A', 'B31.1')
+Pipe.from_file('pipe1', '10', '40')
+Material.from_file('mat1', 'A53A', 'B31.1')
 
 # geometry
 Point(10)
