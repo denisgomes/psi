@@ -13,8 +13,8 @@ import csv
 
 from pint import UnitRegistry
 
-from openpipe import UNITS_DIRECTORY
-from openpipe.settings import options
+from psi import UNITS_DIRECTORY
+from psi.settings import options
 
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
@@ -84,7 +84,7 @@ class Units(object):
     def load_units_file(self, name):
         with open(os.path.join(UNITS_DIRECTORY, name + ".csv")) as csvfile:
             reader = csv.DictReader(csvfile)
-            units = reader.next()
+            units = next(reader)
 
         return units
 

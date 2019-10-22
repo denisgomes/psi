@@ -1,0 +1,4 @@
+numpy
+pint
+tqdm
+jinja2>=2.0

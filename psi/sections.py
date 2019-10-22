@@ -4,10 +4,10 @@ from abc import abstractproperty
 import csv
 from math import pi
 
-import openpipe
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
-from openpipe.core.units import units
+import psi
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
+from psi.units import units
 
 
 class Section(Entity, ActiveEntityMixin):
@@ -70,7 +70,7 @@ class Pipe(Section):
             Full path to the table used to do the lookup.
         """
         if fname is None:
-            fname = openpipe.PIPE_DATA_FILE
+            fname = psi.PIPE_DATA_FILE
 
         with open(fname, "r") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -253,7 +253,7 @@ class WideFlange(Section):
     @classmethod
     def from_table(cls, name, size="W4x13", fname=None):
         if fname is None:
-            fname = openpipe.BEAM_DATA_FILE
+            fname = psi.BEAM_DATA_FILE
 
         with open(fname, "r") as csvfile:
             reader = csv.DictReader(csvfile)

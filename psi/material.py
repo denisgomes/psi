@@ -1,10 +1,10 @@
 from __future__ import division
 import csv
 
-import openpipe
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
-from openpipe.core.units import units
+import psi
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
+from psi.units import units
 
 
 @units.define(_temps="temperature")
@@ -162,7 +162,7 @@ class Material(Entity, ActiveEntityMixin):
     def from_file(cls, name, material, code, fname=None):
         """Load a material from the database"""
         if fname is None:
-            fname = openpipe.MATERIAL_DATA_FILE
+            fname = psi.MATERIAL_DATA_FILE
 
         def num(st):
             """Convert a string to an int or float"""

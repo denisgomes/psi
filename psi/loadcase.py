@@ -17,8 +17,8 @@ together.
 The results for the load case are stored internally in the load case object.
 """
 
-from openpipe.core.entity import Entity, EntityContainer
-from openpipe.utils.orderedset import OrderedSet
+from psi.entity import Entity, EntityContainer
+from psi.utils.orderedset import OrderedSet
 
 
 class BaseCase(Entity):

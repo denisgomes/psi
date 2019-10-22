@@ -2,14 +2,14 @@ from __future__ import division
 
 from collections import OrderedDict
 import gzip
-import cPickle
+import pickle
 import copy
 
-from openpipe.settings import options
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
-from openpipe.core.topology import Geometry
-from openpipe.core.units import units
+from psi.settings import options
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
+from psi.topology import Geometry
+from psi.units import units
 
 
 # TODO: Raise exception if model is not active on attribute access
@@ -138,17 +138,6 @@ class Model(Entity, ActiveEntityMixin):
         self._settings["core.tref"] = value
         # options["core.tref"] = value
 
-    def plot(self, size=(800, 600)):
-        """In interactive mode, the user is allowed to visually inspect and
-        interact with the model.
-        """
-        import wx
-        from openpipe.ui.viewer import OpenpipeModelViewer
-        app = wx.App(redirect=False)
-        frm = OpenpipeModelViewer(self, size=size)
-        frm.Show()
-        app.MainLoop()
-
     def close(self):
         self.parent.close(self)
 
@@ -172,7 +161,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         settings even if versions are not the same.
         """
         with gzip.open(fname, 'rb') as fp:
-            name, inst = cPickle.load(fp)   # model instance
+            name, inst = pickle.load(fp)   # model instance
             self.new(name, inst)
             inst.activate()
 
@@ -223,5 +212,5 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
     def save_as(self, inst, fname):
         """Save a model with a different filename"""
         with gzip.GzipFile(fname, 'wb') as fp:
-            fp.write(cPickle.dumps((inst.name, inst), 1))
+            fp.write(pickle.dumps((inst.name, inst), 1))
         return inst

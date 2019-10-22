@@ -36,9 +36,9 @@ element mesh consisting of beam elements. Here, the Point object is called
 multiple times to create vertices in global coordinates explicitly.
 """
 
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
-from openpipe.core.units import units
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
+from psi.units import units
 
 
 # TODO: Check app.points to see if point exists, __new__

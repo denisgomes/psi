@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="PSi",
+    name="PSI",
 
     version="0.0.1",
 
@@ -43,7 +43,7 @@ setup(
         ]),
 
     # install from pypi, requirements.txt is for developers only
-    install_requires=["jinja2 >= 2.0", "numpy", "pint"],
+    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0"],
 
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",

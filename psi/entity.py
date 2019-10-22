@@ -1,8 +1,7 @@
-"""Base entity and entity container for openpipe objects.
+"""Base entity and entity container for all psi objects.
 
 Objects are created by an user defined name. After an object is created all
 functions work with objects.
-
 """
 
 import logging
@@ -10,7 +9,7 @@ from collections import OrderedDict
 
 
 class Entity(object):
-    """Base class for openpipe objects"""
+    """Base class for psi objects"""
 
     _app = None
 
@@ -23,12 +22,12 @@ class Entity(object):
             raise NameError("name must be integer or string")
 
         # avoid recursive import
-        from openpipe.core.model import Model
+        from psi.model import Model
         if cls is not Model:
             model = app.models.active_object
             assert model is not None, "create or activate a model"
 
-        inst = super(Entity, cls).__new__(cls, *args, **kwargs)
+        inst = super(Entity, cls).__new__(cls)
 
         # objects should not be replaced
         if name in inst.parent.objects:
@@ -121,7 +120,7 @@ class EntityContainer(object):
         if new_name:
             assert new_name not in self._objects.keys(), "name is taken"
 
-        for key, val in self._objects.iteritems():
+        for key, val in self._objects.items():
             if val is inst:
                 if new_name is None:
                     return key
@@ -136,9 +135,9 @@ class EntityContainer(object):
                 return val
 
     def update(self, inst, **kwargs):
-        for key, val in self._objects.iteritems():
+        for key, val in self._objects.items():
             if val is inst:
-                for k, v in kwargs.iteritem():
+                for k, v in kwargs.item():
                     setattr(inst, k, v)
                 return val
 
@@ -155,7 +154,7 @@ class EntityContainer(object):
 
     def __contains__(self, obj):
         """Return true if the object exists"""
-        return obj in self._objects.itervalues()
+        return obj in self._objects.values()
 
     def __getitem__(self, name):
         return self.__call__(name)

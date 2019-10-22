@@ -2,10 +2,10 @@
 
 import csv
 
-import openpipe
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
-from openpipe.core.units import units
+import psi
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
+from psi.units import units
 
 
 @units.define(rho="density", thk="length")

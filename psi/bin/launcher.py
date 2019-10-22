@@ -1,20 +1,19 @@
-"""OpenPIPE Command Line Interface (OPCLI)
+"""PSI Command Line Interface (CLI)
 
-$ openpipe                  # Run OpenPIPE in console
-$ openpipe file.py          # Run a script in console
-$ openpipe -i file.py       # Run file and start the GUI
-$ openpipe -i               # Start the GUI
+$ psi                       # Run PSI in console mode
+$ psi file.py               # Run a script in console
+$ psi -i file.py            # Run file and enter interactive mode
 """
 
 import argparse
 
-from openpipe import VERSION
-from openpipe.app import App
+from psi import VERSION
+from psi.app import App
 
 
 def main():
     parser = argparse.ArgumentParser(
-                            prog="OpenPIPE",
+                            prog="PSI",
                             formatter_class=argparse.RawTextHelpFormatter,
                             description=__doc__,
                             # epilog=LICENSE,
@@ -44,14 +43,14 @@ def main():
     # parse arguments
     args = parser.parse_args()
     if args.file:
-        # print "running script file in batch mode"
+        # print("running script file in batch mode")
         if args.is_interactive:
-            # print "starting the gui application"
+            # print("starting the gui application")
             App().run()
     elif args.is_interactive:
-        print "starting the gui application"
+        print("starting the gui application")
     else:
-        # print "starting the shell"
+        # print("starting the shell")
         App().run()
 
 

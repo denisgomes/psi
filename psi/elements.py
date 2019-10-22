@@ -54,12 +54,10 @@ from math import cos, pi, sqrt
 
 import numpy as np
 import numpy.linalg as la
-import scipy as sp
-import scipy.sparse as ss
 
-from openpipe.core.entity import Entity, EntityContainer
-from openpipe.core.units import units
-from openpipe.utils.euclid import Vector3
+from psi.entity import Entity, EntityContainer
+from psi.units import units
+from psi.utils.euclid import Vector3
 
 
 # TODO: Check app.points to determine if point exists, __new__
@@ -469,7 +467,7 @@ class Run(Piping):
 
     def T(self):
         """Local to global transformation matrix"""
-        tf = ss.lil_matrix((12, 12), dtype=sp.float32)
+        tf = np.array((12, 12), dtype=np.float32)
         dc = self.dircos()
 
         tf[:3, :3] = tf[3:6, 3:6] = tf[6:9, 6:9] = tf[9:12, 9:12] = dc[:, :]
@@ -482,7 +480,7 @@ class Run(Piping):
         function of the temperature. If a stiffness parameter is provided it is
         directly applied to the stiffness matrix.
         """
-        kmat = ss.lil_matrix((12, 12), dtype=sp.float32)
+        kmat = np.array((12, 12), dtype=np.float32)
 
         a = self.geometry.length / 2    # for ease below
 

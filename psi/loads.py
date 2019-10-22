@@ -18,10 +18,10 @@ For multiple loads use the container apply method:
 import csv
 import copy
 
-import openpipe
-from openpipe.core.entity import Entity, EntityContainer
-from openpipe.core.units import units
-from openpipe.utils.orderedset import OrderedSet
+import psi
+from psi.entity import Entity, EntityContainer
+from psi.units import units
+from psi.utils.orderedset import OrderedSet
 
 
 class Load(Entity):

@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: PSI
+Version: 0.0.1
+Summary: An engineering pipe stress design and analysis software.
+Home-page: https://www.github.com/denisgomes/psi
+Author: Denis Gomes
+Author-email: denisg640@hotmail.com
+License: BSD
+Description: An engineering pipe stress design and analysis software
+Keywords: pipe stress supports engineering finite element analysis
+Platform: UNKNOWN
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8

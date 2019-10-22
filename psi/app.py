@@ -4,21 +4,21 @@ import sys
 import code
 # import logging
 
-import openpipe
-from openpipe.settings import options
-from openpipe.core.entity import Entity, EntityContainer
-from openpipe.core.model import ModelContainer
-from openpipe.core.point import PointManager
-from openpipe.core.elements import ElementContainer
-from openpipe.core.sections import SectionContainer
-from openpipe.core.material import MaterialContainer
-from openpipe.core.sifs import SIFContainer
-from openpipe.core.supports import SupportContainer
-from openpipe.core.codes import CodeContainer
-from openpipe.core.insulation import InsulationContainer
-from openpipe.core.loads import LoadContainer
-from openpipe.core.loadcase import LoadCaseContainer
-from openpipe.core.units import units
+import psi
+from psi.settings import options
+from psi.entity import Entity, EntityContainer
+from psi.model import ModelContainer
+from psi.point import PointManager
+from psi.elements import ElementContainer
+from psi.sections import SectionContainer
+from psi.material import MaterialContainer
+from psi.sifs import SIFContainer
+from psi.supports import SupportContainer
+from psi.codes import CodeContainer
+from psi.insulation import InsulationContainer
+from psi.loads import LoadContainer
+from psi.loadcase import LoadCaseContainer
+from psi.units import units
 
 
 class App(object):
@@ -147,12 +147,12 @@ class App(object):
                'Type "copyright", "credits" or "license" '
                'for more information.\n\n'
 
-               'OpenPIPE %s -- An open source pipe stress program.\n'
-               % (sys.version.split('\n')[0], openpipe.VERSION))
+               'PSI %s -- An engineering pipe stress design and analysis program.\n'
+               % (sys.version.split('\n')[0], psi.VERSION))
         return msg
 
     def run(self):
-        """Run the openpipe interpreter"""
+        """Run the PSI interpreter"""
         self.interp.locals = self._interp_locals
         self.interp.interact(self.banner)
 

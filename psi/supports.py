@@ -1,8 +1,8 @@
 """Different types of pipe supports"""
 
 
-from openpipe.core.entity import Entity, EntityContainer
-from openpipe.core.units import units
+from psi.entity import Entity, EntityContainer
+from psi.units import units
 
 
 class Support(Entity):

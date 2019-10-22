@@ -1,8 +1,8 @@
 """Implementation of different piping codes"""
 
 
-from openpipe.core.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                                  ActiveEntityContainerMixin)
+from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
+                        ActiveEntityContainerMixin)
 
 
 class Code(Entity, ActiveEntityMixin):
