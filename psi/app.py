@@ -56,6 +56,7 @@ class App(object):
         self.loadcases = LoadCaseContainer()
 
         self.interp = code.InteractiveConsole()
+        self.interp.locals = self._interp_locals
 
     @property
     def _interp_locals(self):
@@ -147,14 +148,16 @@ class App(object):
                'Type "copyright", "credits" or "license" '
                'for more information.\n\n'
 
-               'PSI %s -- An engineering pipe stress design and analysis program.\n'
+               'PSI %s -- The pipe stress design and analysis program.\n'
                % (sys.version.split('\n')[0], psi.VERSION))
         return msg
 
     def run(self):
         """Run the PSI interpreter"""
-        self.interp.locals = self._interp_locals
         self.interp.interact(self.banner)
+
+    def quit(self):
+        sys.exit()
 
 
 if __name__ == "__main__":

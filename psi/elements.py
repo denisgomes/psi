@@ -84,7 +84,8 @@ class Element(Entity):
         return inst
 
     def __init__(self, to_point, from_point, section, material):
-        # element name is a tuple - to_point and from_point are names
+        # element name is a tuple - to_point and from_point combined is used as
+        # the name
         super(Element, self).__init__((from_point, to_point))
         self.geometry = None
         self.section = section
@@ -177,9 +178,9 @@ class Piping(Element):
         # active attributes
         model = self.app.models.active_object
 
-        # these are all the objects not names
+        # these are all objects not names
         if from_point is None:
-            from_point = model.active_point
+            from_point = model.active_point.name
         if section is None:
             section = model.active_section
         if material is None:
@@ -813,7 +814,7 @@ class ElementContainer(EntityContainer):
 
     def _iter_all(self, typ):
         """Helper generator method"""
-        for obj in self._objects.itervalues():
+        for obj in self._objects.values():
             if isinstance(obj, typ):
                 yield obj
 
@@ -857,7 +858,7 @@ class ElementContainer(EntityContainer):
 
     def __call__(self, from_point, to_point):
         """An element can be retrieved by from_point to to_point."""
-        for val in self._objects.itervalues():
+        for val in self._objects.values():
             if (val.from_point.name == from_point
                     and val.to_point.name == to_point):
                 return val
@@ -883,17 +884,17 @@ class ElementContainer(EntityContainer):
             selset = set()
             if item == "type":
                 for arg in args:
-                    for elem in self._objects.itervalues():
+                    for elem in self._objects.values():
                         if isinstance(elem, arg):
                             selset.add(elem)
             elif item in "section":
                 for arg in args:
-                    for elem in self._objects.itervalues():
+                    for elem in self._objects.values():
                         if elem.section == arg:
                             selset.add(elem)
             elif item in "material":
                 for arg in args:
-                    for elem in self._objects.itervalues():
+                    for elem in self._objects.values():
                         if elem.material == arg:
                             selset.add(elem)
 

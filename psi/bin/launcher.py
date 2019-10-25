@@ -1,11 +1,14 @@
-"""PSI Command Line Interface (CLI)
+"""PSI Command Line Interface (CLI).
 
 $ psi                       # Run PSI in console mode
 $ psi file.py               # Run a script in console
 $ psi -i file.py            # Run file and enter interactive mode
 """
 
+import sys
 import argparse
+
+from tqdm import tqdm
 
 from psi import VERSION
 from psi.app import App
@@ -31,7 +34,7 @@ def main():
                         "--interactive",
                         dest="is_interactive",
                         action="store_true",
-                        help="run program in interactive mode"
+                        help="enter interactive mode after running script"
                         )
 
     parser.add_argument("file",
@@ -44,11 +47,19 @@ def main():
     args = parser.parse_args()
     if args.file:
         # print("running script file in batch mode")
+        app = App()
+
+        # print("starting the gui application")
+        num_lines = sum(1 for line in open(args.file, "r"))
+        with open(args.file, "r") as fp:
+            for line in tqdm(fp, total=num_lines):
+                app.interp.push(line)
+
         if args.is_interactive:
-            # print("starting the gui application")
-            App().run()
-    elif args.is_interactive:
-        print("starting the gui application")
+            app.run()
+
+        app.quit()
+
     else:
         # print("starting the shell")
         App().run()

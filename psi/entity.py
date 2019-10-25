@@ -74,8 +74,8 @@ class Entity(object):
     def delete(self):
         self.parent.delete(self)
 
-    def __del__(self):
-        self.parent.delete(self)
+    # def __del__(self):
+    #     self.parent.delete(self)
 
     def __repr__(self):
         return "%s" % self.name

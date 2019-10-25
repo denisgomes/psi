@@ -52,7 +52,7 @@ class Quantity(object):
                 usr_qty = qty.to(USER_UNITS[self.utype])
                 return usr_qty.magnitude
             except TypeError as e:
-                if 'NoneType' in e.message:
+                if "NoneType" in str(e):
                     # ie. for a temp independent property
                     # temp is None, unit conversion skipped
                     return value
@@ -66,7 +66,7 @@ class Quantity(object):
             def_qty = qty.to(BASE_UNITS[self.utype])
             inst.__dict__[self.name] = def_qty.magnitude
         except TypeError:
-            if 'NoneType' in e.message:
+            if "NoneType" in str(e):
                 # ie. for a temp independent property
                 # temp is None, unit conversion skipped
                 inst.__dict__[self.name] = value
