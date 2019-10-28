@@ -65,7 +65,7 @@ class Quantity(object):
             qty = Q_(value, USER_UNITS[self.utype])
             def_qty = qty.to(BASE_UNITS[self.utype])
             inst.__dict__[self.name] = def_qty.magnitude
-        except TypeError:
+        except TypeError as e:
             if "NoneType" in str(e):
                 # ie. for a temp independent property
                 # temp is None, unit conversion skipped

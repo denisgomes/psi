@@ -49,7 +49,6 @@ a different type of element such as a valve or a flange.
 >>> elements(54, 55).convert(Valve, mass=...)
 """
 
-from __future__ import division
 from math import cos, pi, sqrt
 
 import numpy as np
@@ -430,8 +429,8 @@ class Run(Piping):
 
     def dircos(self):
         """Return the direction cosine of the element in matrix form. The unit
-        vector components of local coordinate axes of the element determine the
-        3x3 transform matrix.
+        vector components of the local coordinate axes of the element determine
+        the 3x3 transformation matrix.
 
         For straight elements, the local x axis is given by the direction from
         the 'from' point to the 'to' point. The local y is parallel to the
@@ -461,6 +460,9 @@ class Run(Piping):
 
         local_z = np.cross(local_x, local_y)
 
+        # recalculate local y so that its orthogonal
+        local_y = np.cross(local_x, local_z)
+
         return np.array([local_x/la.norm(local_x),
                          local_y/la.norm(local_y),
                          local_z/la.norm(local_z)]
@@ -468,12 +470,12 @@ class Run(Piping):
 
     def T(self):
         """Local to global transformation matrix"""
-        tf = np.array((12, 12), dtype=np.float32)
+        tf = np.empty((12, 12), dtype=np.float32)
         dc = self.dircos()
 
         tf[:3, :3] = tf[3:6, 3:6] = tf[6:9, 6:9] = tf[9:12, 9:12] = dc[:, :]
 
-        return tf.tocsr()
+        return tf
 
     def klocal(self, temp, stiffness=None):
         """The local stiffness matrix of a straight piping element, i.e all
@@ -481,7 +483,7 @@ class Run(Piping):
         function of the temperature. If a stiffness parameter is provided it is
         directly applied to the stiffness matrix.
         """
-        kmat = np.array((12, 12), dtype=np.float32)
+        kmat = np.empty((12, 12), dtype=np.float32)
 
         a = self.geometry.length / 2    # for ease below
 
@@ -534,21 +536,19 @@ class Run(Piping):
 
         kmat[11, 11] = 2*E*Iz / a
 
-        return kmat.tocsr()
+        return kmat
 
-    def kglobal(self):
+    def kglobal(self, temp, stiffness=None):
         """The element global stiffness matrix before assembly into the system
         matrix.
 
         Note that the transpose of T is taken because T is defined in row major
         format, in other words, the local axes components all appear on the
         same row. Taking the transpose, (i.e. inverse, sinces it's a rotation
-        matrix) gives the the matrix we want, which when multiplied by a local
-        displacement for example, will give the output in the global coordinate
         system.
         """
-        T = self.T  # build T once and reuse
-        return T.transpose() * self.klocal * T
+        T = self.T()    # build T once and reuse
+        return T.transpose() * self.klocal(temp, stiffness) * T
 
 
 @units.define(_radius="length")

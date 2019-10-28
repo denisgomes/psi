@@ -10,23 +10,22 @@ pipe1 = Pipe.from_file('pipe1', '10', '40')
 mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
 
 # geometry
-Point(10)
-Run(20, L)
+pt10 = Point(10)
+run20 = Run(20, L)
 
 # supports
 Anchor('A1', 10)
 
 # loads
-W1 = Weight('W1', 386.6)
-P1 = Pressure('P1', 100)
-# elements.apply_loads(W1, P1)
+f1 = Force('f1', 20, fy=1000)
+f1.apply()  # to active element
 
 # loadcases
-# L1 = LoadCase('L1', [W1, P1], "OPE")
-# L1.solve()
+l1 = LoadCase('L1', [f1], 'OPE')
+l1.solve()
 
 # results
-# disp = results.Displacement(L1)
+# disp = results.Displacement(l1)
 # disp.to_text('disp.out')
 
 # app.quit()

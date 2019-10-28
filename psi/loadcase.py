@@ -27,7 +27,9 @@ class BaseCase(Entity):
         super(BaseCase, self).__init__(name)
 
         self.cases = OrderedSet()   # set of loads
-        self.cases.update(loads)
+
+        for load in loads:
+            self.cases.add(load)
 
         self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
         self.results = {}   # node -> value

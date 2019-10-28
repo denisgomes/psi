@@ -16,9 +16,7 @@ For multiple loads use the container apply method:
 """
 
 import csv
-import copy
 
-import psi
 from psi.entity import Entity, EntityContainer
 from psi.units import units
 from psi.utils.orderedset import OrderedSet
@@ -59,7 +57,7 @@ class Weight(Load):
 @units.define(pres="pressure")
 class Pressure(Load):
 
-    def __init__(self, name, pres):
+    def __init__(self, name, pres=0):
         super(Pressure, self).__init__(name)
         self.pres = pres
 
@@ -68,7 +66,7 @@ class Pressure(Load):
 class Hydro(Load):
     """Hydro test pressure"""
 
-    def __init__(self, name, pres):
+    def __init__(self, name, pres=0):
         super(Pressure, self).__init__(name)
         self.pres = pres
 
@@ -77,7 +75,7 @@ class Hydro(Load):
 class Thermal(Load):
     """Thermal expansion load"""
 
-    def __init__(self, name, temp, tref=70):
+    def __init__(self, name, temp, tref=0):
         super(Thermal, self).__init__(name)
         self.temp = temp
         self.tref = tref
@@ -90,7 +88,6 @@ class Fluid(Load):
     def __init__(self, name, rho):
         super(Fluid, self).__init__(rho)
         self.rho = rho
-
     @classmethod
     def from_file(cls, name, fluid, fname=None):
         if fname is None:
@@ -108,12 +105,11 @@ class Fluid(Load):
 
 
 @units.define(fx="force", fy="force", fz="force",
-              mx="moment_in", my="moment_in", mz="moment_in")
+              mx="moment_input", my="moment_input", mz="moment_input")
 class Force(Load):
     """A generic force load"""
 
-    def __init__(self, name, point, fx=None, fy=None, fz=None,
-                 mx=None, my=None, mz=None):
+    def __init__(self, name, point, fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
         super(Force, self).__init__(name)
         self.point = point
         self.fx = fx
@@ -129,8 +125,7 @@ class Force(Load):
 class Displacement(Load):
     """A generic displacement load"""
 
-    def __init__(self, name, point, dx=None, dy=None, dz=None,
-                 rx=None, ry=None, rz=None):
+    def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0):
         super(Displacement, self).__init__(name)
         self.point = point
         self.dx = dx
@@ -145,7 +140,7 @@ class Displacement(Load):
 class Uniform(Load):
     """Generic uniform load"""
 
-    def __init__(self, name, ux, uy, uz):
+    def __init__(self, name, ux=0, uy=0, uz=0):
         super(Uniform, self).__init__(name)
         self.ux = ux
         self.uy = uy
@@ -201,7 +196,9 @@ class LoadContainer(EntityContainer):
         """
         if elements is None:
             elements = []
-            elements.append(self.app.elements.active_objects)
+
+            for element in self.app.elements.active_objects:
+                elements.append(element)
 
         for element in elements:
-            element.loads.add(loads)
+            element.loads.update(loads)
