@@ -1,6 +1,6 @@
-"""Simple analysis of a cantilevered pipe"""
+"""Simple analysis of a cantilevered pipe."""
 
-# inputs
+# parameter
 L = 10
 
 mdl = Model('simple')
@@ -14,7 +14,7 @@ pt10 = Point(10)
 run20 = Run(20, L)
 
 # supports
-Anchor('A1', 10)
+anc1 = Anchor('A1', 10)
 
 # loads
 f1 = Force('f1', 20, fy=1000)

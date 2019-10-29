@@ -1,12 +1,14 @@
 """PSI Command Line Interface (CLI).
 
-$ psi                       # Run PSI in console mode
-$ psi file.py               # Run a script in console
-$ psi -i file.py            # Run file and enter interactive mode
+$ psi               # Run PSI in console mode
+$ psi file.py       # Run a script in console
+$ psi -i file.py    # Run file and enter interactive mode
 """
 
-import sys
 import argparse
+import inspect
+import sys
+import os
 
 from tqdm import tqdm
 
@@ -48,6 +50,13 @@ def main():
     if args.file:
         # print("running script file in batch mode")
         app = App()
+
+        tqdm.write("PSI Design and Analysis")
+        tqdm.write("Version: %s" % VERSION)
+        tqdm.write("Design Codes: All Codes")
+        tqdm.write("")
+        tqdm.write("Input File: %s" % args.file)
+        tqdm.write("")
 
         # print("starting the gui application")
         num_lines = sum(1 for line in open(args.file, "r"))
