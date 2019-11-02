@@ -1,9 +1,11 @@
 """Simple analysis of a cantilevered pipe."""
 
+print("HERE")
+
 # parameter
 L = 10
 
-mdl = Model('simple')
+Model('simple')
 
 # attributes
 pipe1 = Pipe.from_file('pipe1', '10', '40')

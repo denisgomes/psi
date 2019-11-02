@@ -1,19 +1,50 @@
 """PSI Command Line Interface (CLI).
 
 $ psi               # Run PSI in console mode
-$ psi file.py       # Run a script in console
-$ psi -i file.py    # Run file and enter interactive mode
+$ psi file.psi      # Run a script in console
+$ psi -i file.psi   # Run file and enter interactive mode
 """
 
 import argparse
-import inspect
 import sys
+import time
 import os
+import logging
 
 from tqdm import tqdm
 
 from psi import VERSION
 from psi.app import App
+
+
+class TqdmLoggingHandler(logging.Handler):
+    def __init__(self, level=logging.NOTSET):
+        super().__init__(level)
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            tqdm.write(msg)
+            self.flush()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
+
+def setup_logger(outfile, errfile):
+    # logger setup
+    tqdmlogger = logging.getLogger("tqdm")
+    tqdmlogger.setLevel(logging.INFO)
+    tqdmlogger.addHandler(TqdmLoggingHandler())
+
+    stdoutlogger = logging.getLogger("stdout")
+    stdoutlogger.setLevel(logging.INFO)
+    stdoutlogger.addHandler(logging.FileHandler(outfile))
+
+    stderrlogger = logging.getLogger("stderr")
+    stderrlogger.setLevel(logging.INFO)
+    stderrlogger.addHandler(logging.FileHandler(errfile))
 
 
 def main():
@@ -47,22 +78,36 @@ def main():
 
     # parse arguments
     args = parser.parse_args()
-    if args.file:
-        # print("running script file in batch mode")
-        app = App()
 
-        tqdm.write("PSI Design and Analysis")
-        tqdm.write("Version: %s" % VERSION)
-        tqdm.write("Design Codes: All Codes")
-        tqdm.write("")
-        tqdm.write("Input File: %s" % args.file)
-        tqdm.write("")
+    cwd = os.path.abspath(os.curdir)
+    if args.file:
+        basename, ext = os.path.splitext(os.path.basename(args.file))
+        if ext == ".psi":
+            outfile = os.path.join(cwd, basename+".out")
+            errfile = os.path.join(cwd, basename+".err")
+        else:
+            raise IOError("Invalid file type or extension")
+
+        # print("running script file in batch mode")
+        # tqdm.write("PSI Design and Analysis")
+        # tqdm.write("Version: %s" % VERSION)
+        # tqdm.write("Design Codes: All Codes")
+        # tqdm.write("")
+        # tqdm.write("Input File: %s" % args.file)
+        # tqdm.write("")
+
+        # setup loggers
+        setup_logger(outfile, errfile)
+
+        app = App()
 
         # print("starting the gui application")
         num_lines = sum(1 for line in open(args.file, "r"))
         with open(args.file, "r") as fp:
-            for line in tqdm(fp, total=num_lines):
+            bar = tqdm(fp, total=num_lines, file=sys.__stdout__)
+            for line in bar:
                 app.interp.push(line)
+                time.sleep(0.01)
 
         if args.is_interactive:
             app.run()
@@ -71,6 +116,11 @@ def main():
 
     else:
         # print("starting the shell")
+        outfile = os.path.join(cwd, "file.out")
+        errfile = os.path.join(cwd, "file.err")
+
+        setup_logger(outfile, errfile)
+
         App().run()
 
 

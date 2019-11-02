@@ -39,8 +39,19 @@ class Entity(object):
     def __init__(self, name):
         self.parent.new(name, self)
 
-    def log(self, message, level=logging.INFO):
-        logger = logging.getLogger(self.__class__.__name__)
+    def outlog(self, message, level=logging.INFO):
+        """Log message to output file"""
+        logger = logging.getLogger("stdout")
+        logger.log(level, message)
+
+    def errlog(self, message, level=logging.INFO):
+        """Log message to error file"""
+        logger = logging.getLogger("stderr")
+        logger.log(level, message)
+
+    def statlog(self, message, level=logging.INFO):
+        """Log message to the tqdm progress bar"""
+        logger = logging.getLogger("tqdm")
         logger.log(level, message)
 
     def _key(self):
@@ -100,9 +111,20 @@ class EntityContainer(object):
     def __len__(self):
         return self.count()
 
-    def log(self, message, level=logging.INFO):
-        logger = logging.getLogger(self.__class__.__name__)
-        logger.log(message, level)
+    def outlog(self, message, level=logging.INFO):
+        """Log message to output file"""
+        logger = logging.getLogger("stdout")
+        logger.log(level, message)
+
+    def errlog(self, message, level=logging.INFO):
+        """Log message to error file"""
+        logger = logging.getLogger("stderr")
+        logger.log(level, message)
+
+    def statlog(self, message, level=logging.INFO):
+        """Log message to the tqdm progress bar"""
+        logger = logging.getLogger("tqdm")
+        logger.log(level, message)
 
     def list(self):
         return self._objects.values()

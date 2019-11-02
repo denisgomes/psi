@@ -1,7 +1,9 @@
 """Main Application"""
 
+import os
 import sys
 import code
+from contextlib import redirect_stdout, redirect_stderr
 # import logging
 
 import psi
@@ -19,6 +21,18 @@ from psi.insulation import InsulationContainer
 from psi.loads import LoadContainer
 from psi.loadcase import LoadCaseContainer
 from psi.units import units
+
+
+class PSIInterpreter(code.InteractiveConsole):
+
+    def __init__(self, locals=None, filename="<console>"):
+        super(PSIInterpreter, self).__init__(locals, filename)
+        self.null = open(os.devnull, "w")
+
+    def push(self, line):
+        # suppress all stdout
+        with redirect_stdout(self.null):
+            super(PSIInterpreter, self).push(line)
 
 
 class App(object):
@@ -54,8 +68,9 @@ class App(object):
         self.supports = SupportContainer()
         self.loads = LoadContainer()
         self.loadcases = LoadCaseContainer()
+        # self.results = ResultContainer()
 
-        self.interp = code.InteractiveConsole()
+        self.interp = PSIInterpreter()
         self.interp.locals = self._interp_locals
 
     @property
@@ -144,12 +159,14 @@ class App(object):
 
     @property
     def banner(self):
-        msg = ('Python %s\n'
-               'Type "copyright", "credits" or "license" '
-               'for more information.\n\n'
+        msg = ('PSI %s -- The pipe stress design and analysis program.\n'
 
-               'PSI %s -- The pipe stress design and analysis program.\n'
-               % (sys.version.split('\n')[0], psi.VERSION))
+               'Python %s\n'
+               'Type "copyright", "credits" or "license" '
+               'for more information.'
+
+               % (psi.VERSION, sys.version.split('\n')[0]))
+
         return msg
 
     def run(self):
