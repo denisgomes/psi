@@ -10,6 +10,7 @@ import sys
 import time
 import os
 import logging
+from contextlib import redirect_stdout
 
 from tqdm import tqdm
 
@@ -24,7 +25,11 @@ class TqdmLoggingHandler(logging.Handler):
     def emit(self, record):
         try:
             msg = self.format(record)
-            tqdm.write(msg)
+
+            # force writing to default __stdout__
+            with redirect_stdout(sys.__stdout__):
+                tqdm.write(msg)
+
             self.flush()
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -88,14 +93,6 @@ def main():
         else:
             raise IOError("Invalid file type or extension")
 
-        # print("running script file in batch mode")
-        # tqdm.write("PSI Design and Analysis")
-        # tqdm.write("Version: %s" % VERSION)
-        # tqdm.write("Design Codes: All Codes")
-        # tqdm.write("")
-        # tqdm.write("Input File: %s" % args.file)
-        # tqdm.write("")
-
         # setup loggers
         setup_logger(outfile, errfile)
 
@@ -104,9 +101,15 @@ def main():
         # print("starting the gui application")
         num_lines = sum(1 for line in open(args.file, "r"))
         with open(args.file, "r") as fp:
-            bar = tqdm(fp, total=num_lines, file=sys.__stdout__)
-            for line in bar:
-                app.interp.push(line)
+            null = open(os.devnull, "w")
+            bar = tqdm(fp, total=num_lines)
+            for lno, line in enumerate(bar, 1):
+                bar.set_description("Processing...")
+                if lno == num_lines:
+                    bar.set_description("Done!")
+                # suppress all superfluous output
+                with redirect_stdout(null):
+                    app.interp.push(line)
                 time.sleep(0.01)
 
         if args.is_interactive:

@@ -1,11 +1,9 @@
 """Simple analysis of a cantilevered pipe."""
 
-print("HERE")
-
 # parameter
 L = 10
 
-Model('simple')
+mdl = Model('simple')
 
 # attributes
 pipe1 = Pipe.from_file('pipe1', '10', '40')
@@ -24,7 +22,9 @@ f1.apply()  # to active element
 
 # loadcases
 l1 = LoadCase('L1', [f1], 'OPE')
-l1.solve()
+# l1.solve()
+
+mdl.analyze()
 
 # results
 # disp = results.Displacement(l1)

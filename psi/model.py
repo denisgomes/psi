@@ -147,6 +147,9 @@ class Model(Entity, ActiveEntityMixin):
     def save_as(self, fname):
         self.parent.save_as(self, fname)
 
+    def analyze(self):
+        self.parent.analyze()
+
 
 class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
@@ -214,3 +217,11 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         with gzip.GzipFile(fname, 'wb') as fp:
             fp.write(pickle.dumps((inst.name, inst), 1))
         return inst
+
+    def analyze(self):
+        header = ("PSI Design and Analysis\n"
+                  "Version: \n"
+                  "Design Codes: All Codes\n\n"
+                  "Input File: \n\n")
+        print("HERE")
+        self.statlog(header)

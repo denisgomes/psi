@@ -1,11 +1,7 @@
 """Main Application"""
 
-import os
 import sys
 import code
-from contextlib import redirect_stdout, redirect_stderr
-# import logging
-
 import psi
 from psi.settings import options
 from psi.entity import Entity, EntityContainer
@@ -23,18 +19,6 @@ from psi.loadcase import LoadCaseContainer
 from psi.units import units
 
 
-class PSIInterpreter(code.InteractiveConsole):
-
-    def __init__(self, locals=None, filename="<console>"):
-        super(PSIInterpreter, self).__init__(locals, filename)
-        self.null = open(os.devnull, "w")
-
-    def push(self, line):
-        # suppress all stdout
-        with redirect_stdout(self.null):
-            super(PSIInterpreter, self).push(line)
-
-
 class App(object):
 
     _app = None
@@ -49,8 +33,6 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
-        # logging.basicConfig(filename="log", level=logging.INFO)
-
         self.options = options
         self.units = units
 
@@ -70,7 +52,7 @@ class App(object):
         self.loadcases = LoadCaseContainer()
         # self.results = ResultContainer()
 
-        self.interp = PSIInterpreter()
+        self.interp = code.InteractiveConsole()
         self.interp.locals = self._interp_locals
 
     @property
@@ -159,8 +141,7 @@ class App(object):
 
     @property
     def banner(self):
-        msg = ('PSI %s -- The pipe stress design and analysis program.\n'
-
+        msg = ('Pipe Stress Infinity (PSI %s)\n'
                'Python %s\n'
                'Type "copyright", "credits" or "license" '
                'for more information.'
