@@ -1,4 +1,4 @@
-"""Main Application"""
+"""Main Application Class"""
 
 import sys
 import code
@@ -141,21 +141,17 @@ class App(object):
 
     @property
     def banner(self):
-        msg = ('Pipe Stress Infinity (PSI %s)\n'
+        msg = ('Pipe Stress Infinity %s - The pipe stress design and analysis program.\n'
                'Python %s\n'
                'Type "copyright", "credits" or "license" '
-               'for more information.'
-
-               % (psi.VERSION, sys.version.split('\n')[0]))
+               'for more information.' %
+               (psi.VERSION, sys.version.split('\n')[0]))
 
         return msg
 
     def run(self):
         """Run the PSI interpreter"""
         self.interp.interact(self.banner)
-
-    def quit(self):
-        sys.exit()
 
 
 if __name__ == "__main__":

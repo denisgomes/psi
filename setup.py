@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 setup(
     name="PSI",
 
@@ -43,7 +42,7 @@ setup(
         ]),
 
     # install from pypi, requirements.txt is for developers only
-    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0"],
+    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0", "vpython"],
 
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",
@@ -53,6 +52,7 @@ setup(
 
     # MANIFEST.in works for source distributions only
     data_files=[("", ["LICENSE", "README.rst"])],
+
 
     # scripts= ,
 

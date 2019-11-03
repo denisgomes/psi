@@ -5,11 +5,14 @@ import gzip
 import pickle
 import copy
 
+from psi import VERSION
 from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
 from psi.units import units
+
+from psi.graphics import render_model
 
 
 # TODO: Raise exception if model is not active on attribute access
@@ -49,18 +52,49 @@ class Model(Entity, ActiveEntityMixin):
     def settings(self):
         return self._settings
 
-    # def __getattribute__(self, name):
-    #     # to avoid recursion
-    #     app = super(Model, self).__getattribute__("_app")
-
-    #     if self is app.models.active_object:
-    #         return super(Model, self).__getattribute__(name)
-
-    #     raise AttributeError("model must be active")
-
     @property
     def geometry(self):
         return self._geometry
+
+    @property
+    def points(self):
+        return self._points
+
+    @property
+    def elements(self):
+        return self._elements
+
+    @property
+    def sections(self):
+        return self._sections
+
+    @property
+    def materials(self):
+        return self._materials
+
+    @property
+    def insulation(self):
+        return self._insulation
+
+    @property
+    def codes(self):
+        return self._codes
+
+    @property
+    def sifs(self):
+        return self._sifs
+
+    @property
+    def supports(self):
+        return self._supports
+
+    @property
+    def loads(self):
+        return self._loads
+
+    @property
+    def loadcases(self):
+        return self._loadcases
 
     @property
     def active_point(self):
@@ -148,7 +182,10 @@ class Model(Entity, ActiveEntityMixin):
         self.parent.save_as(self, fname)
 
     def analyze(self):
-        self.parent.analyze()
+        self.parent.analyze(self)
+
+    def render(self):
+        self.parent.render(self)
 
 
 class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
@@ -218,10 +255,13 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             fp.write(pickle.dumps((inst.name, inst), 1))
         return inst
 
-    def analyze(self):
+    def analyze(self, inst):
         header = ("PSI Design and Analysis\n"
-                  "Version: \n"
+                  "Version: %s \n"
                   "Design Codes: All Codes\n\n"
-                  "Input File: \n\n")
-        print("HERE")
+                  "Input Filename: %s \n" %
+                  (VERSION, inst.name+".psi"))
         self.statlog(header)
+
+    def render(self, inst):
+        render_model(inst)

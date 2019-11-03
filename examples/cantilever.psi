@@ -5,7 +5,7 @@ L = 10
 
 mdl = Model('simple')
 
-# attributes
+# properties
 pipe1 = Pipe.from_file('pipe1', '10', '40')
 mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
 
@@ -21,7 +21,7 @@ f1 = Force('f1', 20, fy=1000)
 f1.apply()  # to active element
 
 # loadcases
-l1 = LoadCase('L1', [f1], 'OPE')
+l1 = LoadCase('L1', [f1], 'SUS')
 # l1.solve()
 
 mdl.analyze()
@@ -29,5 +29,3 @@ mdl.analyze()
 # results
 # disp = results.Displacement(l1)
 # disp.to_text('disp.out')
-
-# app.quit()

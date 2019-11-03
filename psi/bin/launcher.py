@@ -1,4 +1,4 @@
-"""PSI Command Line Interface (CLI).
+"""Pipe Stress Infinity Command Line Interface (CLI).
 
 $ psi               # Run PSI in console mode
 $ psi file.psi      # Run a script in console
@@ -54,7 +54,7 @@ def setup_logger(outfile, errfile):
 
 def main():
     parser = argparse.ArgumentParser(
-                            prog="PSI",
+                            prog="Pipe Stress Infinity",
                             formatter_class=argparse.RawTextHelpFormatter,
                             description=__doc__,
                             # epilog=LICENSE,
@@ -114,8 +114,6 @@ def main():
 
         if args.is_interactive:
             app.run()
-
-        app.quit()
 
     else:
         # print("starting the shell")
