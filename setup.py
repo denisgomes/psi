@@ -42,7 +42,7 @@ setup(
         ]),
 
     # install from pypi, requirements.txt is for developers only
-    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0", "vpython"],
+    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0"],
 
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",

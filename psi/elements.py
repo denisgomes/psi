@@ -160,7 +160,7 @@ class Element(Entity):
         raise NotImplementedError("abstract method")
 
     def __repr__(self):
-        return "%s%s" % (self.type, self.name)
+        return "%s %s" % (self.type, self.to_point.name)
 
 
 class Structural(Element):
@@ -901,5 +901,3 @@ class ElementContainer(EntityContainer):
             self._active_objects.clear()
             self._active_objects.update(selset)
 
-    def __repr__(self):
-        return str(self._objects.values())

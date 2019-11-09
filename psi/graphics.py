@@ -1,6 +1,5 @@
 """Display the model on a browser"""
 
-from vpython import *
 from psi.elements import *
 
 

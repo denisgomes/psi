@@ -5,7 +5,6 @@ import gzip
 import pickle
 import copy
 
-from psi import VERSION
 from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
@@ -235,6 +234,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
         app.loadcases._objects = inst._loadcases
 
+        # add others here
+
     def close(self, inst):
         """Closes a model"""
         self.delete(inst)
@@ -256,12 +257,11 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         return inst
 
     def analyze(self, inst):
-        header = ("PSI Design and Analysis\n"
-                  "Version: %s \n"
-                  "Design Codes: All Codes\n\n"
-                  "Input Filename: %s \n" %
-                  (VERSION, inst.name+".psi"))
-        self.statlog(header)
+        pass
+
+    def check(self, inst):
+        """Check the model input parameters before analyzing"""
+        pass
 
     def render(self, inst):
         render_model(inst)

@@ -241,7 +241,7 @@ class Material(Entity, ActiveEntityMixin):
         return self._nu
 
     def __repr__(self):
-        return "%s(name='%s')" % ("Material", self.name)
+        return "%s %s" % (self.type, self.name)
 
 
 class MaterialContainer(EntityContainer, ActiveEntityContainerMixin):

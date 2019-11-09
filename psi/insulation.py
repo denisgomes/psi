@@ -27,7 +27,7 @@ class Insulation(Entity, ActiveEntityMixin):
     @classmethod
     def from_file(cls, name, material, thickness, fname=None):
         if fname is None:
-            fname = openpipe.INSULATION_DATA_FILE
+            fname = psi.INSULATION_DATA_FILE
 
         with open(fname) as csvfile:
             reader = csv.DictReader(csvfile)

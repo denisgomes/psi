@@ -87,7 +87,7 @@ def main():
     cwd = os.path.abspath(os.curdir)
     if args.file:
         basename, ext = os.path.splitext(os.path.basename(args.file))
-        if ext == ".psi":
+        if ext == ".inp":
             outfile = os.path.join(cwd, basename+".out")
             errfile = os.path.join(cwd, basename+".err")
         else:
@@ -103,14 +103,25 @@ def main():
         with open(args.file, "r") as fp:
             null = open(os.devnull, "w")
             bar = tqdm(fp, total=num_lines)
+
+            header = ("PSI Design and Analysis\n"
+                      "Version: %s \n"
+                      "Design Codes: All Codes\n\n"
+                      "Input File: %s \n" %
+                      (VERSION, args.file))
+
+            bar.write(header)
+
+            bar.set_description("Processing...")
             for lno, line in enumerate(bar, 1):
-                bar.set_description("Processing...")
-                if lno == num_lines:
-                    bar.set_description("Done!")
                 # suppress all superfluous output
                 with redirect_stdout(null):
                     app.interp.push(line)
-                time.sleep(0.01)
+
+                if lno == num_lines:
+                    bar.set_description("Done!")
+                else:
+                    time.sleep(0.1)
 
         if args.is_interactive:
             app.run()

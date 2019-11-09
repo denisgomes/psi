@@ -138,9 +138,6 @@ class Point(Entity, ActiveEntityMixin):
     def parent(self):
         return self.app.points
 
-    def __repr__(self):
-        return "%s %s" % (self.type, self.name)
-
 
 class PointManager(EntityContainer, ActiveEntityContainerMixin):
 

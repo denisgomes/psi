@@ -1,7 +1,10 @@
 """Base entity and entity container for all psi objects.
 
-Objects are created by an user defined name. After an object is created all
-functions work with objects.
+Entity manages objects created by an user defined unique name.
+
+After an object is created all functions work with objects only.
+
+A specific object can be called (i.e. __call__) by its user defined name.
 """
 
 import logging
@@ -85,11 +88,8 @@ class Entity(object):
     def delete(self):
         self.parent.delete(self)
 
-    # def __del__(self):
-    #     self.parent.delete(self)
-
     def __repr__(self):
-        return "%s" % self.name
+        return "%s %s" % (self.type, self.name)
 
 
 class EntityContainer(object):
@@ -127,7 +127,7 @@ class EntityContainer(object):
         logger.log(level, message)
 
     def list(self):
-        return self._objects.values()
+        return list(self._objects.values())
 
     def count(self):
         return len(self._objects)
@@ -147,7 +147,7 @@ class EntityContainer(object):
                 if new_name is None:
                     return key
                 else:
-                    del(self._objects[key])  # delete old name
+                    del(self._objects[key])
                     self.new(new_name, val)
 
     def delete(self, inst):
@@ -182,7 +182,7 @@ class EntityContainer(object):
         return self.__call__(name)
 
     def __repr__(self):
-        return str(self._objects.values())
+        return str(self.list())
 
 
 class ActiveEntityMixin(object):

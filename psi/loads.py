@@ -42,9 +42,6 @@ class Load(Entity):
         """
         self.parent.apply([self], elements)
 
-    def __repr__(self):
-        return "%s(name='%s')" % (self.type, self.name)
-
 
 @units.define(gfac="g_load")
 class Weight(Load):

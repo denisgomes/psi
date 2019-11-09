@@ -39,6 +39,9 @@ class Section(Entity, ActiveEntityMixin):
     def izz(self):
         pass
 
+    def __repr__(self):
+        return "%s %s" % (self.type, self.name)
+
 
 @units.define(od="length", thk="length")
 class Pipe(Section):
