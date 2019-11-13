@@ -1,7 +1,7 @@
 """Simple analysis of a cantilevered pipe."""
 
 # parameter
-L = 10
+L = 12
 
 mdl = Model('simple')
 
@@ -17,8 +17,8 @@ run20 = Run(20, L)
 anc1 = Anchor('A1', 10)
 
 # loads
-f1 = Force('f1', 20, fy=1000)
-f1.apply()  # to active element
+f1 = Force('f1', 20, fy=-1000)
+f1.apply([run20])  # to active element
 
 # loadcases
 l1 = LoadCase('L1', [f1], 'SUS')

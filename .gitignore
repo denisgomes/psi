@@ -1,3 +1,4 @@
 .tags
 __pycache__
 PSI.egg-info
+.ipynb_checkpoints

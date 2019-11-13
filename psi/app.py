@@ -36,8 +36,9 @@ class App(object):
         self.options = options
         self.units = units
 
-        Entity._app = self  # pass app to objects
-        EntityContainer._app = self   # pass app to containers
+        # pass app to objects/containers
+        Entity._app = self
+        EntityContainer._app = self
 
         self.models = ModelContainer()
         self.points = PointManager()
@@ -141,11 +142,12 @@ class App(object):
 
     @property
     def banner(self):
-        msg = ('Pipe Stress Infinity %s - The pipe stress design and analysis program.\n'
-               'Python %s\n'
-               'Type "copyright", "credits" or "license" '
-               'for more information.' %
-               (psi.VERSION, sys.version.split('\n')[0]))
+        msg = ('Python %s\n'
+               'Type "copyright", "credits" or "license" for more '
+               'information.\n'
+               'PSI %s -- A pipe stress analysis and design program.\n' %
+               (sys.version.split('\n')[0], psi.VERSION)
+               )
 
         return msg
 

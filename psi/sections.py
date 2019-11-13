@@ -39,9 +39,6 @@ class Section(Entity, ActiveEntityMixin):
     def izz(self):
         pass
 
-    def __repr__(self):
-        return "%s %s" % (self.type, self.name)
-
 
 @units.define(od="length", thk="length")
 class Pipe(Section):
@@ -150,12 +147,12 @@ class Pipe(Section):
     def thke(self):
         """The effective wall thickness used for stress calcultions when
         corrosion and mill tolerance are taken into consideration. Both the
-        pressure and bending stresses are affected, if the code calls for
-        it. For example B31.1 does not require that the effective thickness
-        be used for stress calculation.
+        pressure and bending stresses are affected, if the code calls for it.
+        For example B31.1 does not require that the effective thickness be used
+        for stress calculation.
 
-        Only used for code stress calculations and as a result, the stress
-        will be higher. This wall is not, however, used for the stiffness
+        Only used for code stress calculations and as a result, the stress will
+        be higher. This wall is not, however, used for the stiffness
         calculations, since a lighter wall will result in lower loads and
         ultimately give less conservative stress values. In other words, the
         actual thickness is used for the moment of inertia and area of pipe
@@ -243,6 +240,7 @@ class Pipe(Section):
 
     @property
     def is_small_bore(self):
+        """TODO: The units for 2 has to be based on the current user units"""
         return self.od <= 2
 
     @property

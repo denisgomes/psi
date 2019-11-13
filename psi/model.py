@@ -11,8 +11,6 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
 from psi.topology import Geometry
 from psi.units import units
 
-from psi.graphics import render_model
-
 
 # TODO: Raise exception if model is not active on attribute access
 # TODO: Store settings locally, validate and merge on model open
@@ -257,11 +255,26 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         return inst
 
     def analyze(self, inst):
-        pass
+        """Go through all loadcases, solve each one and then combine them to
+        generate the final results.
+
+        For each element calculate the global stiffness matrix and assemble the
+        system stiffness matrix using the nodal degree of freedom matrix.
+
+        The loads defined for each element loadcase is combined into a single
+        load vector. The load vector for each element loadcase is then
+        assembled into a global load vector. Multiple load vectors are solved
+        for at once using gaussian elimination.
+
+        Note that to simplify the FEA solution, all elements are essentially
+        beams, including bends and reducers which are approximations made by
+        chaining multiple beam together.
+        """
+        self.units.disable()    # base SI
+        # do stuff here
+        self.units.enable()
 
     def check(self, inst):
         """Check the model input parameters before analyzing"""
         pass
 
-    def render(self, inst):
-        render_model(inst)

@@ -54,7 +54,7 @@ def setup_logger(outfile, errfile):
 
 def main():
     parser = argparse.ArgumentParser(
-                            prog="Pipe Stress Infinity",
+                            prog="PS8",
                             formatter_class=argparse.RawTextHelpFormatter,
                             description=__doc__,
                             # epilog=LICENSE,
@@ -121,7 +121,7 @@ def main():
                 if lno == num_lines:
                     bar.set_description("Done!")
                 else:
-                    time.sleep(0.1)
+                    time.sleep(0.01)
 
         if args.is_interactive:
             app.run()

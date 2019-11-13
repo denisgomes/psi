@@ -47,6 +47,27 @@ a different type of element such as a valve or a flange.
 >>> elements(50, 60).split(54, 0.5, ref=50)     # used node 50 as reference
 >>> elements(54, 60).split(55, 0.5, ref=54)
 >>> elements(54, 55).convert(Valve, mass=...)
+
+Notes
+-----
+Only runs can be split and merged. To split a valve, it must first be changed
+to a run and then split.
+
+
+TODO
+----
+Dealing with element weight vs mass when it comes to units.
+
+For Rigid elements the weight must be specified not the mass.
+
+Bend and reducer having multiple run approximation.
+
+How to easily create bends when defining geometry and how to update the
+geometry when point coordinates or bend radius is updated.
+
+How to covert different types of elements to runs and vice versa.
+
+Unit conversion should be disabled before the analysis is performed.
 """
 
 from math import cos, pi, sqrt
@@ -83,8 +104,7 @@ class Element(Entity):
         return inst
 
     def __init__(self, to_point, from_point, section, material):
-        # element name is a tuple - to_point and from_point combined is used as
-        # the name
+        # element name is a tuple consisting of from_point and to_point
         super(Element, self).__init__((from_point, to_point))
         self.geometry = None
         self.section = section
@@ -160,12 +180,12 @@ class Element(Entity):
         raise NotImplementedError("abstract method")
 
     def __repr__(self):
-        return "%s %s" % (self.type, self.to_point.name)
+        return "%s(%s, %s)" % (self.type, self.from_point.name,
+                               self.to_point.name)
 
 
 class Structural(Element):
     """Structural elements such as wide flanges and tee members"""
-
     pass
 
 
@@ -189,11 +209,12 @@ class Piping(Element):
         if code is None:
             code = model.active_code
 
-        super(Piping, self).__init__(to_point, from_point, section,
-                                     material)
+        super(Piping, self).__init__(to_point, from_point, section, material)
         self.insulation = insulation
         self.code = code
+        self.sifs = set()
         self.loads = set()
+        self.loadcases = set()
         self.supports = set()
         model.active_point = to_point
 
@@ -218,8 +239,8 @@ class Piping(Element):
         raise NotImplementedError("abstract method")
 
     def mass(self):
-        """The pipe weight and in the case of a valve or flange, the
-        respective user defined weight.
+        """The pipe weight and in the case of a valve or flange, the respective
+        user defined weight.
         """
         mass = (self.material.rho.value * self.section.area *
                 self.geometry.length)
@@ -252,15 +273,11 @@ class Piping(Element):
         return self.insulation_mass() * accel
 
     def total_mass(self, fluden):
-        """Total weight of element including, pipe, insulation and
-        contents.
-        """
+        """Total weight of element including, pipe, insulation and contents."""
         return self.mass() + self.fluid_mass(fluden) + self.insulation_mass()
 
     def total_weight(self, fluden, accel):
-        """Total weight of element including, pipe, insulation and
-        contents.
-        """
+        """Total weight of element including, pipe, insulation and contents."""
         return (self.weight(accel) + self.fluid_weight(fluden)
                 + self.insulation_weight(accel))
 
@@ -330,6 +347,7 @@ class Run(Piping):
         xold = self._dx
         self._dx = value    # set x
 
+        # TODO: Note that geometry cooridnates are managed
         e = self.geometry
         v1, v2 = e.v1, e.v2
         r1 = Vector3(*v1.co)
@@ -342,7 +360,7 @@ class Run(Piping):
         r2_new = r1 + r3_new
 
         # set value
-        v2.co[:] = r2_new[:]
+        v2.co = r2_new[:]
 
     @property
     def dy(self):
@@ -366,7 +384,7 @@ class Run(Piping):
         r2_new = r1 + r3_new
 
         # set value
-        v2.co[:] = r2_new[:]
+        v2.co = r2_new[:]
 
     @property
     def dz(self):
@@ -390,7 +408,7 @@ class Run(Piping):
         r2_new = r1 + r3_new
 
         # set value
-        v2.co[:] = r2_new[:]
+        v2.co = r2_new[:]
 
     @property
     def length(self):
@@ -416,16 +434,16 @@ class Run(Piping):
         self.dy = dy
         self.dz = dz
 
-    def split(self, point, distance=None, reference=None):
-        """Split the element by the distance from the fixed reference point.
+    # def split(self, point, distance=None, reference=None):
+    #     """Split the element by the distance from the fixed reference point.
 
-        The default behaviour is to split the element in two and assign a new
-        point. The original element is resized and a new element is created.
-        All attributes of the original are copied to the newly created element.
+    #     The default behaviour is to split the element in two and assign a new
+    #     point. The original element is resized and a new element is created.
+    #     All attributes of the original are copied to the newly created element.
 
-        If the point already exists, a new point is defined and used instead.
-        """
-        self.parent.split(self, point, distance, reference)
+    #     If the point already exists, a new point is defined and used instead.
+    #     """
+    #     self.parent.split(self, point, distance, reference)
 
     def dircos(self):
         """Return the direction cosine of the element in matrix form. The unit
@@ -569,6 +587,9 @@ class Bend(Run):
     next element is defined. Initially, a run is created but the curve is built
     when the next adjacent run element is defined. The curve is also
     built/updated when the bend radius is set.
+
+    A bend element is approximated using multiple runs element. The number of
+    elements is a user defined parameter.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, radius="long", tol=0.01,
@@ -577,6 +598,7 @@ class Bend(Run):
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
+        self.runs = []          # internal runs
         self.radius = radius    # also calls build
         self.tol = tol
 
@@ -667,8 +689,19 @@ class Bend(Run):
         if vert and len(vert.edges) == 2:
             self.build(self.to_point)
 
-    def split(self, point, distance=None, reference=None):
-        raise NotImplementedError("implement")
+    def klocal(self, temp, stiffness=None):
+        for run in self.runs:
+            yield run.klocal(temp, stiffness)
+
+    def kglobal(self, temp, stiffness=None):
+        """Yield the global bend stiffness matrix for each element.
+
+        The bend consists of multiple approximating elements and so the global
+        matrix for the bend is the assembly of all the elements which make up
+        the bend.
+        """
+        for run in self.runs:
+            yield run.kglobal(temp, stiffness)
 
     def __repr__(self):
         return "%s %s" % (self.type, self.to_point)
@@ -677,7 +710,8 @@ class Bend(Run):
 class Reducer(Run):
     """Define a pipe reducer by giving a different section.
 
-    The new section is activated automatically.
+    The new section is activated automatically. A reducer is approximated using
+    multiple runs with decreasing diameters.
     """
 
     def __init__(self, point, section2, dx, dy=0, dz=0, from_point=None,
@@ -686,6 +720,15 @@ class Reducer(Run):
                                       material, insulation, code)
         section2.activate()     # automatic
         self.section2 = section2
+        self.runs = []          # internal runs
+
+    def build(self, point):
+        """Similar to a bend a reducer consists of one curve which consists of
+        multiple internal edges. Each edge has a different section associated
+        with each with a smaller and smaller diameter to approximate the
+        reducer geometry.
+        """
+        raise NotImplementedError("implement")
 
     def mass(self):
         """Mass of a reducer"""
@@ -726,8 +769,19 @@ class Reducer(Run):
 
         return s.inden*vi
 
-    def split(self, point, distance=None, reference=None):
-        raise NotImplementedError("implement")
+    def klocal(self, temp, stiffness=None):
+        for run in self.runs:
+            yield run.klocal(temp, stiffness)
+
+    def kglobal(self, temp, stiffness=None):
+        """Yield the global reducer stiffness matrix for each element.
+
+        The bend consists of multiple approximating elements and so the global
+        matrix for the reducer is the assembly of all the elements which make
+        up the bend.
+        """
+        for run in self.runs:
+            yield run.kglobal(temp, stiffness)
 
 
 @units.define(weight="force")
@@ -759,9 +813,6 @@ class Rigid(Run):
         stiff = self.app.models.active_object.settings["core.rigid_stiffness"]
 
         return super(Rigid, self).stiffness(temp, stiff)
-
-    def split(self, point, distance=None, reference=None):
-        raise NotImplementedError("implement")
 
 
 class Valve(Rigid):
@@ -853,8 +904,8 @@ class ElementContainer(EntityContainer):
         for element in self._active_objects:
             yield element
 
-    def split(self, inst, point, distance, reference):
-        raise NotImplementedError("implement")
+    # def split(self, inst, point, distance, reference):
+    #     raise NotImplementedError("implement")
 
     def __call__(self, from_point, to_point):
         """An element can be retrieved by from_point to to_point."""
@@ -900,4 +951,3 @@ class ElementContainer(EntityContainer):
 
             self._active_objects.clear()
             self._active_objects.update(selset)
-

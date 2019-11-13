@@ -10,11 +10,11 @@ using a specific combination method.  The solution vectors from the primary
 load cases are added, subtracted, etc., in order to produce these kind of
 secondary load cases.
 
-The load case may consist of primary loads such as Weight, Thermal, etc., or it
+A loadcase may consist of primary loads such as Weight, Thermal, etc., or it
 may be a be a combination of two or more secondary (ie. result cases) combined
 together.
 
-The results for the load case are stored internally in the load case object.
+The results for the loadcase is stored internally in the load case object.
 """
 
 from psi.entity import Entity, EntityContainer
@@ -42,8 +42,8 @@ class BaseCase(Entity):
 class LoadCase(BaseCase):
     """A set of primary load cases consisting of different types of loads.
 
-    Note that the loads for a given case must be unique, in other words, two
-    sustained loads cannot be defined for one case.
+    Note that the loads for a given case must be unique, in other words, the
+    same load cannot be specified twice.
     """
 
     def __int__(self, name, loads, stype="SUS"):
@@ -56,10 +56,29 @@ class LoadCase(BaseCase):
 
 class LoadComb(BaseCase):
 
-    def __init__(self, name, loadcases, stype, combmeth):
-        super(LoadCase, self).__init__(name, loadcases, stype, combmeth)
+    def __init__(self, name, loadcases, stype):
+        super(LoadComb, self).__init__(name, loadcases, stype)
 
-    def combine(self):
+    def __add__(self, other):
+        if isinstance(other, LoadComb):
+            # add results here
+            pass
+
+    def __sub__(self, other):
+        pass
+
+    def __mult__(self, other):
+        pass
+
+    def __rmul__(self, other):
+        pass
+
+    def __truediv__(self, other):
+        pass
+
+    __floordiv__ = __truediv__
+
+    def __pow__(self, other, value):
         pass
 
 

@@ -2,14 +2,26 @@
 
 from psi.utils.euclid import Vector3
 from psi.utils.bezier import bezier
+from psi.units import units
 
 
+@units.define(x="length", y="length", z="length")
 class Vertex(object):
-
-    def __init__(self):
-        self.co = [0, 0, 0]
+    def __init__(self, x=0, y=0, z=0):
+        # self.co = [0, 0, 0]
+        self.x = x
+        self.y = y
+        self.z = z
         self.edges = []
         self.data = {}
+
+    @property
+    def co(self):
+        return self.x, self.y, self.z
+
+    @co.setter
+    def co(self, args):
+        self.x, self.y, self.z = args
 
 
 class Edge(object):
@@ -148,8 +160,8 @@ class Geometry(object):
         vert = self.vertices.get(id, None)
         assert vert is None, 'vertex exists'
 
-        vert = Vertex()
-        vert.co[:] = x, y, z
+        vert = Vertex(x, y, z)
+        # vert.co[:] = x, y, z
         self.vertices[id] = vert
         return vert
 

@@ -1,4 +1,4 @@
-"""Applying loads to model elements.
+"""Applying loads to model elements and nodes.
 
 Example
 -------
@@ -17,9 +17,9 @@ For multiple loads use the container apply method:
 
 import csv
 
+import psi
 from psi.entity import Entity, EntityContainer
 from psi.units import units
-from psi.utils.orderedset import OrderedSet
 
 
 class Load(Entity):
@@ -85,10 +85,11 @@ class Fluid(Load):
     def __init__(self, name, rho):
         super(Fluid, self).__init__(rho)
         self.rho = rho
+
     @classmethod
     def from_file(cls, name, fluid, fname=None):
         if fname is None:
-            fname = openpipe.FLUID_DATA_FILE
+            fname = psi.FLUID_DATA_FILE
 
         with open(fname, "r") as csvfile:
             reader = csv.DictReader(csvfile)
