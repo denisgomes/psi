@@ -19,6 +19,19 @@ from psi.loadcase import LoadCaseContainer
 from psi.units import units
 
 
+class PSIInterpreter(code.InteractiveConsole):
+
+    def __init__(self, locals=None, filename="<console>"):
+        super(PSIInterpreter, self).__init__(locals, filename)
+
+    def runcode(self, code):
+        """Raise all expections"""
+        try:
+            exec(code, self.locals)
+        except:
+            raise
+
+
 class App(object):
 
     _app = None
@@ -53,7 +66,7 @@ class App(object):
         self.codes = CodeContainer()
         # self.results = ResultContainer()
 
-        self.interp = code.InteractiveConsole()
+        self.interp = PSIInterpreter()
         self.interp.locals = self._interp_locals
 
     @property

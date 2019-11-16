@@ -171,14 +171,6 @@ class Element(Entity):
         """Global element mass matrix"""
         raise NotImplementedError("abstract method")
 
-    def flocal(self, load):
-        """Local force matrix"""
-        raise NotImplementedError("abstract method")
-
-    def fglobal(self):
-        """Global element force matrix"""
-        raise NotImplementedError("abstract method")
-
     def __repr__(self):
         return "%s(%s, %s)" % (self.type, self.from_point.name,
                                self.to_point.name)
@@ -495,20 +487,21 @@ class Run(Piping):
 
         return tf
 
-    def klocal(self, temp, stiffness=None):
+    def klocal(self, temp):
         """The local stiffness matrix of a straight piping element, i.e all
-        elements with the expection of bends and reducers. The stiffness is a
-        function of the temperature. If a stiffness parameter is provided it is
-        directly applied to the stiffness matrix.
+        elements with the expection of bends and reducers are derived from a
+        run. The stiffness is a function of the temperature.
+
+        Note, the code flexibility factor is applied to the element for the
+        bending directions. The stiffness is divided by the flexibility factor,
+        effectively making the element more flexible in the tranverse bending
+        directions. The torsional stiffness is not altered.
         """
         kmat = np.empty((12, 12), dtype=np.float32)
 
-        a = self.geometry.length / 2    # for ease below
+        a = self.geometry.length / 2    # for clarity below
 
         E = self.material.eh[temp]
-        if stiffness:
-            E = stiffness   # overwrite
-
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod isotropic mats
         A = self.section.area
@@ -516,47 +509,50 @@ class Run(Piping):
         Iy = self.section.iyy
         Iz = self.section.izz
 
+        # flex factor
+        kfac = self.code.kfac(self)
+
         kmat[0, 0] = A*E / 2*a
         kmat[0, 6] = kmat[6, 0] = -A*E / 2*a
 
-        kmat[1, 1] = 3*E*Iz / 2*a**3
-        kmat[1, 5] = kmat[5, 1] = 3*E*Iz / 2*a**2
-        kmat[1, 7] = kmat[7, 1] = -3*E*Iz / 2*a**3
-        kmat[1, 11] = kmat[11, 1] = 3*E*Iz / 2*a**2
+        kmat[1, 1] = (3*E*Iz/2*a**3) / kfac
+        kmat[1, 5] = kmat[5, 1] = (3*E*Iz/2*a**2) / kfac
+        kmat[1, 7] = kmat[7, 1] = (-3*E*Iz/2*a**3) / kfac
+        kmat[1, 11] = kmat[11, 1] = (3*E*Iz/2*a**2) / kfac
 
-        kmat[2, 2] = 3*E*Iy / 2*a**3
-        kmat[2, 4] = kmat[4, 2] = -3*E*Iy / 2*a**2
-        kmat[2, 8] = kmat[8, 2] = -3*E*Iy / 2*a**3
-        kmat[2, 10] = kmat[10, 2] = -3*E*Iy / 2*a**2
+        kmat[2, 2] = (3*E*Iy/2*a**3) / kfac
+        kmat[2, 4] = kmat[4, 2] = (-3*E*Iy/2*a**2) / kfac
+        kmat[2, 8] = kmat[8, 2] = (-3*E*Iy/2*a**3) / kfac
+        kmat[2, 10] = kmat[10, 2] = (-3*E*Iy/2*a**2) / kfac
 
         kmat[3, 3] = G*J / 2*a
         kmat[3, 9] = -G*J / 2*a
 
-        kmat[4, 4] = 2*E*Iy / a
-        kmat[4, 8] = kmat[8, 4] = 3*E*Iy / 2*a**2
-        kmat[4, 10] = kmat[10, 4] = E*Iy / a
+        kmat[4, 4] = (2*E*Iy/a) / kfac
+        kmat[4, 8] = kmat[8, 4] = (3*E*Iy/2*a**2) / kfac
+        kmat[4, 10] = kmat[10, 4] = (E*Iy/a) / kfac
 
-        kmat[5, 5] = 2*E*Iz / a
-        kmat[5, 7] = kmat[7, 5] = -3*E*Iz / 2*a**2
-        kmat[5, 11] = kmat[11, 5] = E*Iz / a
+        kmat[5, 5] = (2*E*Iz/a) / kfac
+        kmat[5, 7] = kmat[7, 5] = (-3*E*Iz/2*a**2) / kfac
+        kmat[5, 11] = kmat[11, 5] = (E*Iz/a) / kfac
 
         kmat[6, 6] = A*E / 2*a
 
-        kmat[7, 7] = 3*E*Iz / 2*a**3
-        kmat[7, 11] = kmat[11, 7] = -3*E*Iz / 2*a**2
+        kmat[7, 7] = (3*E*Iz/2*a**3) / kfac
+        kmat[7, 11] = kmat[11, 7] = (-3*E*Iz/2*a**2) / kfac
 
-        kmat[8, 8] = 3*E*Iy / 2*a**3
-        kmat[8, 10] = kmat[10, 8] = 3*E*Iy / 2*a**2
+        kmat[8, 8] = (3*E*Iy/2*a**3) / kfac
+        kmat[8, 10] = kmat[10, 8] = (3*E*Iy/2*a**2) / kfac
 
         kmat[9, 9] = G*J / 2*a
 
-        kmat[10, 10] = 2*E*Iy / a
+        kmat[10, 10] = (2*E*Iy/a) / kfac
 
-        kmat[11, 11] = 2*E*Iz / a
+        kmat[11, 11] = (2*E*Iz/a) / kfac
 
         return kmat
 
-    def kglobal(self, temp, stiffness=None):
+    def kglobal(self, temp):
         """The element global stiffness matrix before assembly into the system
         matrix.
 
@@ -566,7 +562,7 @@ class Run(Piping):
         system.
         """
         T = self.T()    # build T once and reuse
-        return T.transpose() * self.klocal(temp, stiffness) * T
+        return T.transpose() * self.klocal(temp) * T
 
 
 @units.define(_radius="length")
@@ -710,8 +706,15 @@ class Bend(Run):
 class Reducer(Run):
     """Define a pipe reducer by giving a different section.
 
-    The new section is activated automatically. A reducer is approximated using
+    The new section is activated automatically. A reducer is approximated by
     multiple runs with decreasing diameters.
+
+    A reducer element is approximated using multiple run element. The number
+    of elements is a user defined parameter. The diameter of each element is
+    stepped down from the larger to smaller pipe diameter.
+
+    The code flexibility factor is applied to all approximating elements of
+    the reducer.
     """
 
     def __init__(self, point, section2, dx, dy=0, dz=0, from_point=None,
@@ -792,6 +795,8 @@ class Rigid(Run):
     have mass due to insulation and fluid contents defined for the element. The
     user can zero out the additional mass if needed by setting the insulation
     and fluid attributes to None.
+
+    The wall thickness of a rigid element is 10 times the thickness of a run.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,

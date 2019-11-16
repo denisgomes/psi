@@ -117,8 +117,8 @@ class Units(object):
 
     def disable(self):
         """Turn off unit conversion so that only values in default units are
-        returned. Automatic unit conversion is turned off before the model
-        is analyzed so that base SI units are used.
+        returned. Automatic unit conversion is turned off before the model is
+        analyzed so that base SI units are used.
         """
         Quantity.is_active = False
 

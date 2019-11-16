@@ -1,7 +1,8 @@
-"""Simple analysis of a cantilevered pipe."""
+"""Simple analysis of a cantilevered pipe"""
 
 # parameter
 L = 12
+
 
 mdl = Model('simple')
 

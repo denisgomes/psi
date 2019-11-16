@@ -3,6 +3,7 @@
 
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
+from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
 
 
 class Code(Entity, ActiveEntityMixin):
@@ -21,6 +22,35 @@ class Code(Entity, ActiveEntityMixin):
 
     def apply(self, elements=None):
         pass
+
+    def sif(self, element):
+        """Element stress intensification factor.
+
+        The code stress SIF is a fatigue factor developed by Markl and his team
+        in the 1950s. These factors were empiracally determined by subject
+        piping to alternating loads and determining the effect it had over a
+        number of cycles.
+
+        By defination a SIF is the peak stress over the average stress of a
+        piping component. It is a multiplier on nominal stress for typical
+        bend and intersection components so that the effect of geometry and
+        welding can be considered in beam analysis.
+
+        The inplane and out of plane SIF applies to the moments and associated
+        stresses in the respective directions. An inplane moment/force will
+        tend to keep the component in the plane of the page. An out of plane
+        moment or force will make the component come out of the page.
+        """
+        raise NotImplementedError("implement")
+
+    def kfac(self, element):
+        """Element flexibility factor.
+
+        Note this factor is applied to the element for bending only. It has
+        the effect of reducing the stiffness of the element in the transverse
+        bending direction.
+        """
+        raise NotImplementedError("implement")
 
 
 class B311(Code):
@@ -75,6 +105,14 @@ class B311(Code):
         Allowed only if the user selects to use liberal stress allowables.
         """
         pass
+
+    def sif(self, element):
+        if isinstance(element, Run):
+            return 1.0
+
+    def kfac(self, element):
+        if isinstance(element, Run):
+            return 1.0
 
 
 class CodeContainer(EntityContainer, ActiveEntityContainerMixin):

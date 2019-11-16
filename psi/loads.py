@@ -42,6 +42,14 @@ class Load(Entity):
         """
         self.parent.apply([self], elements)
 
+    def flocal(self):
+        """Return the element local force vector for the load."""
+        raise NotImplementedError("implement")
+
+    def fglobal(self, T):
+        """Return the element global force vector for the load."""
+        raise NotImplementedError("implement")
+
 
 @units.define(gfac="g_load")
 class Weight(Load):

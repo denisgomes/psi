@@ -269,10 +269,34 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         Note that to simplify the FEA solution, all elements are essentially
         beams, including bends and reducers which are approximations made by
         chaining multiple beam together.
+
+        1. Create NDOF matrix.
+
+        2. For each element
+
+            a. Construct the local stiffness matrix.
+            b. Construct local force matrix, one for each load case.
+            c. Transform local stiffness and force matrix.
+            d. Add global element stiffness matrix and the global element
+               force vector to the global system stiffness and force vector,
+               respectively.
+
+        3. Solve the global system using guassian elimination techniques.
+
+            AX=B
+
+            Where A is the global system matrix.
+            B is the matrix of force vectors, one for each loadcase, and
+            X is the matrix of solutions vectors for each loadcase.
+
+        4. Use the calculated displacements to calculate the element force and
+           moments.
+
+        5. Use the results from step 4 to calculate the code stresses.
         """
-        self.units.disable()    # base SI
+        units.disable()    # base SI
         # do stuff here
-        self.units.enable()
+        units.enable()
 
     def check(self, inst):
         """Check the model input parameters before analyzing"""

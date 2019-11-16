@@ -1,8 +1,8 @@
 """Pipe Stress Infinity Command Line Interface (CLI).
 
 $ psi               # Run PSI in console mode
-$ psi file.psi      # Run a script in console
-$ psi -i file.psi   # Run file and enter interactive mode
+$ psi file.inp      # Run a script in console
+$ psi -i file.inp   # Run file and enter interactive mode
 """
 
 import argparse
@@ -54,7 +54,7 @@ def setup_logger(outfile, errfile):
 
 def main():
     parser = argparse.ArgumentParser(
-                            prog="PS8",
+                            prog="PSI",
                             formatter_class=argparse.RawTextHelpFormatter,
                             description=__doc__,
                             # epilog=LICENSE,
@@ -114,9 +114,15 @@ def main():
 
             bar.set_description("Processing...")
             for lno, line in enumerate(bar, 1):
-                # suppress all superfluous output
+                # suppress all superfluous output by interp
                 with redirect_stdout(null):
-                    app.interp.push(line)
+
+                    try:
+                        app.interp.push(line)
+
+                    # catch all errors
+                    except:
+                        break
 
                 if lno == num_lines:
                     bar.set_description("Done!")
