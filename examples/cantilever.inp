@@ -17,7 +17,9 @@ run20 = Run(20, L)
 anc1 = Anchor('A1', 10)
 
 # loads
+w1 = Weight('w1')
 f1 = Force('f1', 20, fy=-1000)
+w1.apply([run20])
 f1.apply([run20])
 
 # loadcases

@@ -28,8 +28,10 @@ class PSIInterpreter(code.InteractiveConsole):
         """Raise all expections"""
         try:
             exec(code, self.locals)
-        except:
+        except SystemExit:
             raise
+        except:
+            self.showtraceback()
 
 
 class App(object):

@@ -5,5 +5,5 @@ variety of different codes and standards.
 .. code:: sh
 
     $ psi               # start psi interpreter
-    $ psi file.psi      # run file.py
-    $ psi -i file.psi   # run file.py and start interpreter
+    $ psi file.inp      # run file.inp
+    $ psi -i file.inp   # run file.inp and start interpreter

@@ -16,6 +16,7 @@ For multiple loads use the container apply method:
 """
 
 import csv
+from math import pi
 
 import psi
 from psi.entity import Entity, EntityContainer
@@ -58,6 +59,18 @@ class Weight(Load):
         super(Weight, self).__init__(name)
         self.gfac = gfac
 
+    def element(self, element):
+        """Element weight"""
+        return element.mass() * self.gfac
+
+    def insulation(self, element):
+        """Insulation weight"""
+        return element.insulation_mass() * self.gfac
+
+    def total(self, element):
+        """Total weight of piping element"""
+        return self.pipe(element) + self.insulation(element)
+
 
 @units.define(pres="pressure")
 class Pressure(Load):
@@ -86,13 +99,26 @@ class Thermal(Load):
         self.tref = tref
 
 
-@units.define(rho="density")
+@units.define(rho="density", gfac="g_load")
 class Fluid(Load):
     """Contents load"""
 
-    def __init__(self, name, rho):
-        super(Fluid, self).__init__(rho)
+    def __init__(self, name, rho, gfac=1.0):
+        super(Fluid, self).__init__(name)
         self.rho = rho
+        self.gfac = gfac
+
+    def mass(self, element):
+        """Mass of the fluid"""
+        di = element.section.od - 2*element.section.thke
+        fluid_area = (pi/4) * (di**2)
+        mass = self.rho * fluid_area * element.geometry.length
+
+        return mass
+
+    def weight(self, element):
+        """Weight of the fluid"""
+        return self.mass(element) * self.gfac
 
     @classmethod
     def from_file(cls, name, fluid, fname=None):

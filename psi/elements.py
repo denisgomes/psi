@@ -231,47 +231,18 @@ class Piping(Element):
         raise NotImplementedError("abstract method")
 
     def mass(self):
-        """The pipe weight and in the case of a valve or flange, the respective
-        user defined weight.
-        """
         mass = (self.material.rho.value * self.section.area *
                 self.geometry.length)
         return mass
 
-    def weight(self, accel):
-        """Weight of the piping due to the acceleration"""
-        return self.mass * accel
-
-    def fluid_mass(self, fluden):
-        di = self.section.od - 2*self.section.thke
-        fluid_area = (pi/4) * (di**2)
-
-        mass = fluden * fluid_area * self.geometry.length
-        return mass
-
-    def fluid_weight(self, fluden, accel):
-        return self.fluid_mass(fluden) * accel
-
     def insulation_mass(self):
         dins = self.section.od + 2*self.insulation.thk
         do = self.section.od
-        insulation_area = (pi/4)*(dins**2 - do**2)
+        insulation_area = (pi/4) * (dins**2-do**2)
 
         mass = (self.insulation.rho * insulation_area *
                 self.geometry.length)
         return mass
-
-    def insulation_weight(self, accel):
-        return self.insulation_mass() * accel
-
-    def total_mass(self, fluden):
-        """Total weight of element including, pipe, insulation and contents."""
-        return self.mass() + self.fluid_mass(fluden) + self.insulation_mass()
-
-    def total_weight(self, fluden, accel):
-        """Total weight of element including, pipe, insulation and contents."""
-        return (self.weight(accel) + self.fluid_weight(fluden)
-                + self.insulation_weight(accel))
 
 
 @units.define(_dx="length", _dy="length", _dz="length")
@@ -477,7 +448,7 @@ class Run(Piping):
 
         return tf
 
-    def klocal(self, temp):
+    def klocal(self, temp, sfac=1.0):
         """The local stiffness matrix of a straight piping element, i.e all
         elements with the expection of bends and reducers are derived from a
         run. The stiffness is a function of the temperature.
@@ -493,6 +464,10 @@ class Run(Piping):
         E = self.material.eh[temp]
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod isotropic mats
+
+        # used for rigids
+        self.section.thk *= sfac
+
         A = self.section.area
         J = self.section.ixx
         Iy = self.section.iyy
@@ -541,7 +516,7 @@ class Run(Piping):
 
         return kmat
 
-    def kglobal(self, temp):
+    def kglobal(self, temp, sfac=1.0):
         """The element global stiffness matrix before assembly into the system
         matrix.
 
@@ -551,7 +526,7 @@ class Run(Piping):
         system.
         """
         T = self.T()    # build T once and reuse
-        return T.transpose() * self.klocal(temp) * T
+        return T.transpose() * self.klocal(temp, sfac) * T
 
 
 @units.define(_radius="length")
@@ -674,11 +649,11 @@ class Bend(Run):
         if vert and len(vert.edges) == 2:
             self.build(self.to_point)
 
-    def klocal(self, temp, stiffness=None):
+    def klocal(self, temp, sfac=1.0):
         for run in self.runs:
-            yield run.klocal(temp, stiffness)
+            yield run.klocal(temp, sfac)
 
-    def kglobal(self, temp, stiffness=None):
+    def kglobal(self, temp, sfac=1.0):
         """Yield the global bend stiffness matrix for each element.
 
         The bend consists of multiple approximating elements and so the global
@@ -686,7 +661,7 @@ class Bend(Run):
         the bend.
         """
         for run in self.runs:
-            yield run.kglobal(temp, stiffness)
+            yield run.kglobal(temp, sfac)
 
     def __repr__(self):
         return "%s %s" % (self.type, self.to_point)
@@ -761,11 +736,11 @@ class Reducer(Run):
 
         return s.inden*vi
 
-    def klocal(self, temp, stiffness=None):
+    def klocal(self, temp, sfac=1.0):
         for run in self.runs:
-            yield run.klocal(temp, stiffness)
+            yield run.klocal(temp, sfac)
 
-    def kglobal(self, temp, stiffness=None):
+    def kglobal(self, temp, sfac=1.0):
         """Yield the global reducer stiffness matrix for each element.
 
         The bend consists of multiple approximating elements and so the global
@@ -773,7 +748,7 @@ class Reducer(Run):
         up the bend.
         """
         for run in self.runs:
-            yield run.kglobal(temp, stiffness)
+            yield run.kglobal(temp, sfac)
 
 
 @units.define(weight="force")
@@ -795,18 +770,16 @@ class Rigid(Run):
         self.weight = weight
 
     def mass(self, accel):
-        """Inverse where the mass is returned since the weight is a user
-        defined parameter for rigid elements.
+        """The mass is returned since the weight is a user defined parameter
+        for rigid elements.
         """
         return self.weight / accel
 
-    def klocal(self, temp):
-        """The stiffness parameter for a rigid element is defined in the user
-        specified options.
-        """
-        stiff = self.app.models.active_object.settings["core.rigid_stiffness"]
+    def klocal(self, temp, sfac=10.0):
+        return super(Rigid, self).klocal(temp, sfac)
 
-        return super(Rigid, self).stiffness(temp, stiff)
+    def kglobal(self, temp, sfac=10.0):
+        return super(Rigid, self).kglobal(temp, sfac)
 
 
 class Valve(Rigid):

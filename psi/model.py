@@ -316,7 +316,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # external files, disabling unit consersion allows for working with
         # only SI
         units.disable()
-        tqdm.info("*** Switching to base SI units.")
+        tqdm.info("*** Switching to base units.")
 
         # debuging code
         with redirect_stdout(sys.__stdout__):

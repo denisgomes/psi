@@ -120,7 +120,6 @@ def main():
 
                     try:
                         app.interp.push(line)
-
                     # catch all errors
                     except:
                         app.interp.showtraceback()
