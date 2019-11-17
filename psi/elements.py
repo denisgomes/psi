@@ -288,16 +288,6 @@ class Run(Piping):
         self._split_edge = None     # for bends
         self.build(point)
 
-    def sif(self):
-        """Element stress intensification factor per the applicable code"""
-        sifi = sifo = 1.0
-
-        return (sifi, sifo)
-
-    def kfac(self):
-        """Element flexibility factor per the applicable code"""
-        return 1.0
-
     def build(self, point):
         model = self.app.models.active_object
         elements = self.app.elements
@@ -499,8 +489,7 @@ class Run(Piping):
         """
         kmat = np.empty((12, 12), dtype=np.float32)
 
-        a = self.geometry.length / 2    # for clarity below
-
+        L = self.geometry.length
         E = self.material.eh[temp]
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod isotropic mats
@@ -512,43 +501,43 @@ class Run(Piping):
         # flex factor
         kfac = self.code.kfac(self)
 
-        kmat[0, 0] = A*E / 2*a
-        kmat[0, 6] = kmat[6, 0] = -A*E / 2*a
+        kmat[0, 0] = E*A / L
+        kmat[0, 6] = kmat[6, 0] = -E*A / L
 
-        kmat[1, 1] = (3*E*Iz/2*a**3) / kfac
-        kmat[1, 5] = kmat[5, 1] = (3*E*Iz/2*a**2) / kfac
-        kmat[1, 7] = kmat[7, 1] = (-3*E*Iz/2*a**3) / kfac
-        kmat[1, 11] = kmat[11, 1] = (3*E*Iz/2*a**2) / kfac
+        kmat[1, 1] = (12*E*Iz/L**3) / kfac
+        kmat[1, 5] = kmat[5, 1] = (6*E*Iz/L**2) / kfac
+        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz/L**3) / kfac
+        kmat[1, 11] = kmat[11, 1] = (6*E*Iz/L**2) / kfac
 
-        kmat[2, 2] = (3*E*Iy/2*a**3) / kfac
-        kmat[2, 4] = kmat[4, 2] = (-3*E*Iy/2*a**2) / kfac
-        kmat[2, 8] = kmat[8, 2] = (-3*E*Iy/2*a**3) / kfac
-        kmat[2, 10] = kmat[10, 2] = (-3*E*Iy/2*a**2) / kfac
+        kmat[2, 2] = (12*E*Iy/L**3) / kfac
+        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy/L**2) / kfac
+        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy/L**3) / kfac
+        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy/L**2) / kfac
 
-        kmat[3, 3] = G*J / 2*a
-        kmat[3, 9] = -G*J / 2*a
+        kmat[3, 3] = G*J / L
+        kmat[3, 9] = -G*J / L
 
-        kmat[4, 4] = (2*E*Iy/a) / kfac
-        kmat[4, 8] = kmat[8, 4] = (3*E*Iy/2*a**2) / kfac
-        kmat[4, 10] = kmat[10, 4] = (E*Iy/a) / kfac
+        kmat[4, 4] = (4*E*Iy/L) / kfac
+        kmat[4, 8] = kmat[8, 4] = (6*E*Iy/L**2) / kfac
+        kmat[4, 10] = kmat[10, 4] = (2*E*Iy/L) / kfac
 
-        kmat[5, 5] = (2*E*Iz/a) / kfac
-        kmat[5, 7] = kmat[7, 5] = (-3*E*Iz/2*a**2) / kfac
-        kmat[5, 11] = kmat[11, 5] = (E*Iz/a) / kfac
+        kmat[5, 5] = (4*E*Iz/L) / kfac
+        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz/L**2) / kfac
+        kmat[5, 11] = kmat[11, 5] = (2*E*Iz/L) / kfac
 
-        kmat[6, 6] = A*E / 2*a
+        kmat[6, 6] = E*A / L
 
-        kmat[7, 7] = (3*E*Iz/2*a**3) / kfac
-        kmat[7, 11] = kmat[11, 7] = (-3*E*Iz/2*a**2) / kfac
+        kmat[7, 7] = (12*E*Iz/L**3) / kfac
+        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz/L**2) / kfac
 
-        kmat[8, 8] = (3*E*Iy/2*a**3) / kfac
-        kmat[8, 10] = kmat[10, 8] = (3*E*Iy/2*a**2) / kfac
+        kmat[8, 8] = (12*E*Iy/L**3) / kfac
+        kmat[8, 10] = kmat[10, 8] = (6*E*Iy/L**2) / kfac
 
-        kmat[9, 9] = G*J / 2*a
+        kmat[9, 9] = G*J / L
 
-        kmat[10, 10] = (2*E*Iy/a) / kfac
+        kmat[10, 10] = (4*E*Iy/L) / kfac
 
-        kmat[11, 11] = (2*E*Iz/a) / kfac
+        kmat[11, 11] = (4*E*Iz/L) / kfac
 
         return kmat
 
@@ -867,6 +856,10 @@ class ElementContainer(EntityContainer):
     @property
     def active_objects(self):
         return self._active_objects
+
+    @active_objects.setter
+    def active_objects(self, elements):
+        self._active_objects.update(elements)
 
     def _iter_all(self, typ):
         """Helper generator method"""

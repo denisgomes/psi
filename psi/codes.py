@@ -21,7 +21,7 @@ class Code(Entity, ActiveEntityMixin):
         self.parent.activate(self)
 
     def apply(self, elements=None):
-        pass
+        self.parent.apply(self, elements)
 
     def sif(self, element):
         """Element stress intensification factor.
@@ -121,5 +121,22 @@ class CodeContainer(EntityContainer, ActiveEntityContainerMixin):
         super(CodeContainer, self).__init__()
         self.B311 = B311
 
-    def apply(self, elements=None):
-        pass
+    def apply(self, code, elements=None):
+        """Apply code to elements.
+
+        Parameters
+        ----------
+        code : object
+            A code instance.
+        elements : list
+            A list of elements. If elements is None, loads are applied to all
+            elements.
+        """
+        if elements is None:
+            elements = []
+
+            for element in self.app.elements.active_objects:
+                elements.append(element)
+
+        for element in elements:
+            element.code = code

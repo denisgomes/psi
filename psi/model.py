@@ -1,9 +1,12 @@
 from __future__ import division
 
 from collections import OrderedDict
+from contextlib import redirect_stdout
 import gzip
+import logging
 import pickle
 import copy
+import sys
 
 from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
@@ -37,6 +40,7 @@ class Model(Entity, ActiveEntityMixin):
 
         # active model objects
         self._active_point = None
+        self._active_elements = None
         self._active_section = None
         self._active_material = None
         self._active_insulation = None
@@ -100,6 +104,14 @@ class Model(Entity, ActiveEntityMixin):
     @active_point.setter
     def active_point(self, point):
         self.app.points.active_object = point
+
+    @property
+    def active_elements(self):
+        return self.app.elements.active_objects
+
+    @active_elements.setter
+    def active_elements(self, elements):
+        self.app.elements.active_objects = elements
 
     @property
     def active_section(self):
@@ -212,6 +224,9 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         app.points._objects = inst._points
         app.points._active_object = inst._active_point
 
+        app.elements._objects = inst._elements
+        app.elements._active_objects = inst._active_elements
+
         app.sections._objects = inst._sections
         app.sections._active_object = inst._active_section
 
@@ -294,11 +309,30 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
         5. Use the results from step 4 to calculate the code stresses.
         """
-        units.disable()    # base SI
+        tqdm = logging.getLogger("tqdm")
+        tqdm.info("*** Starting analysis...")
+
+        # Note: All internal object data is stored in SI once loaded from
+        # external files, disabling unit consersion allows for working with
+        # only SI
+        units.disable()
+        tqdm.info("*** Switching to base SI units.")
+
+        # debuging code
+        with redirect_stdout(sys.__stdout__):
+            # print(inst.points.values())
+            # print(inst.elements.values())
+            # print(inst.supports.values())
+            # print(inst.loads.values())
+            # print(element.klocal(200))
+
+            for element in inst.elements.values():
+                print(element.klocal(273))
+
         # do stuff here
+
         units.enable()
 
     def check(self, inst):
         """Check the model input parameters before analyzing"""
         pass
-

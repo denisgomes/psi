@@ -27,6 +27,7 @@ class TqdmLoggingHandler(logging.Handler):
             msg = self.format(record)
 
             # force writing to default __stdout__
+            # which should be the terminal screen
             with redirect_stdout(sys.__stdout__):
                 tqdm.write(msg)
 
@@ -122,6 +123,7 @@ def main():
 
                     # catch all errors
                     except:
+                        app.interp.showtraceback()
                         break
 
                 if lno == num_lines:
