@@ -151,6 +151,9 @@ class Material(Entity, ActiveEntityMixin):
 
         self.activate()
 
+    def apply(self, elements=None):
+        self.parent.apply(self, elements)
+
     @property
     def parent(self):
         return self.app.materials
@@ -249,3 +252,14 @@ class MaterialContainer(EntityContainer, ActiveEntityContainerMixin):
     def __init__(self):
         super(MaterialContainer, self).__init__()
         self.Material = Material
+
+    def apply(self, inst, elements=None):
+        """Apply a material to elements"""
+        if elements is None:
+            elements = []
+
+            for element in self.app.elements.active_objects:
+                elements.append(element)
+
+        for element in elements:
+            element.material = inst

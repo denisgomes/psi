@@ -247,6 +247,18 @@ class Pipe(Section):
     def is_large_bore(self):
         return not self.is_small_bore
 
+    @property
+    def D2t(self):
+        """The D/t ratio of the section.
+
+        If a pipe has a D/t ratio of larger than 100 it behaves more like a
+        shell.
+
+        Code based SIF and flexibility factors do not apply for D/t ratios
+        above 100.
+        """
+        return self.od / self.thk
+
 
 @units.define(d="length", tw="length", bf="length", tf="length")
 class WideFlange(Section):
@@ -329,7 +341,9 @@ class SectionContainer(EntityContainer, ActiveEntityContainerMixin):
         """
         if elements is None:
             elements = []
-            elements.append(self.app.models.active_model.active_element)
+
+            for element in self.app.elements.active_objects:
+                elements.append(element)
 
         for element in elements:
             element.section = inst

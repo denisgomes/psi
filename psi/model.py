@@ -8,6 +8,8 @@ import pickle
 import copy
 import sys
 
+import numpy as np
+
 from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
@@ -59,43 +61,43 @@ class Model(Entity, ActiveEntityMixin):
 
     @property
     def points(self):
-        return self._points
+        return self._points.values()
 
     @property
     def elements(self):
-        return self._elements
+        return self._elements.values()
 
     @property
     def sections(self):
-        return self._sections
+        return self._sections.value()
 
     @property
     def materials(self):
-        return self._materials
+        return self._materials.values()
 
     @property
     def insulation(self):
-        return self._insulation
+        return self._insulation.values()
 
     @property
     def codes(self):
-        return self._codes
+        return self._codes.values()
 
     @property
     def sifs(self):
-        return self._sifs
+        return self._sifs.values()
 
     @property
     def supports(self):
-        return self._supports
+        return self._supports.values()
 
     @property
     def loads(self):
-        return self._loads
+        return self._loads.values()
 
     @property
     def loadcases(self):
-        return self._loadcases
+        return self._loadcases.values()
 
     @property
     def active_point(self):
@@ -273,30 +275,31 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         """Go through all loadcases, solve each one and then combine them to
         generate the final results.
 
-        For each element calculate the global stiffness matrix and assemble the
-        system stiffness matrix using the nodal degree of freedom matrix.
+        For each element calculate the element stiffness matrix and assemble
+        the system stiffness matrix using the nodal degree of freedom matrix.
 
         The loads defined for each element loadcase is combined into a single
         load vector. The load vector for each element loadcase is then
-        assembled into a global load vector. Multiple load vectors are solved
-        for at once using gaussian elimination.
+        assembled into a global load vector. Multiple global load vectors are
+        solved for at once using gaussian elimination.
 
         Note that to simplify the FEA solution, all elements are essentially
         beams, including bends and reducers which are approximations made by
-        chaining multiple beam together.
+        chaining multiple beams together.
 
         1. Create NDOF matrix.
 
         2. For each element
-
             a. Construct the local stiffness matrix.
             b. Construct local force matrix, one for each load case.
             c. Transform local stiffness and force matrix.
             d. Add global element stiffness matrix and the global element
-               force vector to the global system stiffness and force vector,
+               force vector to the global system stiffness and force vectors,
                respectively.
 
-        3. Solve the global system using guassian elimination techniques.
+        3. Apply the boundary conditions using the penalty method.
+
+        4. Solve the global system using guassian elimination techniques.
 
             AX=B
 
@@ -304,10 +307,10 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             B is the matrix of force vectors, one for each loadcase, and
             X is the matrix of solutions vectors for each loadcase.
 
-        4. Use the calculated displacements to calculate the element force and
+        5. Use the calculated displacements to calculate the element force and
            moments.
 
-        5. Use the results from step 4 to calculate the code stresses.
+        6. Use the results from step 5 to calculate code stresses.
         """
         tqdm = logging.getLogger("tqdm")
         tqdm.info("*** Starting analysis...")
@@ -319,17 +322,78 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         tqdm.info("*** Switching to base units.")
 
         # debuging code
-        with redirect_stdout(sys.__stdout__):
+        # with redirect_stdout(sys.__stdout__):
             # print(inst.points.values())
             # print(inst.elements.values())
             # print(inst.supports.values())
             # print(inst.loads.values())
             # print(element.klocal(200))
 
-            for element in inst.elements.values():
-                print(element.klocal(273))
+            # for element in inst.elements.values():
+            #     print(element.klocal(273))
 
         # do stuff here
+        tqdm.info("*** Assembling system stiffness and force matrix.")
+
+        ndof = 6    # nodal degrees of freedom
+        en = 2      # number of nodes per element
+        nn = len(inst.points)
+        lc = len(inst.loadcases)
+
+        # similar to nodal dof matrix
+        points = list(inst.points)
+
+        # global system stiffness matrix
+        Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
+
+        # system force matrix, one loadcase per column where a loadcase
+        # consists of one or more loads
+        Fs = np.zeros((nn*ndof, lc), dtype=np.float64)
+
+        for element in inst.elements:
+            idxi = points.index(element.from_point)
+            idxj = points.index(element.to_point)
+
+            # node and corresponding dof (start, finish)
+            niqi, niqj = idxi*ndof, idxi*ndof + ndof
+            njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+            # element stiffness at room temp, conservative stress
+            ke = element.kglobal(273)
+
+            # assemble global stiffness matrix
+            Ks[niqi:niqj, niqi:niqj] += ke[niqi:niqj, niqi:niqj]
+            Ks[niqi:niqj, njqi:njqj] += ke[niqi:niqj, njqi:njqj]
+            Ks[njqi:njqj, niqi:niqj] += ke[njqi:njqj, niqi:niqj]
+            Ks[njqi:njqj, njqi:njqj] += ke[njqi:njqj, njqi:njqj]
+
+            # iterate each loadcase adding loads
+            for i, loadcase in enumerate(inst.loadcases):
+                with redirect_stdout(sys.__stdout__):
+                    print(loadcase)
+
+                # sum of all loads in a loadcase
+                fe = np.zeros((en*ndof, 1), dtype=np.float64)
+
+                for load in loadcase.loads:
+
+                    if load in element.loads:
+                        fe += load.fglobal(element)
+
+                # assembly global system force matrix
+                Fs[niqi:niqj, i] += fe[niqi:niqj]
+                Fs[njqi:njqj, i] += fe[njqi:njqj]
+
+        with redirect_stdout(sys.__stdout__):
+            print(Fs)
+
+        # supports and hangers using penalty method
+
+        # solve using gaussian elimination - solve for displacements
+
+        # extract element global forces and moments
+
+        # calculate code stresses
 
         units.enable()
 

@@ -73,18 +73,20 @@ class Quantity(object):
         if self.is_active is False:
             inst.__dict__[self.name] = value
 
-        try:
-            # do conversion on value
-            qty = Q_(value, self.user_units[self.utype])
-            def_qty = qty.to(self.base_units[self.utype])
-            inst.__dict__[self.name] = def_qty.magnitude
-        except TypeError as e:
-            if "NoneType" in str(e):
-                # ie. for a temp independent property
-                # temp is None, unit conversion skipped
-                inst.__dict__[self.name] = value
-            else:
-                raise e
+        else:
+
+            try:
+                # do conversion on value
+                qty = Q_(value, self.user_units[self.utype])
+                def_qty = qty.to(self.base_units[self.utype])
+                inst.__dict__[self.name] = def_qty.magnitude
+            except TypeError as e:
+                if "NoneType" in str(e):
+                    # ie. for a temp independent property
+                    # temp is None, unit conversion skipped
+                    inst.__dict__[self.name] = value
+                else:
+                    raise e
 
 
 class Units(object):

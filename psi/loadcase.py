@@ -23,14 +23,8 @@ from psi.utils.orderedset import OrderedSet
 
 class BaseCase(Entity):
 
-    def __init__(self, name, loads, stype="SUS"):
+    def __init__(self, name, stype="SUS"):
         super(BaseCase, self).__init__(name)
-
-        self.cases = OrderedSet()   # set of loads
-
-        for load in loads:
-            self.cases.add(load)
-
         self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
         self.results = {}   # node -> value
 
@@ -45,9 +39,12 @@ class LoadCase(BaseCase):
     Note that the loads for a given case must be unique, in other words, the
     same load cannot be specified twice.
     """
+    def __int__(self, name, stype="SUS", loads=[]):
+        super(LoadCase, self).__init__(name, stype)
+        self.loads = OrderedSet()
 
-    def __int__(self, name, loads, stype="SUS"):
-        super(LoadCase, self).__init__(name, loads, stype)
+        for load in loads:
+            self.loads.add(load)
 
     def solve(self):
         """Solve the particular load case"""
@@ -56,8 +53,13 @@ class LoadCase(BaseCase):
 
 class LoadComb(BaseCase):
 
-    def __init__(self, name, loadcases, stype):
-        super(LoadComb, self).__init__(name, loadcases, stype)
+    def __init__(self, name, stype="SUS", loadcases=[]):
+        super(LoadComb, self).__init__(name, stype)
+
+        self.loadcases = OrderedSet()
+
+        for loadcase in loadcases:
+            self.loadcases.add(loadcase)
 
     def __add__(self, other):
         if isinstance(other, LoadComb):

@@ -15,12 +15,18 @@ For multiple loads use the container apply method:
 >>> loads.apply([L1, L2, ..., LN], element_list)
 """
 
+from __future__ import division
+
 import csv
 from math import pi
+
+import numpy as np
 
 import psi
 from psi.entity import Entity, EntityContainer
 from psi.units import units
+
+from psi.settings import options
 
 
 class Load(Entity):
@@ -43,24 +49,46 @@ class Load(Entity):
         """
         self.parent.apply([self], elements)
 
-    def flocal(self):
+    def flocal(self, element):
         """Return the element local force vector for the load."""
         raise NotImplementedError("implement")
 
-    def fglobal(self, T):
+    def fglobal(self, element):
         """Return the element global force vector for the load."""
-        raise NotImplementedError("implement")
+        T = element.T()    # build T once and reuse
+
+        return T.transpose() * self.flocal(element)
 
 
 @units.define(gfac="g_load")
 class Weight(Load):
+    """The weigth cases for each element.
+
+    Parameters
+    ----------
+    name : str
+        Unique name for load.
+
+    gfac : float
+        The gfac is set to 1 by default for earth gravity.
+    """
 
     def __init__(self, name, gfac=1.0):
         super(Weight, self).__init__(name)
         self.gfac = gfac
 
-    def element(self, element):
-        """Element weight"""
+    def pipe(self, element):
+        """Pipe component weight
+
+        Parameters
+        ----------
+        element : Element
+            A piping element.
+
+        Returns
+        -------
+        The weight of the element.
+        """
         return element.mass() * self.gfac
 
     def insulation(self, element):
@@ -71,9 +99,43 @@ class Weight(Load):
         """Total weight of piping element"""
         return self.pipe(element) + self.insulation(element)
 
+    def flocal(self, element):
+        L = element.length
+
+        # the vertical direction
+        vert = options["core.vertical"]
+
+        # apply the weight as an uniform load
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        if vert == "y":
+            wy = self.total(element) / L
+            wz = 0.0
+
+        elif vert == "z":
+            wz = self.total(element) / L
+            wy = 0.0
+
+        f[:, 1] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+                   0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+
+        return f
+
 
 @units.define(pres="pressure")
 class Pressure(Load):
+    """Internal or external pressure.
+
+    The pressure can have a stiffening affect on the piping system called the
+    Bourdon effect. For large D/t ratio pipes, the effects of ovalization can
+    be made worse or better due to this effect.
+
+    The sustained stress in most piping codes also use the internal pressure to
+    calculate a longitudinal stress which is added to the bending stress.
+
+    A hoop stress can also be calculated to determine is the pipe wall is sized
+    properly based on code requirements.
+    """
 
     def __init__(self, name, pres=0):
         super(Pressure, self).__init__(name)
@@ -82,21 +144,28 @@ class Pressure(Load):
 
 @units.define(pres="pressure")
 class Hydro(Load):
-    """Hydro test pressure"""
+    """Hydro test pressure
+
+    Test pressure is typically 1.5 times the design pressure. Hydro testing is
+    performed to ensure that there a no leaks. Pneumatic testing can also be
+    used along with RT (x-ray).
+    """
 
     def __init__(self, name, pres=0):
         super(Pressure, self).__init__(name)
         self.pres = pres
 
 
-@units.define(temp="temperature", tref="temperature")
+@units.define(temp="temperature")
 class Thermal(Load):
     """Thermal expansion load"""
 
-    def __init__(self, name, temp, tref=0):
+    def __init__(self, name, temp):
         super(Thermal, self).__init__(name)
         self.temp = temp
-        self.tref = tref
+
+    def flocal(self, element):
+        pass
 
 
 @units.define(rho="density", gfac="g_load")
@@ -135,11 +204,26 @@ class Fluid(Load):
             else:
                 return None
 
+    def flocal(self, element):
+        L = element.length
 
-@units.define(fx="force", fy="force", fz="force",
-              mx="moment_input", my="moment_input", mz="moment_input")
+        # apply the weight as an uniform load
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        # note that for riser piping the fluid weigth in the column can be
+        # larger because the water does not stick to the pipe
+        wx = wy = wz = self.weight(element) / L
+
+        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+
+        return f
+
+
+@units.define(fx="force", fy="force", fz="force", mx="moment_input",
+              my="moment_input", mz="moment_input")
 class Force(Load):
-    """A generic force load"""
+    """A generic global force vector"""
 
     def __init__(self, name, point, fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
         super(Force, self).__init__(name)
@@ -151,11 +235,29 @@ class Force(Load):
         self.my = my
         self.mz = mz
 
+    def flocal(self, element):
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        fx = self.fx
+        fy = self.fy
+        fz = self.fz
+        mx = self.mx
+        my = self.my
+        mz = self.mz
+
+        if self.point == element.from_point:
+            f[0:6, 1] = [fx, fy, fz, mx, my, mz]
+
+        elif self.point == element.to_point:
+            f[6:12, 1] = [fx, fy, fz, mx, my, mz]
+
+        return f
+
 
 @units.define(dx="length", dy="length", dz="length",
               mx="rotation", my="rotation", mz="rotation")
 class Displacement(Load):
-    """A generic displacement load"""
+    """A generic global displacement vector"""
 
     def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0):
         super(Displacement, self).__init__(name)
@@ -168,7 +270,7 @@ class Displacement(Load):
         self.rz = rz
 
 
-@units.define(ux="g_load", uy="g_load", uz="g_load")
+@units.define(ux="uniform_load", uy="uniform_load", uz="uniform_load")
 class Uniform(Load):
     """Generic uniform load"""
 
@@ -178,17 +280,59 @@ class Uniform(Load):
         self.uy = uy
         self.uz = uz
 
+    def flocal(self, element):
+        L = element.length
 
-class Seismic(Uniform):
-    """One directional seismic load applied as an uniform load"""
+        # apply the weight as an uniform load
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        wx = self.ux
+        wy = self.uy
+        wz = self.uz
+
+        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+
+        return f
+
+
+@units.define(gx="g_load", gy="g_load", gz="g_load")
+class Seismic(Weight):
+    """Three directional seismic load applied as an uniform g load"""
+
+    def __init__(self, name, gx=0.0, gy=0.0, gz=0.0, gfac=1.0):
+        super(Seismic, self).__init__(name, gfac)
+        self.gx = gx
+        self.gy = gy
+        self.gz = gz
 
     @classmethod
-    def from_ASCE7(cls, name, **kwargs):
-        raise NotImplementedError
+    def from_ASCE716(cls, name, **kwargs):
+        raise NotImplementedError("implement")
+
+    def flocal(self, element):
+        L = element.length
+
+        # apply the weight as an uniform load
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        # the gfac is 1 by default for earth gravity
+        wx = (self.total(element)*self.gx) / L
+        wy = (self.total(element)*self.gy) / L
+        wz = (self.total(element)*self.gz) / L
+
+        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+
+        return f
 
 
 class Wind(Uniform):
-    """One directional wind load applied as an uniform load"""
+    """Wind load applied as an uniform load.
+
+    The pressure due to wind is applied as a uniform force. It is a function
+    of the pipe elevation.
+    """
 
     @classmethod
     def from_ASCE7(cls, name, **kwargs):

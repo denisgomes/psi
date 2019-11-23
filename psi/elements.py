@@ -458,7 +458,7 @@ class Run(Piping):
         effectively making the element more flexible in the tranverse bending
         directions. The torsional stiffness is not altered.
         """
-        kmat = np.empty((12, 12), dtype=np.float32)
+        kmat = np.zeros((12, 12), dtype=np.float64)
 
         L = self.geometry.length
         E = self.material.eh[temp]
