@@ -416,9 +416,9 @@ class Run(Piping):
         """
         up = self.app.models.active_object.settings["core.vertical"]
         if up == "y":
-            local_y = np.array([0., 1., 0.])
+            local_y = np.array([0., 1., 0.], dtype=np.float64)
         elif up == "z":
-            local_y = np.array([0., 0., 1.])
+            local_y = np.array([0., 0., 1.], dtype=np.float64)
 
         from_vert = np.array(self.geometry.v1.co)
         to_vert = np.array(self.geometry.v2.co)
@@ -427,11 +427,11 @@ class Run(Piping):
         # check to see if local_x is parallel to global vertical
         if (1 - np.dot(local_x, local_y)) < 0.01:
             # yes parallel, vertical straight element
-            local_y = np.array([1., 0., 0.])
+            local_y = np.array([1., 0., 0.], dtype=np.float64)
 
         local_z = np.cross(local_x, local_y)
 
-        # recalculate local y so that its orthogonal
+        # recalculate local y so that it's orthogonal
         local_y = np.cross(local_x, local_z)
 
         return np.array([local_x/la.norm(local_x),
@@ -441,7 +441,7 @@ class Run(Piping):
 
     def T(self):
         """Local to global transformation matrix"""
-        tf = np.empty((12, 12), dtype=np.float32)
+        tf = np.zeros((12, 12), dtype=np.float64)
         dc = self.dircos()
 
         tf[:3, :3] = tf[3:6, 3:6] = tf[6:9, 6:9] = tf[9:12, 9:12] = dc[:, :]

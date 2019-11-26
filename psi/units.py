@@ -104,7 +104,7 @@ class Units(object):
         return units
 
     def set_base_units(self, name=None):
-        """The user may set the base units. Use at own risk!"""
+        """The user may set the base units. Use at your own risk!"""
         if name is None:
             name = "base"
 

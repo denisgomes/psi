@@ -118,9 +118,9 @@ class App(object):
                 # supports
                 "supports": self.supports,
                 "Anchor": self.supports.Anchor,
-                "Vertical": self.supports.Vertical,
-                "Lateral": self.supports.Lateral,
-                "Axial": self.supports.Axial,
+                "GlobalX": self.supports.GlobalX,
+                "GlobalY": self.supports.GlobalY,
+                "GlobalZ": self.supports.GlobalZ,
                 "Spring": self.supports.Spring,
 
                 # codes

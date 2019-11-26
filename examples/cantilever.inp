@@ -1,7 +1,7 @@
 """Simple analysis of a cantilevered pipe"""
 
 # parameter
-L = 12*10
+L = 10*12
 
 mdl = Model('simple')
 
@@ -15,16 +15,17 @@ run20 = Run(20, L)
 
 # supports
 anc1 = Anchor('A1', 10)
+anc1.apply([run20])
 
 # loads
-f1 = Force('f1', 20, fy=-1000)
+f1 = Force('f1', 20, fy=-5000)
 f1.apply([run20])
 
 # loadcases
 l1 = LoadCase('L1', 'SUS', [f1])
 
 # code
-b311 = B311('b311')
+b311 = B311('B311')
 b311.apply([run20])
 
 mdl.analyze()

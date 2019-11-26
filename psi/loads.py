@@ -62,7 +62,7 @@ class Load(Entity):
 
 @units.define(gfac="g_load")
 class Weight(Load):
-    """The weigth cases for each element.
+    """The weight cases for each element.
 
     Parameters
     ----------
@@ -116,7 +116,7 @@ class Weight(Load):
             wz = self.total(element) / L
             wy = 0.0
 
-        f[:, 1] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+        f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
                    0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
 
         return f
@@ -127,19 +127,27 @@ class Pressure(Load):
     """Internal or external pressure.
 
     The pressure can have a stiffening affect on the piping system called the
-    Bourdon effect. For large D/t ratio pipes, the effects of ovalization can
-    be made worse or better due to this effect.
+    Bourdon effect. For large D/t ratio pipes with large system pressures, the
+    effects of ovalization can be made worse due to this effect. When a
+    straight pipe is pressurized it wants to shrink. A pipe bend on the other
+    hand wants to open up.
 
     The sustained stress in most piping codes also use the internal pressure to
     calculate a longitudinal stress which is added to the bending stress.
 
-    A hoop stress can also be calculated to determine is the pipe wall is sized
+    A hoop stress can also be calculated to determine if the pipe wall is sized
     properly based on code requirements.
     """
 
     def __init__(self, name, pres=0):
         super(Pressure, self).__init__(name)
         self.pres = pres
+
+    def flocal(self, element):
+        """If bourdon effect is activated, a force is applied in the axial
+        direction of the piping.
+        """
+        pass
 
 
 @units.define(pres="pressure")
@@ -155,6 +163,9 @@ class Hydro(Load):
         super(Pressure, self).__init__(name)
         self.pres = pres
 
+    def flocal(self, element):
+        pass
+
 
 @units.define(temp="temperature")
 class Thermal(Load):
@@ -165,7 +176,22 @@ class Thermal(Load):
         self.temp = temp
 
     def flocal(self, element):
-        pass
+        tref = options["core.tref"]
+        delT = self.temp - tref
+        alp = element.material.alp[self.temp]
+        E = element.material.ymod[self.temp]
+        A = element.sections.area
+        L = element.length
+
+        # thermal displacement to axial force
+        fa = (E*A/L) * (alp*delT)
+
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        f[:, 0] = [fa, 0, 0, 0, 0, 0,
+                   -fa, 0, 0, 0, 0, 0]
+
+        return f
 
 
 @units.define(rho="density", gfac="g_load")
@@ -214,7 +240,7 @@ class Fluid(Load):
         # larger because the water does not stick to the pipe
         wx = wy = wz = self.weight(element) / L
 
-        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
                    -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
 
         return f
@@ -235,7 +261,8 @@ class Force(Load):
         self.my = my
         self.mz = mz
 
-    def flocal(self, element):
+    def fglobal(self, element):
+        """The forces are applied in the global directions"""
         f = np.zeros((12, 1), dtype=np.float64)
 
         fx = self.fx
@@ -245,11 +272,11 @@ class Force(Load):
         my = self.my
         mz = self.mz
 
-        if self.point == element.from_point:
-            f[0:6, 1] = [fx, fy, fz, mx, my, mz]
+        if self.point == element.from_point.name:
+            f[0:6, 0] = [fx, fy, fz, mx, my, mz]
 
-        elif self.point == element.to_point:
-            f[6:12, 1] = [fx, fy, fz, mx, my, mz]
+        elif self.point == element.to_point.name:
+            f[6:12, 0] = [fx, fy, fz, mx, my, mz]
 
         return f
 
@@ -290,7 +317,7 @@ class Uniform(Load):
         wy = self.uy
         wz = self.uz
 
-        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
                    -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
 
         return f
@@ -321,7 +348,7 @@ class Seismic(Weight):
         wy = (self.total(element)*self.gy) / L
         wz = (self.total(element)*self.gz) / L
 
-        f[:, 1] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
                    -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
 
         return f

@@ -39,7 +39,7 @@ class LoadCase(BaseCase):
     Note that the loads for a given case must be unique, in other words, the
     same load cannot be specified twice.
     """
-    def __int__(self, name, stype="SUS", loads=[]):
+    def __init__(self, name, stype="SUS", loads=[]):
         super(LoadCase, self).__init__(name, stype)
         self.loads = OrderedSet()
 

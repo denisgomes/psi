@@ -15,6 +15,7 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
 from psi.units import units
+from psi.solvers import gauss
 
 
 # TODO: Raise exception if model is not active on attribute access
@@ -346,8 +347,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # global system stiffness matrix
         Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
 
-        # system force matrix, one loadcase per column where a loadcase
-        # consists of one or more loads
+        # global system force matrix, one loadcase per column
+        # a loadcase consists of one or more loads
         Fs = np.zeros((nn*ndof, lc), dtype=np.float64)
 
         for element in inst.elements:
@@ -361,39 +362,58 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             # element stiffness at room temp, conservative stress
             ke = element.kglobal(273)
 
-            # assemble global stiffness matrix
-            Ks[niqi:niqj, niqi:niqj] += ke[niqi:niqj, niqi:niqj]
-            Ks[niqi:niqj, njqi:njqj] += ke[niqi:niqj, njqi:njqj]
-            Ks[njqi:njqj, niqi:niqj] += ke[njqi:njqj, niqi:niqj]
-            Ks[njqi:njqj, njqi:njqj] += ke[njqi:njqj, njqi:njqj]
+            # assemble global stiffness matrix, quadrant 1 to 4
+            Ks[niqi:niqj, niqi:niqj] += ke[niqi:niqj, niqi:niqj]    # 1st
+            Ks[niqi:niqj, njqi:njqj] += ke[niqi:niqj, njqi:njqj]    # 2nd
+            Ks[njqi:njqj, niqi:niqj] += ke[njqi:njqj, niqi:niqj]    # 3rd
+            Ks[njqi:njqj, njqi:njqj] += ke[njqi:njqj, njqi:njqj]    # 4th
+
+            # modify diagonal elements, penalty method
+            di = np.diag_indices(6)     # diagonal indices for 6x6 matrix
+            for support in element.supports:
+                ksup = support.kglobal(element)
+                # assign to diagonal elements of system matrix
+                Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]         # 1st
+                Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]       # 4th
 
             # iterate each loadcase adding loads
             for i, loadcase in enumerate(inst.loadcases):
-                with redirect_stdout(sys.__stdout__):
-                    print(loadcase)
+                # with redirect_stdout(sys.__stdout__):
+                #     print(loadcase)
 
                 # sum of all loads in a loadcase
                 fe = np.zeros((en*ndof, 1), dtype=np.float64)
 
                 for load in loadcase.loads:
-
                     if load in element.loads:
                         fe += load.fglobal(element)
 
-                # assembly global system force matrix
-                Fs[niqi:niqj, i] += fe[niqi:niqj]
-                Fs[njqi:njqj, i] += fe[njqi:njqj]
+                # assemble global system force matrix
+                Fs[niqi:niqj, i] += fe[niqi:niqj, 0]
+                Fs[njqi:njqj, i] += fe[njqi:njqj, 0]
+
+                # large stiffness added to force matrix
+                for support in element.supports:
+                    ksup = support.kglobal(element)
+
+                    a1 = 0.0    # displacement at support, 0 for now
+                    Fs[niqi:niqj, i] += ksup[:6, 0] * a1
+                    Fs[njqi:njqj, i] += ksup[6:12, 0] * a1
+
+        # with redirect_stdout(sys.__stdout__):
+        #     print(Fs)
+
+        # solve - Fs vector is mutated
+        X = gauss(Ks, Fs)
 
         with redirect_stdout(sys.__stdout__):
-            print(Fs)
+            print(X)
 
-        # supports and hangers using penalty method
+        # reaction forces and moments
 
-        # solve using gaussian elimination - solve for displacements
+        # extract element forces and moments
 
-        # extract element global forces and moments
-
-        # calculate code stresses
+        # calculate element code stresses
 
         units.enable()
 

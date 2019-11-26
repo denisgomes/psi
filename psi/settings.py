@@ -11,8 +11,14 @@ settings internally.
 from psi import VERSION
 
 
+class Options:
+    # Options should be encapsulated to associate units and default values
+
+    pass
+
+
 options = {
-        ### Core Options ###
+        # Core Options #
 
         # units systems, options: ("english", "si")
         "core.units": "english",
@@ -29,6 +35,9 @@ options = {
         # for corrosion allowance and mill tolerance, reduced thickness
         # is considered for stress calculations
         "core.stress_cases_corroded": False,
+
+        # activate bourdon pressure effect
+        "code.bourdon_effect": False,
 
         # program version
         "core.version": VERSION,
