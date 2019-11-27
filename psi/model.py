@@ -351,6 +351,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # a loadcase consists of one or more loads
         Fs = np.zeros((nn*ndof, lc), dtype=np.float64)
 
+        # pre-processing elements
         for element in inst.elements:
             idxi = points.index(element.from_point)
             idxj = points.index(element.to_point)
@@ -409,21 +410,46 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                     Fs[niqi:niqj, i] += (ksup[:6, 0] * a1)
                     Fs[njqi:njqj, i] += (ksup[6:12, 0] * a1)
 
+        # with redirect_stdout(sys.__stdout__):
+        #     print(Ks)
+
+        # solve - Fs vector is mutated if using gauss
+        # U = gauss(Ks, Fs)
+        U = np.linalg.solve(Ks, Fs)
+
         with redirect_stdout(sys.__stdout__):
-            print(Ks)
+            print(U)
 
-        # solve - Fs vector is mutated
-        # X = gauss(Ks, Fs)
-        X = np.linalg.solve(Ks, Fs)
+        # post processing elements
+        R = np.zeros((nn*ndof, lc), dtype=np.float64)   # reactions
+        # Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
+        # S = np.zeros((nn*ndof, lc), dtype=np.float64)   # code stresses
+
+        for element in inst.elements:
+            idxi = points.index(element.from_point)
+            idxj = points.index(element.to_point)
+
+            # node and corresponding dof (start, finish)
+            niqi, niqj = idxi*ndof, idxi*ndof + ndof
+            njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+            # nodal displacement vector per loadcase
+            for i, loadcase in enumerate(inst.loadcases):
+                # reaction forces and moments
+                for support in element.supports:
+                    ksup = support.kglobal(element)
+
+                    a1 = 0.0    # displacement at support, 0 for now
+                    # array multiplication is required below
+                    R[niqi:niqj, i] = -ksup[:6, 0] * U[niqi:niqj, i]
+                    R[njqi:njqj, i] = -ksup[6:12, 0] * U[njqi:njqj, i]
+
+                # extract element forces and moments
+
+                # calculate element code stresses
 
         with redirect_stdout(sys.__stdout__):
-            print(X)
-
-        # reaction forces and moments
-
-        # extract element forces and moments
-
-        # calculate element code stresses
+            print(R)
 
         units.enable()
 

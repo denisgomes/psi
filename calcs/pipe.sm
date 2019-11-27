@@ -4,7 +4,7 @@
   <settings dpi="96">
     <identity>
       <id>6e472044-4ba8-4db6-987f-2b0e85ac61a4</id>
-      <revision>337</revision>
+      <revision>338</revision>
     </identity>
     <calculation>
       <precision>4</precision>
@@ -612,7 +612,7 @@
         <e type="operator" args="2">:</e>
       </input>
       <result action="numeric">
-        <e type="operand">0.01542751</e>
+        <e type="operand">0.03085502</e>
         <e type="operand" style="unit">m</e>
         <e type="operator" args="2">*</e>
         <e type="operator" args="1">-</e>
@@ -628,7 +628,7 @@
         <e type="operand" style="unit">in</e>
       </contract>
       <result action="numeric">
-        <e type="operand">0.6074</e>
+        <e type="operand">1.2148</e>
         <e type="operator" args="1">-</e>
       </result>
     </math>
