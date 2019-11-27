@@ -71,6 +71,8 @@ Unit conversion should be disabled before the analysis is performed.
 """
 
 from math import cos, pi, sqrt
+from contextlib import redirect_stdout
+import sys
 
 import numpy as np
 import numpy.linalg as la
@@ -415,6 +417,7 @@ class Run(Piping):
         local x with local y.
         """
         up = self.app.models.active_object.settings["core.vertical"]
+        # note, local y is being set to a global direction
         if up == "y":
             local_y = np.array([0., 1., 0.], dtype=np.float64)
         elif up == "z":
@@ -426,18 +429,17 @@ class Run(Piping):
 
         # check to see if local_x is parallel to global vertical
         if (1 - np.dot(local_x, local_y)) < 0.01:
-            # yes parallel, vertical straight element
+            # yes parallel, vertical straight element, set to global x
             local_y = np.array([1., 0., 0.], dtype=np.float64)
 
         local_z = np.cross(local_x, local_y)
 
         # recalculate local y so that it's orthogonal
-        local_y = np.cross(local_x, local_z)
+        local_y = np.cross(local_z, local_x)
 
         return np.array([local_x/la.norm(local_x),
                          local_y/la.norm(local_y),
-                         local_z/la.norm(local_z)]
-                        )
+                         local_z/la.norm(local_z)], dtype=np.float64)
 
     def T(self):
         """Local to global transformation matrix"""
@@ -463,7 +465,7 @@ class Run(Piping):
         L = self.geometry.length
         E = self.material.eh[temp]
         nu = self.material.nu.value     # poisson's ratio
-        G = E / (2 * (1 + nu))          # shear mod isotropic mats
+        G = E / (2 * (1 + nu))          # shear mod, isotropic mats
 
         # used for rigids
         self.section.thk *= sfac
@@ -490,7 +492,7 @@ class Run(Piping):
         kmat[2, 10] = kmat[10, 2] = (-6*E*Iy/L**2) / kfac
 
         kmat[3, 3] = G*J / L
-        kmat[3, 9] = -G*J / L
+        kmat[9, 3] = kmat[3, 9] = -G*J / L
 
         kmat[4, 4] = (4*E*Iy/L) / kfac
         kmat[4, 8] = kmat[8, 4] = (6*E*Iy/L**2) / kfac
@@ -514,6 +516,9 @@ class Run(Piping):
 
         kmat[11, 11] = (4*E*Iz/L) / kfac
 
+        # with redirect_stdout(sys.__stdout__):
+        #     print(kmat)
+
         return kmat
 
     def kglobal(self, temp, sfac=1.0):
@@ -526,7 +531,8 @@ class Run(Piping):
         system.
         """
         T = self.T()    # build T once and reuse
-        return T.transpose() * self.klocal(temp, sfac) * T
+
+        return T.transpose() @ self.klocal(temp, sfac) @ T
 
 
 @units.define(_radius="length")

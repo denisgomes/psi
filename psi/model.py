@@ -362,11 +362,17 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             # element stiffness at room temp, conservative stress
             ke = element.kglobal(273)
 
+            # with redirect_stdout(sys.__stdout__):
+            #     print(ke)
+
             # assemble global stiffness matrix, quadrant 1 to 4
             Ks[niqi:niqj, niqi:niqj] += ke[niqi:niqj, niqi:niqj]    # 1st
             Ks[niqi:niqj, njqi:njqj] += ke[niqi:niqj, njqi:njqj]    # 2nd
             Ks[njqi:njqj, niqi:niqj] += ke[njqi:njqj, niqi:niqj]    # 3rd
             Ks[njqi:njqj, njqi:njqj] += ke[njqi:njqj, njqi:njqj]    # 4th
+
+            # with redirect_stdout(sys.__stdout__):
+            #     print(Ks)
 
             # modify diagonal elements, penalty method
             di = np.diag_indices(6)     # diagonal indices for 6x6 matrix
@@ -376,6 +382,9 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]         # 1st
                 Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]       # 4th
 
+            # with redirect_stdout(sys.__stdout__):
+            #     print(Ks)
+
             # iterate each loadcase adding loads
             for i, loadcase in enumerate(inst.loadcases):
                 # with redirect_stdout(sys.__stdout__):
@@ -383,7 +392,6 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
                 # sum of all loads in a loadcase
                 fe = np.zeros((en*ndof, 1), dtype=np.float64)
-
                 for load in loadcase.loads:
                     if load in element.loads:
                         fe += load.fglobal(element)
@@ -392,19 +400,21 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 Fs[niqi:niqj, i] += fe[niqi:niqj, 0]
                 Fs[njqi:njqj, i] += fe[njqi:njqj, 0]
 
-                # large stiffness added to force matrix
+                # large stiffness added to each force matrix with non-zero
+                # support displacement
                 for support in element.supports:
                     ksup = support.kglobal(element)
 
                     a1 = 0.0    # displacement at support, 0 for now
-                    Fs[niqi:niqj, i] += ksup[:6, 0] * a1
-                    Fs[njqi:njqj, i] += ksup[6:12, 0] * a1
+                    Fs[niqi:niqj, i] += (ksup[:6, 0] * a1)
+                    Fs[njqi:njqj, i] += (ksup[6:12, 0] * a1)
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(Fs)
+        with redirect_stdout(sys.__stdout__):
+            print(Ks)
 
         # solve - Fs vector is mutated
-        X = gauss(Ks, Fs)
+        # X = gauss(Ks, Fs)
+        X = np.linalg.solve(Ks, Fs)
 
         with redirect_stdout(sys.__stdout__):
             print(X)

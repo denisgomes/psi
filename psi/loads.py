@@ -57,7 +57,7 @@ class Load(Entity):
         """Return the element global force vector for the load."""
         T = element.T()    # build T once and reuse
 
-        return T.transpose() * self.flocal(element)
+        return T.transpose() @ self.flocal(element)
 
 
 @units.define(gfac="g_load")

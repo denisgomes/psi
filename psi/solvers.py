@@ -12,7 +12,7 @@ def gauss(a, b):
     vector to save storage space.
     """
     n = len(b)
-    tempa = np.zeros(n)     # pre-emptive array used to avoid copy below
+    tempa = np.zeros(n, dtype=np.float64)
     for k in range(n-1):
         # Determine where the largest pivot exists
         indexbig = np.argmax(np.abs(a[k:n, k]))

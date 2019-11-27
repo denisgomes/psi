@@ -18,7 +18,7 @@ anc1 = Anchor('A1', 10)
 anc1.apply([run20])
 
 # loads
-f1 = Force('f1', 20, fy=-5000)
+f1 = Force('f1', 20, fy=-10000)
 f1.apply([run20])
 
 # loadcases

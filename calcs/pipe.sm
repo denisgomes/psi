@@ -4,7 +4,7 @@
   <settings dpi="96">
     <identity>
       <id>6e472044-4ba8-4db6-987f-2b0e85ac61a4</id>
-      <revision>320</revision>
+      <revision>337</revision>
     </identity>
     <calculation>
       <precision>4</precision>
@@ -45,7 +45,7 @@
       <p>Outer diameter</p>
     </text>
   </region>
-  <region id="3" left="396" top="36" width="74" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="3" left="396" top="36" width="154" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">L</e>
@@ -54,6 +54,11 @@
         <e type="operator" args="2">*</e>
         <e type="operator" args="2">:</e>
       </input>
+      <result action="numeric">
+        <e type="operand">3.048</e>
+        <e type="operand" style="unit">m</e>
+        <e type="operator" args="2">*</e>
+      </result>
     </math>
   </region>
   <region id="4" left="612" top="36" width="120" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
@@ -251,7 +256,21 @@
       <p>Area of pipe</p>
     </text>
   </region>
-  <region id="24" left="0" top="531" width="259" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="24" left="54" top="522" width="142" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">Area</e>
+      </input>
+      <result action="numeric">
+        <e type="operand">0.0077</e>
+        <e type="operand" style="unit">m</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+      </result>
+    </math>
+  </region>
+  <region id="25" left="0" top="585" width="259" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">I.y</e>
@@ -279,12 +298,31 @@
       </result>
     </math>
   </region>
-  <region id="25" left="324" top="540" width="288" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="26" left="324" top="594" width="288" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Area moment of inertia about y-axis</p>
     </text>
   </region>
-  <region id="26" left="0" top="585" width="172" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="27" left="72" top="630" width="171" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">I.y</e>
+      </input>
+      <result action="numeric">
+        <e type="operand">6.6903</e>
+        <e type="operand">10</e>
+        <e type="operand">5</e>
+        <e type="operator" args="1">-</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand" style="unit">m</e>
+        <e type="operand">4</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+      </result>
+    </math>
+  </region>
+  <region id="28" left="0" top="693" width="172" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">I.z</e>
@@ -301,12 +339,12 @@
       </result>
     </math>
   </region>
-  <region id="27" left="324" top="594" width="288" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="29" left="324" top="702" width="288" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Area moment of inertia about z-axis</p>
     </text>
   </region>
-  <region id="28" left="0" top="639" width="259" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="30" left="0" top="747" width="259" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">I.x</e>
@@ -334,12 +372,12 @@
       </result>
     </math>
   </region>
-  <region id="29" left="324" top="648" width="192" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="31" left="324" top="756" width="192" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Polar moment of inertia</p>
     </text>
   </region>
-  <region id="30" left="0" top="702" width="295" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="32" left="0" top="810" width="295" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -358,17 +396,17 @@
       </result>
     </math>
   </region>
-  <region id="31" left="324" top="702" width="96" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="33" left="324" top="810" width="96" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Pipe Weight</p>
     </text>
   </region>
-  <region id="32" left="0" top="774" width="72" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="34" left="0" top="882" width="72" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Contents</p>
     </text>
   </region>
-  <region id="33" left="0" top="801" width="245" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="35" left="0" top="909" width="245" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.cont</e>
@@ -393,12 +431,12 @@
       </result>
     </math>
   </region>
-  <region id="34" left="0" top="882" width="176" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="36" left="0" top="990" width="176" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Insulation Properties</p>
     </text>
   </region>
-  <region id="35" left="0" top="909" width="367" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="37" left="0" top="1017" width="367" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.ins</e>
@@ -433,12 +471,12 @@
       </result>
     </math>
   </region>
-  <region id="36" left="0" top="1017" width="144" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="38" left="0" top="1125" width="144" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Cladding or Liner</p>
     </text>
   </region>
-  <region id="37" left="0" top="1053" width="365" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="39" left="0" top="1161" width="365" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.cld</e>
@@ -473,7 +511,7 @@
       </result>
     </math>
   </region>
-  <region id="38" left="0" top="1125" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="40" left="0" top="1233" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -488,7 +526,7 @@
       </result>
     </math>
   </region>
-  <region id="39" left="0" top="1161" width="257" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="41" left="0" top="1269" width="257" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -505,7 +543,7 @@
       </result>
     </math>
   </region>
-  <region id="40" left="0" top="1197" width="304" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="42" left="0" top="1305" width="304" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -524,16 +562,16 @@
       </result>
     </math>
   </region>
-  <region id="41" left="0" top="1278" width="232" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="43" left="0" top="1386" width="232" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Cantilevered Beam Deflection</p>
     </text>
   </region>
-  <region id="42" left="0" top="1314" width="138" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="44" left="0" top="1422" width="146" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">F.beam</e>
-        <e type="operand">5000</e>
+        <e type="operand">10000</e>
         <e type="operand" style="unit">lbf</e>
         <e type="operator" args="2">*</e>
         <e type="operator" args="1">-</e>
@@ -541,7 +579,7 @@
       </input>
     </math>
   </region>
-  <region id="43" left="0" top="1359" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="45" left="0" top="1467" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">E</e>
@@ -556,7 +594,7 @@
       </input>
     </math>
   </region>
-  <region id="44" left="0" top="1404" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="46" left="0" top="1512" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
     <math decimalPlaces="8">
       <input>
         <e type="operand">δ.max</e>
@@ -581,7 +619,7 @@
       </result>
     </math>
   </region>
-  <region id="45" left="0" top="1485" width="137" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="47" left="0" top="1593" width="137" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">δ.max</e>
