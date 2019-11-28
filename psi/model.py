@@ -322,17 +322,6 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         units.disable()
         tqdm.info("*** Switching to base units.")
 
-        # debuging code
-        # with redirect_stdout(sys.__stdout__):
-            # print(inst.points.values())
-            # print(inst.elements.values())
-            # print(inst.supports.values())
-            # print(inst.loads.values())
-            # print(element.klocal(200))
-
-            # for element in inst.elements.values():
-            #     print(element.klocal(273))
-
         # do stuff here
         tqdm.info("*** Assembling system stiffness and force matrix.")
 
@@ -367,10 +356,10 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             #     print(keg)
 
             # assemble global stiffness matrix, quadrant 1 to 4
-            Ks[niqi:niqj, niqi:niqj] += keg[niqi:niqj, niqi:niqj]    # 1st
-            Ks[niqi:niqj, njqi:njqj] += keg[niqi:niqj, njqi:njqj]    # 2nd
-            Ks[njqi:njqj, niqi:niqj] += keg[njqi:njqj, niqi:niqj]    # 3rd
-            Ks[njqi:njqj, njqi:njqj] += keg[njqi:njqj, njqi:njqj]    # 4th
+            Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 1st
+            Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 2nd
+            Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
+            Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
             # with redirect_stdout(sys.__stdout__):
             #     print(Ks)
@@ -399,8 +388,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                         feg += load.fglobal(element)
 
                 # assemble global system force matrix
-                Fs[niqi:niqj, i] += feg[niqi:niqj, 0]
-                Fs[njqi:njqj, i] += feg[njqi:njqj, 0]
+                Fs[niqi:niqj, i] += feg[:6, 0]
+                Fs[njqi:njqj, i] += feg[6:12, 0]
 
                 # large stiffness added to each force matrix with non-zero
                 # support displacements
@@ -456,15 +445,15 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 # displacement vector given by (T * _x)
                 _x = np.zeros((12, 1), dtype=np.float64)
 
-                _x[niqi:niqj, 0] = X[niqi:niqj, i]
-                _x[njqi:njqj, 0] = X[njqi:njqj, i]
+                _x[:6, 0] = X[niqi:niqj, i]
+                _x[6:12, 0] = X[njqi:njqj, i]
 
-                # x is element local displacements
+                # x is the element local displacements
                 fi = kel @ (T @ _x)
 
                 # internal force and moment matrix
-                Fi[niqi:niqj, i] = fi[niqi:niqj, 0]
-                Fi[njqi:njqj, i] = fi[njqi:njqj, 0]
+                Fi[niqi:niqj, i] = fi[:6, 0]
+                Fi[njqi:njqj, i] = fi[6:12, 0]
 
         with redirect_stdout(sys.__stdout__):
             print(Fi)
