@@ -361,21 +361,22 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
             # element stiffness at room temp, conservative stress
-            ke = element.kglobal(273)
+            keg = element.kglobal(273)
 
             # with redirect_stdout(sys.__stdout__):
-            #     print(ke)
+            #     print(keg)
 
             # assemble global stiffness matrix, quadrant 1 to 4
-            Ks[niqi:niqj, niqi:niqj] += ke[niqi:niqj, niqi:niqj]    # 1st
-            Ks[niqi:niqj, njqi:njqj] += ke[niqi:niqj, njqi:njqj]    # 2nd
-            Ks[njqi:njqj, niqi:niqj] += ke[njqi:njqj, niqi:niqj]    # 3rd
-            Ks[njqi:njqj, njqi:njqj] += ke[njqi:njqj, njqi:njqj]    # 4th
+            Ks[niqi:niqj, niqi:niqj] += keg[niqi:niqj, niqi:niqj]    # 1st
+            Ks[niqi:niqj, njqi:njqj] += keg[niqi:niqj, njqi:njqj]    # 2nd
+            Ks[njqi:njqj, niqi:niqj] += keg[njqi:njqj, niqi:niqj]    # 3rd
+            Ks[njqi:njqj, njqi:njqj] += keg[njqi:njqj, njqi:njqj]    # 4th
 
             # with redirect_stdout(sys.__stdout__):
             #     print(Ks)
 
-            # modify diagonal elements, penalty method
+            # modify diagonal elements, penalty method, by adding large
+            # stiffnesses to the diagonals where a support is located
             di = np.diag_indices(6)     # diagonal indices for 6x6 matrix
             for support in element.supports:
                 ksup = support.kglobal(element)
@@ -392,17 +393,17 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 #     print(loadcase)
 
                 # sum of all loads in a loadcase
-                fe = np.zeros((en*ndof, 1), dtype=np.float64)
+                feg = np.zeros((en*ndof, 1), dtype=np.float64)
                 for load in loadcase.loads:
                     if load in element.loads:
-                        fe += load.fglobal(element)
+                        feg += load.fglobal(element)
 
                 # assemble global system force matrix
-                Fs[niqi:niqj, i] += fe[niqi:niqj, 0]
-                Fs[njqi:njqj, i] += fe[njqi:njqj, 0]
+                Fs[niqi:niqj, i] += feg[niqi:niqj, 0]
+                Fs[njqi:njqj, i] += feg[njqi:njqj, 0]
 
                 # large stiffness added to each force matrix with non-zero
-                # support displacement
+                # support displacements
                 for support in element.supports:
                     ksup = support.kglobal(element)
 
@@ -414,16 +415,17 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         #     print(Ks)
 
         # solve - Fs vector is mutated if using gauss
-        # U = gauss(Ks, Fs)
-        U = np.linalg.solve(Ks, Fs)
+        # X = gauss(Ks, Fs)
+        tqdm.info("*** Solving system equations for displacements.")
+        X = np.linalg.solve(Ks, Fs)
 
         with redirect_stdout(sys.__stdout__):
-            print(U)
+            print(X)
 
-        # post processing elements
+        tqdm.info("*** Post processing elements...")
+
         R = np.zeros((nn*ndof, lc), dtype=np.float64)   # reactions
-        # Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
-        # S = np.zeros((nn*ndof, lc), dtype=np.float64)   # code stresses
+        Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
 
         for element in inst.elements:
             idxi = points.index(element.from_point)
@@ -433,23 +435,39 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             niqi, niqj = idxi*ndof, idxi*ndof + ndof
             njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
+            # element local stiffness and transformation matrix
+            kel = element.klocal(273)
+            T = element.T()
+
             # nodal displacement vector per loadcase
             for i, loadcase in enumerate(inst.loadcases):
                 # reaction forces and moments
                 for support in element.supports:
                     ksup = support.kglobal(element)
 
-                    a1 = 0.0    # displacement at support, 0 for now
-                    # array multiplication is required below
-                    R[niqi:niqj, i] = -ksup[:6, 0] * U[niqi:niqj, i]
-                    R[njqi:njqj, i] = -ksup[6:12, 0] * U[njqi:njqj, i]
+                    a1 = 0.0    # imposed displacement at support, 0 for now
+                    # array multiplication is required below to calculate the
+                    # the reaction loads
+                    R[niqi:niqj, i] = -ksup[:6, 0] * X[niqi:niqj, i]
+                    R[njqi:njqj, i] = -ksup[6:12, 0] * X[njqi:njqj, i]
 
-                # extract element forces and moments
+                # calculate element local forces and moments using the local
+                # element stiffness matrix and fi = kel*x where x is the local
+                # displacement vector given by (T * _x)
+                _x = np.zeros((12, 1), dtype=np.float64)
 
-                # calculate element code stresses
+                _x[niqi:niqj, 0] = X[niqi:niqj, i]
+                _x[njqi:njqj, 0] = X[njqi:njqj, i]
+
+                # x is element local displacements
+                fi = kel @ (T @ _x)
+
+                # internal force and moment matrix
+                Fi[niqi:niqj, i] = fi[niqi:niqj, 0]
+                Fi[njqi:njqj, i] = fi[njqi:njqj, 0]
 
         with redirect_stdout(sys.__stdout__):
-            print(R)
+            print(Fi)
 
         units.enable()
 
