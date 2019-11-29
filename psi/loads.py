@@ -93,7 +93,10 @@ class Weight(Load):
 
     def insulation(self, element):
         """Insulation weight"""
-        return element.insulation_mass() * self.gfac
+        try:
+            return element.insulation_mass() * self.gfac
+        except:
+            return 0.0
 
     def total(self, element):
         """Total weight of piping element"""
@@ -109,11 +112,11 @@ class Weight(Load):
         f = np.zeros((12, 1), dtype=np.float64)
 
         if vert == "y":
-            wy = self.total(element) / L
+            wy = -self.total(element) / L
             wz = 0.0
 
         elif vert == "z":
-            wz = self.total(element) / L
+            wz = -self.total(element) / L
             wy = 0.0
 
         f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
@@ -129,8 +132,8 @@ class Pressure(Load):
     The pressure can have a stiffening affect on the piping system called the
     Bourdon effect. For large D/t ratio pipes with large system pressures, the
     effects of ovalization can be made worse due to this effect. When a
-    straight pipe is pressurized it wants to shrink. A pipe bend on the other
-    hand wants to open up.
+    straight pipe is pressurized it wants to shrink axially. A pipe bend on the
+    other hand wants to open up.
 
     The sustained stress in most piping codes also use the internal pressure to
     calculate a longitudinal stress which is added to the bending stress.
@@ -176,20 +179,23 @@ class Thermal(Load):
         self.temp = temp
 
     def flocal(self, element):
+        # tref should have the correct units
         tref = options["core.tref"]
+
         delT = self.temp - tref
+
         alp = element.material.alp[self.temp]
         E = element.material.ymod[self.temp]
-        A = element.sections.area
+        A = element.section.area
         L = element.length
 
-        # thermal displacement to axial force
-        fa = (E*A/L) * (alp*delT)
+        # thermal axial force causing displacement
+        fa = (E*A) * (alp*delT)
 
         f = np.zeros((12, 1), dtype=np.float64)
 
-        f[:, 0] = [fa, 0, 0, 0, 0, 0,
-                   -fa, 0, 0, 0, 0, 0]
+        f[:, 0] = [-fa, 0, 0, 0, 0, 0,
+                   fa, 0, 0, 0, 0, 0]
 
         return f
 

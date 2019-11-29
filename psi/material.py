@@ -109,11 +109,11 @@ class Alp(Property):
 
 
 @units.define(_values="elastic_modulus")
-class Eh(Property):
+class YMod(Property):
     """Hot Young's modulus"""
 
     def __init__(self):
-        super(Eh, self).__init__("Young's Modulus")
+        super(YMod, self).__init__("Young's Modulus")
 
 
 @units.define(_values="pipe_density")
@@ -147,7 +147,7 @@ class Material(Entity, ActiveEntityMixin):
         self._nu = Nu()
         self._alp = Alp()
         self._sh = Sh()
-        self._eh = Eh()
+        self._ymod = YMod()
 
         self.activate()
 
@@ -216,8 +216,8 @@ class Material(Entity, ActiveEntityMixin):
                                      if v is not None]
                     mat.sh.table = [(t, v) for t, v in zip(tempc, shc)
                                     if v is not None]
-                    mat.eh.table = [(t, v) for t, v in zip(tempc, ymodc)
-                                    if v is not None]
+                    mat.ymod.table = [(t, v) for t, v in zip(tempc, ymodc)
+                                      if v is not None]
 
                     return mat
             else:
@@ -232,8 +232,8 @@ class Material(Entity, ActiveEntityMixin):
         return self._alp
 
     @property
-    def eh(self):
-        return self._eh
+    def ymod(self):
+        return self._ymod
 
     @property
     def rho(self):

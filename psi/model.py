@@ -345,7 +345,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             idxi = points.index(element.from_point)
             idxj = points.index(element.to_point)
 
-            # node and corresponding dof (start, finish)
+            # node and corresponding dof (start, finish), used to define the
+            # elements of the system stiffness and force matrices
             niqi, niqj = idxi*ndof, idxi*ndof + ndof
             njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
@@ -444,7 +445,6 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 # element stiffness matrix and fi = kel*x where x is the local
                 # displacement vector given by (T * _x)
                 _x = np.zeros((12, 1), dtype=np.float64)
-
                 _x[:6, 0] = X[niqi:niqj, i]
                 _x[6:12, 0] = X[njqi:njqj, i]
 
@@ -455,8 +455,14 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 Fi[niqi:niqj, i] = fi[:6, 0]
                 Fi[njqi:njqj, i] = fi[6:12, 0]
 
+                # write results data to each loadcase object
+                # stuff here
+
+        # do loadcase combination cases
+        # code here
+
         with redirect_stdout(sys.__stdout__):
-            print(Fi)
+            print(R)
 
         units.enable()
 

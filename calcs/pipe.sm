@@ -4,7 +4,7 @@
   <settings dpi="96">
     <identity>
       <id>6e472044-4ba8-4db6-987f-2b0e85ac61a4</id>
-      <revision>339</revision>
+      <revision>377</revision>
     </identity>
     <calculation>
       <precision>4</precision>
@@ -401,12 +401,24 @@
       <p>Pipe Weight</p>
     </text>
   </region>
-  <region id="34" left="0" top="882" width="72" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="34" left="63" top="846" width="160" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">W.pipe</e>
+      </input>
+      <result action="numeric">
+        <e type="operand">1798.8847</e>
+        <e type="operand" style="unit">N</e>
+        <e type="operator" args="2">*</e>
+      </result>
+    </math>
+  </region>
+  <region id="35" left="0" top="918" width="72" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Contents</p>
     </text>
   </region>
-  <region id="35" left="0" top="909" width="245" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="36" left="0" top="945" width="245" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.cont</e>
@@ -431,12 +443,12 @@
       </result>
     </math>
   </region>
-  <region id="36" left="0" top="990" width="176" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="37" left="0" top="1026" width="176" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Insulation Properties</p>
     </text>
   </region>
-  <region id="37" left="0" top="1017" width="367" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="38" left="0" top="1053" width="367" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.ins</e>
@@ -471,12 +483,12 @@
       </result>
     </math>
   </region>
-  <region id="38" left="0" top="1125" width="144" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="39" left="0" top="1161" width="144" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Cladding or Liner</p>
     </text>
   </region>
-  <region id="39" left="0" top="1161" width="365" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="40" left="0" top="1197" width="365" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.cld</e>
@@ -511,7 +523,7 @@
       </result>
     </math>
   </region>
-  <region id="40" left="0" top="1233" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="41" left="0" top="1269" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -526,7 +538,7 @@
       </result>
     </math>
   </region>
-  <region id="41" left="0" top="1269" width="257" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="42" left="0" top="1305" width="257" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -543,7 +555,7 @@
       </result>
     </math>
   </region>
-  <region id="42" left="0" top="1305" width="304" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="43" left="0" top="1341" width="304" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">W.pipe</e>
@@ -562,12 +574,12 @@
       </result>
     </math>
   </region>
-  <region id="43" left="0" top="1386" width="232" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="44" left="0" top="1422" width="232" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Cantilevered Beam Deflection</p>
     </text>
   </region>
-  <region id="44" left="0" top="1422" width="146" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="45" left="0" top="1458" width="146" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">F.beam</e>
@@ -579,7 +591,7 @@
       </input>
     </math>
   </region>
-  <region id="45" left="0" top="1467" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="46" left="0" top="1503" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">E</e>
@@ -594,7 +606,7 @@
       </input>
     </math>
   </region>
-  <region id="46" left="0" top="1512" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="47" left="0" top="1548" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
     <math decimalPlaces="8">
       <input>
         <e type="operand">δ.max</e>
@@ -619,7 +631,7 @@
       </result>
     </math>
   </region>
-  <region id="47" left="0" top="1593" width="137" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="48" left="0" top="1629" width="137" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">δ.max</e>
@@ -630,6 +642,87 @@
       <result action="numeric">
         <e type="operand">1.2148</e>
         <e type="operator" args="1">-</e>
+      </result>
+    </math>
+  </region>
+  <region id="49" left="0" top="1701" width="152" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Thermal Deflection</p>
+    </text>
+  </region>
+  <region id="50" left="0" top="1755" width="87" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">T.ref</e>
+        <e type="operand">70</e>
+        <e type="operand" style="unit">F</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="51" left="0" top="1791" width="95" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">T.max</e>
+        <e type="operand">500</e>
+        <e type="operand" style="unit">F</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="52" left="0" top="1827" width="173" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">α.500</e>
+        <e type="operand">7.02</e>
+        <e type="operand">10</e>
+        <e type="operand">6</e>
+        <e type="operator" args="1">-</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operand" style="unit">F</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="53" left="0" top="1881" width="316" height="32" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">δ.thermal</e>
+        <e type="operand">α.500</e>
+        <e type="operand">T.max</e>
+        <e type="operand">T.ref</e>
+        <e type="operator" args="2">-</e>
+        <e type="bracket">(</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">L</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <result action="numeric">
+        <e type="operand">0.0092</e>
+        <e type="operand" style="unit">m</e>
+        <e type="operator" args="2">*</e>
+      </result>
+    </math>
+  </region>
+  <region id="54" left="0" top="1935" width="153" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">δ.thermal</e>
+      </input>
+      <contract>
+        <e type="operand" style="unit">in</e>
+      </contract>
+      <result action="numeric">
+        <e type="operand">0.3622</e>
       </result>
     </math>
   </region>

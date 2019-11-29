@@ -1,2 +1,2 @@
 length,rotation,force,mass,moment_input,moment_output,stress,temperature,pressure,elastic_modulus,pipe_density,insulation_density,fluid_density,translation_stiffness,rotation_stiffness,uniform_load,wind_load,elevation,g_load,diameter,thickness
-m,deg,N,kg,N*m,N*m,Pa,degK,Pa,Pa,kg/m**3,kg/m**3,kg/m**3,N/m,N*m/deg,N/m,Pa,m,gravity,m,m
+m,deg,N,kg,N*m,N*m,Pa,degK,Pa,Pa,kg/m**3,kg/m**3,kg/m**3,N/m,N*m/deg,N/m,Pa,m,m/s**2,m,m

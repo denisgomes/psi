@@ -463,7 +463,7 @@ class Run(Piping):
         kmat = np.zeros((12, 12), dtype=np.float64)
 
         L = self.geometry.length
-        E = self.material.eh[temp]
+        E = self.material.ymod[temp]
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod, isotropic mats
 
