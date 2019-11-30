@@ -1,12 +1,12 @@
 """Defining units for object attributes that make up the data model.
 
-By default the core data model does not use explicit units, though it has
-implicit 'internal' base SI units associated with each of the managed
-quantaties. When the user changes or defines a new unit system, the internal
-units are unchanged. The various data model quantaties are converted from user
-defined units to 'internal' units and back again on the fly. As a result, the
-core data model quantaties can remain consistent. All calculations are also
-therefore consistent.
+By default the core data model does not use units explicitly. It has implicit
+'internal' base SI units associated with each of the managed quantaties. When
+the user changes or defines a new unit system, the internal units and values
+remain changed. The various data model quantaties are converted from user
+defined units to 'internal' units and back again on the fly at runtime. As a
+result, the core data model quantaties can remain consistent when the model is
+finally analyzed in base units.
 """
 
 import os
@@ -89,7 +89,18 @@ class Quantity(object):
                     raise e
 
 
-class Units(object):
+class UnitsContextMixin(object):
+    """Allows for units to be used within a specific code context"""
+
+    def __enter__(self):
+        Quantity.user_units.update(self.load_units_file(self.user_units))
+
+    def __exit__(self, type, value, traceback):
+        name = options["core.units"]
+        Quantity.user_units.update(self.load_units_file(name))
+
+
+class Units(UnitsContextMixin):
     """Allows for units to be defined for managed attributes"""
 
     def __init__(self, base_units="base", user_units="english"):
@@ -118,7 +129,7 @@ class Units(object):
         Quantity.user_units.update(self.load_units_file(name))
 
     def disable(self):
-        """Turn off unit conversion so that only values in default units are
+        """Turn off unit conversion so that only values in base units are
         returned. Automatic unit conversion is turned off before the model is
         analyzed so that base SI units are used.
         """

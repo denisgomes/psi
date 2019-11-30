@@ -148,7 +148,7 @@ class Pressure(Load):
 
     def flocal(self, element):
         """If bourdon effect is activated, a force is applied in the axial
-        direction of the piping.
+        direction of the piping similar to the thermal loading.
         """
         pass
 
@@ -158,7 +158,7 @@ class Hydro(Load):
     """Hydro test pressure
 
     Test pressure is typically 1.5 times the design pressure. Hydro testing is
-    performed to ensure that there a no leaks. Pneumatic testing can also be
+    performed to ensure that there are no leaks. Pneumatic testing can also be
     used along with RT (x-ray).
     """
 

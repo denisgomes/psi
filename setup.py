@@ -8,7 +8,7 @@ setup(
     description="An engineering pipe stress design and analysis software.",
 
     # display on pypi
-    long_description="An engineering pipe stress design and analysis software",
+    long_description="An engineering pipe stress design and analysis software.",
 
     url="https://www.github.com/denisgomes/psi",
 
@@ -31,7 +31,7 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.5",
         ],
 
     keywords="pipe stress supports engineering finite element analysis",

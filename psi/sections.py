@@ -7,7 +7,7 @@ from math import pi
 import psi
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
-from psi.units import units
+from psi.units import units, Units
 
 
 class Section(Entity, ActiveEntityMixin):
@@ -44,7 +44,8 @@ class Section(Entity, ActiveEntityMixin):
 class Pipe(Section):
 
     @classmethod
-    def from_file(cls, name, nps, sch, corra=None, milltol=None, fname=None):
+    def from_file(cls, name, nps, sch, corra=None, milltol=None, fname=None,
+                  default_units='english'):
         """Create a pipe object by nominal pipe size and the schedule.
 
         A lookup table is used to determine the corresponding thickness.
@@ -68,6 +69,10 @@ class Pipe(Section):
 
         fname : str
             Full path to the table used to do the lookup.
+
+        default_units : str
+            The implicit units used for the data. Must match one of the units
+            already defined.
         """
         if fname is None:
             fname = psi.PIPE_DATA_FILE
@@ -88,8 +93,14 @@ class Pipe(Section):
                     try:
                         od = float(row["od"])
                         thk = float(row[sch_map[sch]])
-                        return cls(name, od, thk, corra=corra,
-                                   milltol=milltol)
+
+                        # TODO: pretty ugly - use contextmanager to define
+                        _units = cls._app.models.active_object.units
+                        cls._app.models.active_object.units = default_units
+                        pipe = cls(name, od, thk, corra=corra, milltol=milltol)
+                        cls._app.models.active_object.units = _units
+                        return pipe
+
                     except ValueError:  # calling float on empty string
                         return None
             else:
@@ -264,7 +275,7 @@ class Pipe(Section):
 class WideFlange(Section):
 
     @classmethod
-    def from_table(cls, name, size="W4x13", fname=None):
+    def from_file(cls, name, size="W4x13", fname=None):
         if fname is None:
             fname = psi.BEAM_DATA_FILE
 

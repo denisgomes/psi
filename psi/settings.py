@@ -4,8 +4,12 @@ When a model is first saved or when model options are saved, the application
 settings are saved as model settings. Application settings are settings that
 reside on the application side whereas model settings are transfered via the
 saved file. The model settings, if one exists are merged with the application
-settings when a model is opened. The application always uses the application
-settings internally.
+settings when a model is opened. The model settings are then used for the
+remainder of the session.
+
+Applications settings and model settings may diverge over the course of time.
+When the software is update new application settings will be merged onto the
+model settings to ensure, backwards compatibility between version.
 """
 
 from psi import VERSION
