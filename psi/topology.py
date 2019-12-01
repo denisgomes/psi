@@ -2,7 +2,7 @@
 
 from psi.utils.euclid import Vector3
 from psi.utils.bezier import bezier
-from psi.units import units
+from psi import units
 
 
 @units.define(x="length", y="length", z="length")

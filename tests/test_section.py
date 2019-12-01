@@ -9,7 +9,10 @@ class TestSection(unittest.TestCase):
 
     def setUp(self):
         app = App()
+
         self.model = app.models.Model("test")
+        self.model.units = 'english'
+
         self.p10sch40 = app.sections.Pipe.from_file("P10", "10", "40")
 
     def test_od(self):

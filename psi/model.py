@@ -14,7 +14,7 @@ from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
-from psi.units import units
+from psi import units
 from psi.solvers import gauss
 
 
@@ -155,34 +155,28 @@ class Model(Entity, ActiveEntityMixin):
     @property
     def units(self):
         """Assign model units derived from application units"""
-        # return options["core.units"]
         return self._settings["core.units"]
 
     @units.setter
     def units(self, name):
-        units.set_user_units(name)
+        self.app.units.set_user_units(name)
         self._settings["core.units"] = name
-        # options["core.units"] = name
 
     @property
     def vertical(self):
         return self._settings["core.vertical"]
-        # return options["core.vertical"]
 
     @vertical.setter
     def vertical(self, value):
         self._settings["core.vertical"] = value
-        # options["core.vertical"] = value
 
     @property
     def tref(self):
         return self._settings["core.tref"]
-        # return options["core.tref"]
 
     @tref.setter
     def tref(self, value):
         self._settings["core.tref"] = value
-        # options["core.tref"] = value
 
     def close(self):
         self.parent.close(self)
@@ -319,7 +313,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # Note: All internal object data is stored in SI once loaded from
         # external files, disabling unit consersion allows for working with
         # only SI
-        units.disable()
+        self.app.units.disable()
         tqdm.info("*** Switching to base units.")
 
         # do stuff here
@@ -464,7 +458,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         with redirect_stdout(sys.__stdout__):
             print(R)
 
-        units.enable()
+        self.app.units.enable()
 
     def check(self, inst):
         """Check the model input parameters before analyzing"""

@@ -16,7 +16,7 @@ from psi.codes import CodeContainer
 from psi.insulation import InsulationContainer
 from psi.loads import LoadContainer
 from psi.loadcase import LoadCaseContainer
-from psi.units import units
+from psi.units import Units
 
 
 class PSIInterpreter(code.InteractiveConsole):
@@ -49,7 +49,9 @@ class App(object):
     def __init__(self):
         """Initialize all managers and subsystems"""
         self.options = options
-        self.units = units
+
+        Units._app = self
+        self.units = Units()
 
         # pass app to objects/containers
         Entity._app = self

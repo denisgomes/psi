@@ -3,7 +3,7 @@
 import numpy as np
 
 from psi.entity import Entity, EntityContainer
-from psi.units import units
+from psi import units
 from psi.settings import options
 
 

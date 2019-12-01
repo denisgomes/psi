@@ -4,7 +4,7 @@ import csv
 import psi
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
-from psi.units import units
+from psi import units
 
 
 @units.define(_temps="temperature")

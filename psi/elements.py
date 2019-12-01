@@ -78,7 +78,7 @@ import numpy as np
 import numpy.linalg as la
 
 from psi.entity import Entity, EntityContainer
-from psi.units import units
+from psi import units
 from psi.utils.euclid import Vector3
 
 

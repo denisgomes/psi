@@ -89,23 +89,29 @@ class Quantity(object):
                     raise e
 
 
-class UnitsContextMixin(object):
-    """Allows for units to be used within a specific code context"""
+class UnitsContextManagerMixin(object):
+    """Allows for any units to be used within a specific code section"""
 
     def __enter__(self):
-        Quantity.user_units.update(self.load_units_file(self.user_units))
+        self.set_user_units(self.user_units)
 
     def __exit__(self, type, value, traceback):
-        name = options["core.units"]
-        Quantity.user_units.update(self.load_units_file(name))
+        name = self.app.models.active_object.units
+        self.set_user_units(name)
 
 
-class Units(UnitsContextMixin):
+class Units(UnitsContextManagerMixin):
     """Allows for units to be defined for managed attributes"""
+
+    _app = None
 
     def __init__(self, base_units="base", user_units="english"):
         self.set_base_units(base_units)
         self.set_user_units(user_units)
+
+    @property
+    def app(self):
+        return self._app
 
     def load_units_file(self, name):
         with open(os.path.join(UNITS_DIRECTORY, name + ".csv")) as csvfile:
@@ -119,6 +125,7 @@ class Units(UnitsContextMixin):
         if name is None:
             name = "base"
 
+        self.base_units = name
         Quantity.base_units.update(self.load_units_file(name))
 
     def set_user_units(self, name=None):
@@ -126,6 +133,7 @@ class Units(UnitsContextMixin):
         if name is None:
             name = options["core.units"]
 
+        self.user_units = name
         Quantity.user_units.update(self.load_units_file(name))
 
     def disable(self):
@@ -139,21 +147,18 @@ class Units(UnitsContextMixin):
         """Turn on automatic unit conversion which is the default."""
         Quantity.is_active = True
 
-    @staticmethod
-    def define(**kwargs):
-        """Class decorator that helps define quantities for managed attributes.
-        These attributes have a Quantity descriptor that stores a value and
-        dimensionality. For example, a 10in sch 40 pipe has a diameter value of
-        10.75in and a dimentionality of 'length'. When the attribute value is
-        set using the current user units, the value is converted to base units
-        and stored.  When the attribute is accessed, the value is converted
-        from base units to user units on the fly.
-        """
-        def decorate(cls):
-            for name, unit in kwargs.items():
-                setattr(cls, name, Quantity(name, unit))
-            return cls
-        return decorate
 
-
-units = Units()
+def define(**kwargs):
+    """Class decorator that helps define quantities for managed attributes.
+    These attributes have a Quantity descriptor that stores a value and
+    dimensionality. For example, a 10in sch 40 pipe has a diameter value of
+    10.75in and a dimentionality of 'length'. When the attribute value is set
+    using the current user units, the value is converted to base units and
+    stored.  When the attribute is accessed, the value is converted from base
+    units to user units on the fly at runtime.
+    """
+    def decorate(cls):
+        for name, unit in kwargs.items():
+            setattr(cls, name, Quantity(name, unit))
+        return cls
+    return decorate

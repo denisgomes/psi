@@ -24,7 +24,7 @@ import numpy as np
 
 import psi
 from psi.entity import Entity, EntityContainer
-from psi.units import units
+from psi import units
 
 from psi.settings import options
 

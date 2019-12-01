@@ -7,7 +7,7 @@ from math import pi
 import psi
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
-from psi.units import units, Units
+from psi import units
 
 
 class Section(Entity, ActiveEntityMixin):
@@ -94,11 +94,14 @@ class Pipe(Section):
                         od = float(row["od"])
                         thk = float(row[sch_map[sch]])
 
-                        # TODO: pretty ugly - use contextmanager to define
-                        _units = cls._app.models.active_object.units
-                        cls._app.models.active_object.units = default_units
-                        pipe = cls(name, od, thk, corra=corra, milltol=milltol)
-                        cls._app.models.active_object.units = _units
+                        # TODO: ugly - use contextmanager to define
+                        # _units = cls._app.models.active_object.units
+                        # cls._app.models.active_object.units = default_units
+                        with units.Units(user_units=default_units):
+                            pipe = cls(name, od, thk, corra=corra,
+                                       milltol=milltol)
+                        # cls._app.models.active_object.units = _units
+
                         return pipe
 
                     except ValueError:  # calling float on empty string
@@ -259,7 +262,7 @@ class Pipe(Section):
         return not self.is_small_bore
 
     @property
-    def D2t(self):
+    def d2t(self):
         """The D/t ratio of the section.
 
         If a pipe has a D/t ratio of larger than 100 it behaves more like a
