@@ -71,8 +71,8 @@ class Pipe(Section):
             Full path to the table used to do the lookup.
 
         default_units : str
-            The implicit units used for the data. Must match one of the units
-            already defined.
+            The units used for the data. Must match one of the units already
+            defined.
         """
         if fname is None:
             fname = psi.PIPE_DATA_FILE
@@ -94,13 +94,10 @@ class Pipe(Section):
                         od = float(row["od"])
                         thk = float(row[sch_map[sch]])
 
-                        # TODO: ugly - use contextmanager to define
-                        # _units = cls._app.models.active_object.units
-                        # cls._app.models.active_object.units = default_units
+                        # using data file units to initialize
                         with units.Units(user_units=default_units):
                             pipe = cls(name, od, thk, corra=corra,
                                        milltol=milltol)
-                        # cls._app.models.active_object.units = _units
 
                         return pipe
 
@@ -254,8 +251,12 @@ class Pipe(Section):
 
     @property
     def is_small_bore(self):
-        """TODO: The units for 2 has to be based on the current user units"""
-        return self.od <= 2
+        """Pipe sizes 2 inches and below are considered small bore.
+
+        Imperial units are used here for the relational test.
+        """
+        with units.Units(user_units="english"):
+            return self.od <= 2
 
     @property
     def is_large_bore(self):

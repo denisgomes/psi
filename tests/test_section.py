@@ -9,10 +9,7 @@ class TestSection(unittest.TestCase):
 
     def setUp(self):
         app = App()
-
         self.model = app.models.Model("test")
-        self.model.units = 'english'
-
         self.p10sch40 = app.sections.Pipe.from_file("P10", "10", "40")
 
     def test_od(self):
@@ -37,6 +34,5 @@ class TestSection(unittest.TestCase):
 
     def test_izz(self):
         """Test area moment of inertia about z-z axis of pipe"""
-        print(self.model.units)
         self.assertAlmostEqual(self.p10sch40.izz, 160.734, places=3)
 
