@@ -101,6 +101,7 @@ class Property(object):
         return str(self.table)
 
 
+@units.define(_values="expansion_coefficient")
 class Alp(Property):
     """Coefficient of thermal expansion"""
 

@@ -4,7 +4,6 @@ import numpy as np
 
 from psi.entity import Entity, EntityContainer
 from psi import units
-from psi.settings import options
 
 
 class Support(Entity):
@@ -40,8 +39,10 @@ class Anchor(Support):
     def __init__(self, name, point, translation_stiffness=1e12,
                  rotation_stiffness=1e12):
         super(Anchor, self).__init__(name, point)
-        self.translation_stiffness = translation_stiffness
-        self.rotation_stiffness = rotation_stiffness
+
+        with units.Units(user_units="english"):
+            self.translation_stiffness = translation_stiffness
+            self.rotation_stiffness = rotation_stiffness
 
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
@@ -57,26 +58,30 @@ class Anchor(Support):
         return f
 
 
-@units.define(gap="length", translation_stiffness="translation_stiffness",
-              rotation_stiffness="rotation_stiffness")
+@units.define(translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness",
+              gap="length")
 class RigidSupport(Support):
     """Rigid supports can be translational or rotational. They can also be
     double-acting or directional. The default support is a rigid double-acting
     translational support with no gap.
     """
 
-    def __init__(self, name, point, dircos=None, gap=0, friction=None,
+    def __init__(self, name, point, dircos=None, friction=None,
                  is_rotational=False, is_directional=False, is_snubber=False,
-                 translation_stiffness=1e12, rotation_stiffness=1e12):
+                 translation_stiffness=1e12, rotation_stiffness=1e12,
+                 gap=0):
         super(RigidSupport, self).__init__(name, point)
         self._dircos = dircos   # direction cosine
-        self.gap = gap
-        self.translation_stiffness = translation_stiffness
-        self.rotation_stiffness = rotation_stiffness
         self.friction = friction
         self.is_rotational = is_rotational
         self.is_directional = is_directional
         self.is_snubber = is_snubber
+
+        with units.Units(user_units="english"):
+            self.translation_stiffness = translation_stiffness
+            self.rotation_stiffness = rotation_stiffness
+            self.gap = gap
 
     @property
     def stiffness(self):

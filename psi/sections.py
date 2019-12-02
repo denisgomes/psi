@@ -96,10 +96,8 @@ class Pipe(Section):
 
                         # using data file units to initialize
                         with units.Units(user_units=default_units):
-                            pipe = cls(name, od, thk, corra=corra,
+                            return cls(name, od, thk, corra=corra,
                                        milltol=milltol)
-
-                        return pipe
 
                     except ValueError:  # calling float on empty string
                         return None
@@ -279,7 +277,8 @@ class Pipe(Section):
 class WideFlange(Section):
 
     @classmethod
-    def from_file(cls, name, size="W4x13", fname=None):
+    def from_file(cls, name, size="W4x13", fname=None,
+                  default_units="english"):
         if fname is None:
             fname = psi.BEAM_DATA_FILE
 
@@ -293,7 +292,8 @@ class WideFlange(Section):
                     bf = float(row["bf"])
                     tf = float(row["tf"])
 
-                    return cls(name, d, tw, bf, tf)
+                    with units.Units(user_units=default_units):
+                        return cls(name, d, tw, bf, tf)
 
     def __init__(self, name, d, tw, bf, tf):
         super(WideFlange, self).__init__(name)

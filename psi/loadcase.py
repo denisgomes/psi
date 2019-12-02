@@ -98,18 +98,3 @@ class LoadCaseContainer(EntityContainer):
     def solve(self):
         """Solve all primary cases and combination cases"""
         pass
-
-
-class Stress(object):
-    """Stress results"""
-    pass
-
-
-class Displacements(object):
-    """Displacements results"""
-    pass
-
-
-class Restraint(object):
-    """Restraint results"""
-    pass

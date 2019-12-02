@@ -28,6 +28,9 @@ from psi import units
 
 from psi.settings import options
 
+import sys
+from contextlib import redirect_stdout
+
 
 class Load(Entity):
 
@@ -170,27 +173,33 @@ class Hydro(Load):
         pass
 
 
-@units.define(temp="temperature")
+@units.define(temp="temperature", tref="temperature")
 class Thermal(Load):
     """Thermal expansion load"""
 
-    def __init__(self, name, temp):
+    def __init__(self, name, temp, tref):
         super(Thermal, self).__init__(name)
         self.temp = temp
+        self.tref = tref
 
     def flocal(self, element):
-        # tref should have the correct units
-        tref = options["core.tref"]
-
-        delT = self.temp - tref
+        # NOTE: the value of E determines the elongation,
+        # verify if this should be expected behavior
+        delT = self.temp - self.tref
 
         alp = element.material.alp[self.temp]
-        E = element.material.ymod[self.temp]
+        E = element.material.ymod[self.tref]
         A = element.section.area
         L = element.length
 
         # thermal axial force causing displacement
+        # larger E produces larger force and displacement
         fa = (E*A) * (alp*delT)
+
+        # with redirect_stdout(sys.__stdout__):
+        #     print(E)
+        #     print(delT)
+        #     print(alp)
 
         f = np.zeros((12, 1), dtype=np.float64)
 
@@ -290,7 +299,13 @@ class Force(Load):
 @units.define(dx="length", dy="length", dz="length",
               mx="rotation", my="rotation", mz="rotation")
 class Displacement(Load):
-    """A generic global displacement vector"""
+    """A generic global displacement vector.
+
+    Displacements are applied similar to how supports are. Supports are in
+    essence a special case with 0 movement in the direction of stiffness.
+    Using the penalty approach, the stiffness and force terms in the global
+    system matrix are modified.
+    """
 
     def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0):
         super(Displacement, self).__init__(name)

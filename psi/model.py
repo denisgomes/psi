@@ -345,7 +345,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
             # element stiffness at room temp, conservative stress
-            keg = element.kglobal(273)
+            keg = element.kglobal(294.2611)
 
             # with redirect_stdout(sys.__stdout__):
             #     print(keg)

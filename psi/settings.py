@@ -7,9 +7,10 @@ saved file. The model settings, if one exists are merged with the application
 settings when a model is opened. The model settings are then used for the
 remainder of the session.
 
-Applications settings and model settings may diverge over the course of time.
-When the software is update new application settings will be merged onto the
-model settings to ensure, backwards compatibility between version.
+Applications settings and model settings may diverge over the course of time
+due to different versions. When the software is update new application settings
+will be merged onto the model settings to ensure, backwards compatibility
+between version.
 """
 
 from psi import VERSION
@@ -33,9 +34,6 @@ options = {
         # ambient temperature
         "core.tref": 70,
 
-        # rigid element stiffness
-        "core.rigid_stiffness": 1e12,
-
         # for corrosion allowance and mill tolerance, reduced thickness
         # is considered for stress calculations
         "core.stress_cases_corroded": False,
@@ -52,11 +50,9 @@ options_types = {}
 
 def validate(settings):
     """Validate all settings"""
-
     pass
 
 
 def merge(settings):
-    """Merger model settings with application settings"""
-
+    """Merge application settings with model settings"""
     pass
