@@ -20,13 +20,13 @@ anc1.apply([run20])
 # loads
 # w1 = Weight('w1')
 # w1.apply([run20])
-t1 = Thermal('t1', 500, 70)
-t1.apply([run20])
-# f1 = Force('f1', 20, fy=-10000)
-# f1.apply([run20])
+# t1 = Thermal('t1', 500, 70)
+# t1.apply([run20])
+f1 = Force('f1', 20, fy=-10000)
+f1.apply([run20])
 
 # loadcases
-l1 = LoadCase('L1', 'SUS', [t1])
+l1 = LoadCase('L1', 'SUS', [f1])
 
 # code
 b311 = B311('B311')

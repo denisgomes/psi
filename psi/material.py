@@ -1,3 +1,32 @@
+# Copyright (c) 2019 Denis Gomes
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+#    * Neither the name of Pipe Stress Infinity (PSI) nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 from __future__ import division
 import csv
 
@@ -163,7 +192,8 @@ class Material(Entity, ActiveEntityMixin):
         self.parent.activate(self)
 
     @classmethod
-    def from_file(cls, name, material, code, fname=None):
+    def from_file(cls, name, material, code, fname=None,
+                  default_units="english"):
         """Load a material from the database"""
         if fname is None:
             fname = psi.MATERIAL_DATA_FILE
@@ -206,21 +236,22 @@ class Material(Entity, ActiveEntityMixin):
                     ymodc = convert(ymod)
                     shc = convert(sh)
 
-                    mat = cls(name)
+                    with units.Units(user_units=default_units):
+                        mat = cls(name)
 
-                    # rho and nu not func of temp
-                    mat.rho.value = rho
-                    mat.nu.value = nu
+                        # rho and nu not func of temp
+                        mat.rho.value = rho
+                        mat.nu.value = nu
 
-                    # remove temps with no values given
-                    mat.alp.table = [(t, v) for t, v in zip(tempc, alpc)
-                                     if v is not None]
-                    mat.sh.table = [(t, v) for t, v in zip(tempc, shc)
-                                    if v is not None]
-                    mat.ymod.table = [(t, v) for t, v in zip(tempc, ymodc)
-                                      if v is not None]
+                        # remove temps with no values given
+                        mat.alp.table = [(t, v) for t, v in zip(tempc, alpc)
+                                         if v is not None]
+                        mat.sh.table = [(t, v) for t, v in zip(tempc, shc)
+                                        if v is not None]
+                        mat.ymod.table = [(t, v) for t, v in zip(tempc, ymodc)
+                                          if v is not None]
 
-                    return mat
+                        return mat
             else:
                 return None
 
