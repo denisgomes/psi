@@ -154,6 +154,7 @@ class App(object):
                 "GlobalY": self.supports.GlobalY,
                 "GlobalZ": self.supports.GlobalZ,
                 "Spring": self.supports.Spring,
+                "Displacement": self.supports.Displacement,
 
                 # codes
                 "codes": self.codes,
@@ -174,7 +175,6 @@ class App(object):
                 "Wind": self.loads.Wind,
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,
-                "Displacement": self.loads.Displacement,
 
                 # loadcases
                 "loadcases": self.loadcases,

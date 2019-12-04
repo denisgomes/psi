@@ -373,7 +373,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             niqi, niqj = idxi*ndof, idxi*ndof + ndof
             njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
-            # element stiffness at room temp, conservative stress
+            # element stiffness at room temp, conservative stresses
             keg = element.kglobal(294.2611)
 
             # with redirect_stdout(sys.__stdout__):
@@ -415,14 +415,16 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 Fs[niqi:niqj, i] += feg[:6, 0]
                 Fs[njqi:njqj, i] += feg[6:12, 0]
 
-                # large stiffness added to each force matrix with non-zero
-                # support displacements
+                # large stiffness added to each force matrix component with
+                # non-zero support displacements
+                # NOTE: this only applies to Displacement supports, for all
+                # others dsup is 0 and so added stiffness is also 0
                 for support in element.supports:
                     ksup = support.kglobal(element)
+                    dsup = support.dglobal(element)     # support displacement
 
-                    a1 = 0.0    # displacement at support, 0 for now
-                    Fs[niqi:niqj, i] += (ksup[:6, 0] * a1)
-                    Fs[njqi:njqj, i] += (ksup[6:12, 0] * a1)
+                    Fs[niqi:niqj, i] += (ksup[:6, 0] * dsup[:6, 0])
+                    Fs[njqi:njqj, i] += (ksup[6:12, 0] * dsup[6:12, 0])
 
         # with redirect_stdout(sys.__stdout__):
         #     print(Ks)
@@ -457,12 +459,12 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 # reaction forces and moments
                 for support in element.supports:
                     ksup = support.kglobal(element)
+                    dsup = support.dglobal(element)     # support displacement
 
-                    a1 = 0.0    # imposed displacement at support, 0 for now
-                    # array multiplication is required below to calculate the
-                    # the reaction loads
-                    R[niqi:niqj, i] = -ksup[:6, 0] * X[niqi:niqj, i]
-                    R[njqi:njqj, i] = -ksup[6:12, 0] * X[njqi:njqj, i]
+                    R[niqi:niqj, i] = -ksup[:6, 0] * (X[niqi:niqj, i] -
+                                                      dsup[:6, 0])
+                    R[njqi:njqj, i] = -ksup[6:12, 0] * (X[njqi:njqj, i] -
+                                                        dsup[6:12, 0])
 
                 # calculate element local forces and moments using the local
                 # element stiffness matrix and fi = kel*x where x is the local

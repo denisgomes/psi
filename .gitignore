@@ -1,5 +1,6 @@
 .tags
 __pycache__
 PSI.egg-info
+psi.egg-info
 .ipynb_checkpoints
 .tox

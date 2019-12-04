@@ -14,8 +14,11 @@ pt10 = Point(10)
 run20 = Run(20, L)
 
 # supports
-anc1 = Anchor('A1', 10)
-anc1.apply([run20])
+# anc1 = Anchor('A1', 10)
+# anc1.apply([run20])
+
+disp1 = Displacement('D1', 10, dy=1.0)
+disp1.apply([run20])
 
 # loads
 # w1 = Weight('w1')

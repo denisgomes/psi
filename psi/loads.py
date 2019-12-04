@@ -325,28 +325,6 @@ class Force(Load):
         return f
 
 
-@units.define(dx="length", dy="length", dz="length",
-              mx="rotation", my="rotation", mz="rotation")
-class Displacement(Load):
-    """A generic global displacement vector.
-
-    Displacements are applied similar to how supports are. Supports are in
-    essence a special case with 0 movement in the direction of stiffness.
-    Using the penalty approach, the stiffness and force terms in the global
-    system matrix are modified.
-    """
-
-    def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0):
-        super(Displacement, self).__init__(name)
-        self.point = point
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.rx = rx
-        self.ry = ry
-        self.rz = rz
-
-
 @units.define(ux="uniform_load", uy="uniform_load", uz="uniform_load")
 class Uniform(Load):
     """Generic uniform load"""
@@ -426,7 +404,6 @@ class LoadContainer(EntityContainer):
         self.Thermal = Thermal
         self.Fluid = Fluid
         self.Force = Force
-        self.Displacement = Displacement
         self.Uniform = Uniform
         self.Seismic = Seismic
         self.Wind = Wind

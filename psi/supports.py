@@ -59,6 +59,15 @@ class Support(Entity):
     def kglobal(self, element):
         raise NotImplementedError("implement")
 
+    def dglobal(self, element):
+        """Nodal displacements used for penalty method.
+
+        By default all supports are assumed to have 0 displacements.
+        """
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        return a
+
 
 @units.define(translation_stiffness="translation_stiffness",
               rotation_stiffness="rotation_stiffness")
@@ -222,6 +231,62 @@ class Spring(Support):
         return f
 
 
+@units.define(dx="length", dy="length", dz="length",
+              mx="rotation", my="rotation", mz="rotation",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness")
+class Displacement(Support):
+    """A generic global displacement vector.
+
+    Displacements are applied similar to how supports are. Supports are in
+    essence a special case with 0 movement in the direction of stiffness.
+    Using the penalty approach, the stiffness and force terms in the global
+    system matrix are modified.
+
+    TODO: how to specify a 'free' nonzero displacement; dx, dy etc for example
+    must be a number value so it is set to 0 by default
+    """
+
+    def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0,
+                 translation_stiffness=1e12, rotation_stiffness=1e12):
+        super(Displacement, self).__init__(name, point)
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+        self.translation_stiffness = translation_stiffness
+        self.rotation_stiffness = rotation_stiffness
+
+    def kglobal(self, element):
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            f[:3, 0] = [self.translation_stiffness] * 3
+            f[3:6, 0] = [self.rotation_stiffness] * 3
+
+        elif self.point == element.to_point.name:
+            f[6:9, 0] = [self.translation_stiffness] * 3
+            f[9:12, 0] = [self.rotation_stiffness] * 3
+
+        return f
+
+    def dglobal(self, element):
+        """Nodal displacements used for penalty method"""
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            a[:6, 0] = [self.dx, self.dy, self.dz,
+                        self.rx, self.ry, self.rz]
+
+        elif self.point == element.to_point.name:
+            a[6:12, 0] = [self.dx, self.dy, self.dz,
+                          self.rx, self.ry, self.rz]
+
+        return a
+
+
 class SupportContainer(EntityContainer):
 
     def __init__(self):
@@ -231,6 +296,7 @@ class SupportContainer(EntityContainer):
         self.GlobalY = GlobalY
         self.GlobalZ = GlobalZ
         self.Spring = Spring
+        self.Displacement = Displacement
 
     def apply(self, supports=[], elements=None):
         """Apply supports to elements.

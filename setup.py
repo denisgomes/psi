@@ -1,20 +1,22 @@
 from setuptools import setup, find_packages
 
+
 setup(
-    name="PSI",
+    name="psi",
 
     version="0.0.1",
 
-    description="An engineering pipe stress design and analysis software.",
+    description=("Pipe Stress Infinity (PSI) - The pipe stress design and "
+                 "analysis software."),
 
     # display on pypi
-    long_description="An engineering pipe stress design and analysis software.",
+    long_description=open("README.rst", "r").read(),
 
     url="https://www.github.com/denisgomes/psi",
 
     author="Denis Gomes",
 
-    author_email="denisg640@hotmail.com",
+    author_email="denisgomes@consultant.com",
 
     license="BSD",
 
@@ -34,7 +36,7 @@ setup(
         "Programming Language :: Python :: 3.5",
         ],
 
-    keywords="pipe stress supports engineering finite element analysis",
+    keywords="piping pipe stress supports design engineering analysis",
 
     # excluded in build distributions, applies to packages only
     packages=find_packages(exclude=[
