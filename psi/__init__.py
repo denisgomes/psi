@@ -44,7 +44,7 @@ README = open(os.path.join(PROJECT_ROOT_DIRECTORY, "README.rst")).read()
 
 COPYRIGHT = "Copyright (c) 2019 Denis Gomes"
 
-DESCRIPTION = "An engineering pipe stress design and analysis software."
+DESCRIPTION = "The pipe stress design and analysis software."
 
 DATA_DIRECTORY = os.path.join(PACKAGE_ROOT_DIRECTORY, "data")
 BEAM_DATA_FILE = os.path.join(DATA_DIRECTORY, "wshapes.csv")

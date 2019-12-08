@@ -14,22 +14,22 @@ pt10 = Point(10)
 run20 = Run(20, L)
 
 # supports
-# anc1 = Anchor('A1', 10)
-# anc1.apply([run20])
+anc1 = Anchor('A1', 10)
+anc1.apply([run20])
 
-disp1 = Displacement('D1', 10, dy=1.0)
-disp1.apply([run20])
+# d1 = Displacement('D1', 10, dy=1.0)
+# d1.apply([run20])
 
 # loads
-# w1 = Weight('w1')
-# w1.apply([run20])
-# t1 = Thermal('t1', 500, 70)
-# t1.apply([run20])
-f1 = Force('f1', 20, fy=-10000)
-f1.apply([run20])
+w1 = Weight('w1')
+w1.apply([run20])
+t1 = Thermal('t1', 500, 70)
+t1.apply([run20])
+# f1 = Force('F1', 20, fy=-10000)
+# f1.apply([run20])
 
 # loadcases
-l1 = LoadCase('L1', 'SUS', [f1])
+lc1 = LoadCase('LC1', 'SUS', [w1, t1])
 
 # code
 b311 = B311('B311')
@@ -38,5 +38,5 @@ b311.apply([run20])
 mdl.analyze()
 
 # results
-# disp = results.Displacement(l1)
-# disp.to_text('disp.out')
+disp = Movements('rset1', [lc1])
+disp.to_screen()

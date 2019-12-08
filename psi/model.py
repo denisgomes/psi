@@ -55,6 +55,8 @@ class Model(Entity, ActiveEntityMixin):
     """The model object contains all other objects"""
 
     def __init__(self, name):
+        self._jobname = None
+
         self._settings = copy.deepcopy(options)
         self._geometry = Geometry()
 
@@ -69,6 +71,7 @@ class Model(Entity, ActiveEntityMixin):
         self._supports = OrderedDict()
         self._loads = OrderedDict()
         self._loadcases = OrderedDict()
+        self._results = OrderedDict()
 
         # active model objects
         self._active_point = None
@@ -77,9 +80,18 @@ class Model(Entity, ActiveEntityMixin):
         self._active_material = None
         self._active_insulation = None
         self._active_code = None
+        self._active_result = None
 
         super(Model, self).__init__(name)   # call last
         self.activate()     # activate on init
+
+    @property
+    def jobname(self):
+        return self._jobname
+
+    @jobname.setter
+    def jobname(self, name):
+        self._jobname = name
 
     @property
     def settings(self):
@@ -178,6 +190,14 @@ class Model(Entity, ActiveEntityMixin):
         self.app.codes.active_object = code
 
     @property
+    def active_result(self, code):
+        return self.app.results.active_object
+
+    @active_result.setter
+    def active_result(self, result):
+        self.app.results.active_object = result
+
+    @property
     def parent(self):
         return self.app.models
 
@@ -273,6 +293,9 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
         app.loadcases._objects = inst._loadcases
 
+        app.results._objects = inst._results
+        app.results._active_object = inst._active_result
+
         # add others here
 
     def close(self, inst):
@@ -337,7 +360,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         6. Use the results from step 5 to calculate code stresses.
         """
         tqdm = logging.getLogger("tqdm")
-        tqdm.info("*** Starting analysis...")
+        tqdm.info("*** Preprocessing, initializing analysis...")
 
         # Note: All internal object data is stored in SI once loaded from
         # external files, disabling unit consersion allows for working with
@@ -346,7 +369,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         tqdm.info("*** Switching to base units.")
 
         # do stuff here
-        tqdm.info("*** Assembling system stiffness and force matrix.")
+        tqdm.info("*** Assembling system stiffness and force matrices.")
 
         ndof = 6    # nodal degrees of freedom
         en = 2      # number of nodes per element
@@ -429,19 +452,17 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # with redirect_stdout(sys.__stdout__):
         #     print(Ks)
 
-        # solve - Fs vector is mutated if using gauss
-        # X = gauss(Ks, Fs)
         tqdm.info("*** Solving system equations for displacements.")
         X = np.linalg.solve(Ks, Fs)
 
-        with redirect_stdout(sys.__stdout__):
-            print(X)
+        # with redirect_stdout(sys.__stdout__):
+        #     print(X)
 
         tqdm.info("*** Post processing elements...")
-
         R = np.zeros((nn*ndof, lc), dtype=np.float64)   # reactions
         Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
 
+        tqdm.info("*** Calculating support reactions and internal forces.")
         for element in inst.elements:
             idxi = points.index(element.from_point)
             idxj = points.index(element.to_point)
@@ -480,14 +501,21 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 Fi[niqi:niqj, i] = fi[:6, 0]
                 Fi[njqi:njqj, i] = fi[6:12, 0]
 
-                # write results data to each loadcase object
-                # stuff here
+        tqdm.info("*** Writing loadcase results data.")
+        for i, loadcase in enumerate(inst.loadcases):
+            loadcase.movements.results = X[:, i]
+            # loadcase.reactions.results = R[:, i]
+            # loadcase.forces.results = Fi[:, 1]
 
+            # with redirect_stdout(sys.__stdout__):
+            #     print(loadcase.displacements.results)
+
+        tqdm.info("*** Combining loadcase results data.")
         # do loadcase combination cases
         # code here
 
-        with redirect_stdout(sys.__stdout__):
-            print(R)
+        # with redirect_stdout(sys.__stdout__):
+        #     print(R)
 
         self.app.units.enable()
 

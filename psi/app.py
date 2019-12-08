@@ -181,11 +181,11 @@ class App(object):
                 "LoadCase": self.loadcases.LoadCase,
                 "LoadComb": self.loadcases.LoadComb,
 
-                # # results
+                # results
                 "results": self.results,
-                "Stress": self.results.Stress,
-                "Movement": self.results.Movement,
-                "Reaction": self.results.Reaction,
+                "Stresses": self.results.Stresses,
+                "Movements": self.results.Movements,
+                "Reactions": self.results.Reactions,
                 }
 
     @property
@@ -193,7 +193,7 @@ class App(object):
         msg = ('Python %s\n'
                'Type "copyright", "credits" or "license" for more '
                'information.\n'
-               'PSI %s -- A pipe stress analysis and design program.\n' %
+               'PSI %s -- The pipe stress analysis and design program.\n' %
                (sys.version.split('\n')[0], psi.VERSION)
                )
 

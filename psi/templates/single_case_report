@@ -1,0 +1,7 @@
+{% extends "base_report" %}
+
+{% block header %}
+{% for loadcase in loadcases %}
+{{ loadcase.name }} ({{ loadcase.stype }}) {{ loadcase.loads | join(" + ") }}
+{% endfor %}
+{% endblock %}

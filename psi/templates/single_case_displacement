@@ -1,0 +1,16 @@
+{% extends "single_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "----- %-s (%s) -----" | format("Translations", units.length) }}     {{ "------- %-s (%s) -------" | format("Rotations", units.rotation) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%10s" | format("DX") }}{{ "%10s" | format("DY") }}{{ "%10s" | format("DZ") }}     {{ "%10s" | format("RX") }}{{ "%10s" | format("RY") }}{{ "%10s" | format("RZ") }}
+{% endblock -%}
+
+{%- block body -%}
+{%- for loadcase in loadcases -%}
+{%- for point, disp in zip(loadcase.points, loadcase.movements.results | batch(6)) %}
+{{ "%-10s" | format(point.name) }}{{ "% 10.4f" | format(disp[0][0]) }}{{ "% 10.4f" | format(disp[1][0]) }}{{ "% 10.4f" | format(disp[2][0]) }}     {{ "% 10.4f" | format(disp[3][0]) }}{{ "% 10.4f" | format(disp[4][0]) }}{{ "% 10.4f" | format(disp[5][0]) }}
+{%- endfor -%}
+{%- endfor %}
+{% endblock %}

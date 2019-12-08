@@ -43,11 +43,123 @@ A loadcase may consist of primary loads such as Weight, Thermal, etc., or it
 may be a be a combination of two or more secondary (ie. result cases) combined
 together.
 
-The results for the loadcase is stored internally in the load case object.
+The displacement, support reactions and internal force results for the loadcase
+are stored internally in the load case object. Note that properties with units
+for different values are stored separately and combined on the fly.
 """
+
+import numpy as np
 
 from psi.entity import Entity, EntityContainer
 from psi.utils.orderedset import OrderedSet
+from psi import units
+
+
+@units.define(_values="length")
+class Translation(object):
+    """Translation components of the displacement row vector"""
+
+    @property
+    def results(self):
+        return self._values
+
+    @results.setter
+    def results(self, data):
+        """A numpy array of translations at each node.
+
+        Parameters
+        ----------
+        values : numpy.array
+        """
+        x = data[::6]
+        y = data[1::6]
+        z = data[2::6]
+        xyz = np.array(list(zip(x, y, z)), dtype=np.float64)
+
+        # column vector of translation
+        self._values = xyz.flatten().reshape((-1, 1))
+
+
+@units.define(_values="rotation")
+class Rotation(object):
+    """Rotation components of the displacement row vector"""
+
+    @property
+    def results(self):
+        return self._values
+
+    @results.setter
+    def results(self, data):
+        """A numpy array of rotations at each node.
+
+        Parameters
+        ----------
+        values : numpy.array
+        """
+        rx = data[3::6]
+        ry = data[4::6]
+        rz = data[5::6]
+        rxyz = np.array(list(zip(rx, ry, rz)), dtype=np.float64)
+
+        self._values = rxyz.flatten().reshape((-1, 1))
+
+
+class Movements(object):
+
+    def __init__(self):
+        self._translation = Translation()
+        self._rotation = Rotation()
+
+    @property
+    def results(self):
+        x = self._translation.results[::3]
+        y = self._translation.results[1::3]
+        z = self._translation.results[2::3]
+        rx = self._rotation.results[::3]
+        ry = self._rotation.results[1::3]
+        rz = self._rotation.results[2::3]
+
+        disp = np.array(list(zip(x, y, z, rx, ry, rz)), dtype=np.float64)
+        values = disp.flatten().reshape((-1, 1))
+
+        return values
+
+    @results.setter
+    def results(self, data):
+        self._translation.results = data
+        self._rotation.results = data
+
+
+# @units.define(values="force")
+# class Force(object):
+
+#     def __init__(self, values):
+#         self.values = values
+
+
+# @units.define(values="moment_output")
+# class Moment(object):
+
+#     def __init__(self, values):
+#         self.values = values
+
+
+# class Reactions(object):
+#     """Support reactions loads"""
+
+#     def __init__(self, points, values):
+#         self._points = points
+#         self._force = Force(values)
+#         self._moment = Moment(values)
+
+
+# class Forces(object):
+#     """Member internal forces and moments"""
+
+#     def __init__(self, points, values):
+#         self._points = points
+#         self._force = Force(values)
+#         self._momemt = Moment(values)
 
 
 class BaseCase(Entity):
@@ -55,7 +167,15 @@ class BaseCase(Entity):
     def __init__(self, name, stype="SUS"):
         super(BaseCase, self).__init__(name)
         self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
-        self.results = {}   # node -> value
+
+        # results objects
+        self.movements = Movements()
+        # self.reactions = Reactions()
+        # self.forces = Forces()
+
+    @property
+    def points(self):
+        return list(self.app.points)
 
     @property
     def parent(self):

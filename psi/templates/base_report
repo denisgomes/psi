@@ -1,0 +1,8 @@
+PSI {{ version }}, Date: {{ date }} Time: {{ time }}
+Job Name: {{ jobname }}
+Licensed To: {{ licensed_to }}
+{{ report_type }} : {{ report_desc }}
+
+{%- block header %}{% endblock -%}
+{%- block body %}{% endblock -%}
+{%- block footer %}{% endblock -%}
