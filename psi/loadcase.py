@@ -130,36 +130,105 @@ class Movements(object):
         self._rotation.results = data
 
 
-# @units.define(values="force")
-# class Force(object):
+@units.define(_values="force")
+class Force(object):
 
-#     def __init__(self, values):
-#         self.values = values
+    @property
+    def results(self):
+        return self._values
+
+    @results.setter
+    def results(self, data):
+        """A numpy array of forces at each node.
+
+        Parameters
+        ----------
+        values : numpy.array
+        """
+        fx = data[::6]
+        fy = data[1::6]
+        fz = data[2::6]
+        fxyz = np.array(list(zip(fx, fy, fz)), dtype=np.float64)
+
+        # column vector of translation
+        self._values = fxyz.flatten().reshape((-1, 1))
 
 
-# @units.define(values="moment_output")
-# class Moment(object):
+@units.define(_values="moment_output")
+class Moment(object):
 
-#     def __init__(self, values):
-#         self.values = values
+    @property
+    def results(self):
+        return self._values
+
+    @results.setter
+    def results(self, data):
+        """A numpy array of moments at each node.
+
+        Parameters
+        ----------
+        values : numpy.array
+        """
+        mx = data[3::6]
+        my = data[4::6]
+        mz = data[5::6]
+        mxyz = np.array(list(zip(mx, my, mz)), dtype=np.float64)
+
+        self._values = mxyz.flatten().reshape((-1, 1))
 
 
-# class Reactions(object):
-#     """Support reactions loads"""
+class Reactions(object):
+    """Support reactions loads"""
 
-#     def __init__(self, points, values):
-#         self._points = points
-#         self._force = Force(values)
-#         self._moment = Moment(values)
+    def __init__(self):
+        self._force = Force()
+        self._moment = Moment()
+
+    @property
+    def results(self):
+        fx = self._force.results[::3]
+        fy = self._force.results[1::3]
+        fz = self._force.results[2::3]
+        mx = self._moment.results[::3]
+        my = self._moment.results[1::3]
+        mz = self._moment.results[2::3]
+
+        disp = np.array(list(zip(fx, fy, fz, mx, my, mz)), dtype=np.float64)
+        values = disp.flatten().reshape((-1, 1))
+
+        return values
+
+    @results.setter
+    def results(self, data):
+        self._force.results = data
+        self._moment.results = data
 
 
-# class Forces(object):
-#     """Member internal forces and moments"""
+class Forces(object):
+    """Member internal forces and moments"""
 
-#     def __init__(self, points, values):
-#         self._points = points
-#         self._force = Force(values)
-#         self._momemt = Moment(values)
+    def __init__(self):
+        self._force = Force()
+        self._moment = Moment()
+
+    @property
+    def results(self):
+        fx = self._force.results[::3]
+        fy = self._force.results[1::3]
+        fz = self._force.results[2::3]
+        mx = self._moment.results[::3]
+        my = self._moment.results[1::3]
+        mz = self._moment.results[2::3]
+
+        disp = np.array(list(zip(fx, fy, fz, mx, my, mz)), dtype=np.float64)
+        values = disp.flatten().reshape((-1, 1))
+
+        return values
+
+    @results.setter
+    def results(self, data):
+        self._force.results = data
+        self._moment.results = data
 
 
 class BaseCase(Entity):
@@ -170,8 +239,8 @@ class BaseCase(Entity):
 
         # results objects
         self.movements = Movements()
-        # self.reactions = Reactions()
-        # self.forces = Forces()
+        self.reactions = Reactions()
+        self.forces = Forces()
 
     @property
     def points(self):
@@ -194,10 +263,6 @@ class LoadCase(BaseCase):
 
         for load in loads:
             self.loads.add(load)
-
-    def solve(self):
-        """Solve the particular load case"""
-        pass
 
 
 class LoadComb(BaseCase):
@@ -242,8 +307,4 @@ class LoadCaseContainer(EntityContainer):
 
     def defaults(self):
         """A set of default cases automatically created for the user"""
-        pass
-
-    def solve(self):
-        """Solve all primary cases and combination cases"""
         pass

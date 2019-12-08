@@ -1,0 +1,32 @@
+{% extends "base" %}
+Multiple Load Cases
+
+
+
+
+
+
+LOAD CASE DEFINITIONS
+
+
+
+{% for loadcase in results.loadcases %}
+    {{ loadcase.name }} ({{ loadcase.stype }}) {{ loadcase.cases }}
+{% endfor %}
+
+
+
+
+
+{% block header %}
+{% endblock %}
+
+
+
+{% block body %}
+{% endblock %}
+
+
+
+{% block footer %}
+{% endblock %}

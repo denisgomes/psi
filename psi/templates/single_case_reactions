@@ -1,0 +1,16 @@
+{% extends "single_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "--------- %-s (%s) ---------" | format("Forces", units.force) | center(30) }}     {{ "------ %-s (%s) ------" | format("Moments", units.moment_output) | center(30) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}     {{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
+{% endblock -%}
+
+{%- block body -%}
+{%- for loadcase in loadcases -%}
+{%- for point, reac in zip(loadcase.points, loadcase.reactions.results | batch(6)) %}
+{{ "%-10s" | format(point.name) }}{{ "% 10.1f" | format(reac[0][0]) }}{{ "% 10.1f" | format(reac[1][0]) }}{{ "% 10.1f" | format(reac[2][0]) }}     {{ "% 10.1f" | format(reac[3][0]) }}{{ "% 10.1f" | format(reac[4][0]) }}{{ "% 10.1f" | format(reac[5][0]) }}
+{%- endfor -%}
+{%- endfor %}
+{% endblock %}

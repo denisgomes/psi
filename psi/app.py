@@ -183,9 +183,10 @@ class App(object):
 
                 # results
                 "results": self.results,
-                "Stresses": self.results.Stresses,
                 "Movements": self.results.Movements,
                 "Reactions": self.results.Reactions,
+                "Forces": self.results.Forces,
+                "Stresses": self.results.Stresses,
                 }
 
     @property

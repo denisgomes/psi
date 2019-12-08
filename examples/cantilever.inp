@@ -25,18 +25,25 @@ w1 = Weight('w1')
 w1.apply([run20])
 t1 = Thermal('t1', 500, 70)
 t1.apply([run20])
-# f1 = Force('F1', 20, fy=-10000)
-# f1.apply([run20])
+f1 = Force('F1', 20, fy=-5000)
+f1.apply([run20])
 
 # loadcases
-lc1 = LoadCase('LC1', 'SUS', [w1, t1])
+lc1 = LoadCase('LC1', 'SUS', [w1, t1, f1])
 
 # code
 b311 = B311('B311')
 b311.apply([run20])
 
 mdl.analyze()
+# mdl.units = 'si'
 
 # results
 disp = Movements('rset1', [lc1])
 disp.to_screen()
+
+reac = Reactions('rset2', [lc1])
+reac.to_screen()
+
+forc = Forces('rset3', [lc1])
+forc.to_screen()

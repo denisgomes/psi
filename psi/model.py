@@ -504,11 +504,11 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         tqdm.info("*** Writing loadcase results data.")
         for i, loadcase in enumerate(inst.loadcases):
             loadcase.movements.results = X[:, i]
-            # loadcase.reactions.results = R[:, i]
-            # loadcase.forces.results = Fi[:, 1]
+            loadcase.reactions.results = R[:, i]
+            loadcase.forces.results = Fi[:, i]
 
-            # with redirect_stdout(sys.__stdout__):
-            #     print(loadcase.displacements.results)
+        # with redirect_stdout(sys.__stdout__):
+        #     print(Fi)
 
         tqdm.info("*** Combining loadcase results data.")
         # do loadcase combination cases

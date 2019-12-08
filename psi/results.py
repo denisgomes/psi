@@ -63,11 +63,6 @@ class Result(Entity, ActiveEntityMixin):
         raise NotImplementedError("implement")
 
 
-class Stresses(Result):
-    """Code stress output results"""
-    pass
-
-
 class Movements(Result):
     """Nodal displacement results"""
 
@@ -75,9 +70,9 @@ class Movements(Result):
         super(Movements, self).__init__(name, loadcases)
 
         if len(loadcases) == 1:
-            self.template = self.env.get_template("single_case_displacement")
+            self.template = self.env.get_template("single_case_movements")
         else:
-            self.template = self.env.get_template("multiple_case_displacement")
+            self.template = self.env.get_template("multiple_case_movements")
 
     def to_screen(self):
         version = options["core.version"]
@@ -101,6 +96,68 @@ class Movements(Result):
 
 class Reactions(Result):
     """Support reaction results"""
+
+    def __init__(self, name, loadcases):
+        super(Reactions, self).__init__(name, loadcases)
+
+        if len(loadcases) == 1:
+            self.template = self.env.get_template("single_case_reactions")
+        else:
+            self.template = self.env.get_template("multiple_case_reactions")
+
+    def to_screen(self):
+        version = options["core.version"]
+        date = datetime.datetime.now().date()
+        jobname = self.app.models.active_object.jobname
+        time = datetime.datetime.now().time()
+
+        with redirect_stdout(sys.__stdout__):
+            print(self.template.render(version=version,
+                                       date=date,
+                                       time=time,
+                                       jobname=jobname,
+                                       licensed_to="Humanity",
+                                       report_type=self.__class__.__name__,
+                                       report_desc="Support Reaction Report",
+                                       units=Quantity.user_units,
+                                       loadcases=self.loadcases,
+                                       zip=zip,     # pass zip
+                                       ))
+
+
+class Forces(Result):
+    """Internal forces results"""
+
+    def __init__(self, name, loadcases):
+        super(Forces, self).__init__(name, loadcases)
+
+        if len(loadcases) == 1:
+            self.template = self.env.get_template("single_case_forces")
+        else:
+            self.template = self.env.get_template("multiple_case_forces")
+
+    def to_screen(self):
+        version = options["core.version"]
+        date = datetime.datetime.now().date()
+        jobname = self.app.models.active_object.jobname
+        time = datetime.datetime.now().time()
+
+        with redirect_stdout(sys.__stdout__):
+            print(self.template.render(version=version,
+                                       date=date,
+                                       time=time,
+                                       jobname=jobname,
+                                       licensed_to="Humanity",
+                                       report_type=self.__class__.__name__,
+                                       report_desc="Internal Forces Report",
+                                       units=Quantity.user_units,
+                                       loadcases=self.loadcases,
+                                       zip=zip,     # pass zip
+                                       ))
+
+
+class Stresses(Result):
+    """Code stress output results"""
     pass
 
 
@@ -108,6 +165,7 @@ class ResultContainer(EntityContainer, ActiveEntityContainerMixin):
 
     def __init__(self):
         super(ResultContainer, self).__init__()
-        self.Stresses = Stresses
         self.Movements = Movements
         self.Reactions = Reactions
+        self.Forces = Forces
+        self.Stresses = Stresses
