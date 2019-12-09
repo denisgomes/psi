@@ -42,16 +42,16 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
 from psi.units import Quantity
 
 
-class Result(Entity, ActiveEntityMixin):
+class Report(Entity, ActiveEntityMixin):
 
     def __init__(self, name, loadcases):
-        super(Result, self).__init__(name)
+        super(Report, self).__init__(name)
         self.loadcases = loadcases
         self.env = Environment(loader=FileSystemLoader(TEMPLATE_DIRECTORY))
 
     @property
     def parent(self):
-        return self.app.results
+        return self.app.reports
 
     def to_screen(self):
         raise NotImplementedError("implement")
@@ -63,7 +63,7 @@ class Result(Entity, ActiveEntityMixin):
         raise NotImplementedError("implement")
 
 
-class Movements(Result):
+class Movements(Report):
     """Nodal displacement results"""
 
     def __init__(self, name, loadcases):
@@ -94,7 +94,7 @@ class Movements(Result):
                                        ))
 
 
-class Reactions(Result):
+class Reactions(Report):
     """Support reaction results"""
 
     def __init__(self, name, loadcases):
@@ -125,7 +125,7 @@ class Reactions(Result):
                                        ))
 
 
-class Forces(Result):
+class Forces(Report):
     """Internal forces results"""
 
     def __init__(self, name, loadcases):
@@ -156,15 +156,15 @@ class Forces(Result):
                                        ))
 
 
-class Stresses(Result):
+class Stresses(Report):
     """Code stress output results"""
     pass
 
 
-class ResultContainer(EntityContainer, ActiveEntityContainerMixin):
+class ReportContainer(EntityContainer, ActiveEntityContainerMixin):
 
     def __init__(self):
-        super(ResultContainer, self).__init__()
+        super(ReportContainer, self).__init__()
         self.Movements = Movements
         self.Reactions = Reactions
         self.Forces = Forces

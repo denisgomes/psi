@@ -45,7 +45,7 @@ from psi.codes import CodeContainer
 from psi.insulation import InsulationContainer
 from psi.loads import LoadContainer
 from psi.loadcase import LoadCaseContainer
-from psi.results import ResultContainer
+from psi.reports import ReportContainer
 from psi.units import Units
 
 
@@ -98,7 +98,7 @@ class App(object):
         self.loads = LoadContainer()
         self.loadcases = LoadCaseContainer()
         self.codes = CodeContainer()
-        self.results = ResultContainer()
+        self.reports = ReportContainer()
 
         self.interp = PSIInterpreter()
         self.interp.locals = self._interp_locals
@@ -181,12 +181,12 @@ class App(object):
                 "LoadCase": self.loadcases.LoadCase,
                 "LoadComb": self.loadcases.LoadComb,
 
-                # results
-                "results": self.results,
-                "Movements": self.results.Movements,
-                "Reactions": self.results.Reactions,
-                "Forces": self.results.Forces,
-                "Stresses": self.results.Stresses,
+                # reports
+                "reports": self.reports,
+                "Movements": self.reports.Movements,
+                "Reactions": self.reports.Reactions,
+                "Forces": self.reports.Forces,
+                "Stresses": self.reports.Stresses,
                 }
 
     @property

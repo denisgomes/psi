@@ -71,7 +71,7 @@ class Model(Entity, ActiveEntityMixin):
         self._supports = OrderedDict()
         self._loads = OrderedDict()
         self._loadcases = OrderedDict()
-        self._results = OrderedDict()
+        self._reports = OrderedDict()
 
         # active model objects
         self._active_point = None
@@ -80,7 +80,7 @@ class Model(Entity, ActiveEntityMixin):
         self._active_material = None
         self._active_insulation = None
         self._active_code = None
-        self._active_result = None
+        self._active_report = None
 
         super(Model, self).__init__(name)   # call last
         self.activate()     # activate on init
@@ -190,12 +190,12 @@ class Model(Entity, ActiveEntityMixin):
         self.app.codes.active_object = code
 
     @property
-    def active_result(self, code):
-        return self.app.results.active_object
+    def active_report(self, code):
+        return self.app.reports.active_object
 
-    @active_result.setter
-    def active_result(self, result):
-        self.app.results.active_object = result
+    @active_report.setter
+    def active_report(self, report):
+        self.app.reports.active_object = report
 
     @property
     def parent(self):
@@ -293,8 +293,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
         app.loadcases._objects = inst._loadcases
 
-        app.results._objects = inst._results
-        app.results._active_object = inst._active_result
+        app.reports._objects = inst._reports
+        app.reports._active_object = inst._active_report
 
         # add others here
 

@@ -4,7 +4,7 @@
   <settings dpi="96">
     <identity>
       <id>6e472044-4ba8-4db6-987f-2b0e85ac61a4</id>
-      <revision>421</revision>
+      <revision>422</revision>
     </identity>
     <calculation>
       <precision>4</precision>
@@ -579,7 +579,7 @@
       <p>Cantilevered Beam Deflection</p>
     </text>
   </region>
-  <region id="45" left="0" top="1458" width="146" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="45" left="0" top="1467" width="146" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">F.beam</e>
@@ -591,7 +591,7 @@
       </input>
     </math>
   </region>
-  <region id="46" left="0" top="1503" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="46" left="0" top="1512" width="132" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">E</e>
@@ -606,7 +606,7 @@
       </input>
     </math>
   </region>
-  <region id="47" left="0" top="1548" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="47" left="0" top="1557" width="261" height="62" color="#000000" bgColor="#ffffff" fontSize="10">
     <math decimalPlaces="8">
       <input>
         <e type="operand">δ.max</e>
@@ -631,8 +631,8 @@
       </result>
     </math>
   </region>
-  <region id="48" left="0" top="1629" width="137" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
-    <math>
+  <region id="48" left="0" top="1638" width="169" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math decimalPlaces="8">
       <input>
         <e type="operand">δ.max</e>
       </input>
@@ -640,12 +640,12 @@
         <e type="operand" style="unit">in</e>
       </contract>
       <result action="numeric">
-        <e type="operand">1.2148</e>
+        <e type="operand">1.21476442</e>
         <e type="operator" args="1">-</e>
       </result>
     </math>
   </region>
-  <region id="49" left="0" top="1701" width="152" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="49" left="0" top="1710" width="152" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p>Thermal Deflection</p>
     </text>
@@ -723,25 +723,6 @@
       </contract>
       <result action="numeric">
         <e type="operand">0.3622</e>
-      </result>
-    </math>
-  </region>
-  <region id="55" left="360" top="1998" width="276" height="33" color="#000000" bgColor="#ffffff" fontSize="10">
-    <math>
-      <input>
-        <e type="operand">239</e>
-        <e type="operand">1.263599</e>
-        <e type="operator" args="2">*</e>
-        <e type="operand">10</e>
-        <e type="operand">5</e>
-        <e type="operator" args="1">-</e>
-        <e type="operator" args="2">^</e>
-        <e type="operator" args="2">*</e>
-        <e type="operand">3.048</e>
-        <e type="operator" args="2">*</e>
-      </input>
-      <result action="numeric">
-        <e type="operand">0.0092</e>
       </result>
     </math>
   </region>
