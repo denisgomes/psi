@@ -48,6 +48,8 @@ are stored internally in the load case object. Note that properties with units
 for different values are stored separately and combined on the fly.
 """
 
+from itertools import zip_longest
+
 import numpy as np
 
 from psi.entity import Entity, EntityContainer
@@ -281,6 +283,9 @@ class LoadCase(BaseCase):
 class LoadComb(BaseCase):
     """Add loadcases using different combination methods.
 
+    Note: Combinations pull stored data from loadcases on the fly and do the
+    necessary operations.
+
     Parameters
     ----------
     name : str
@@ -316,12 +321,18 @@ class LoadComb(BaseCase):
 
     loadcases : list of loadcases.
         List of load cases.
+
+    factors : list of numbers.
+        A list of factors corresponding to each loadcase. If a factor is not
+        given, a default value of 1 is used.
     """
 
-    def __init__(self, name, stype="SUS", method="algebraic", loadcases=[]):
+    def __init__(self, name, stype="ope", method="algebraic", loadcases=[],
+                 factors=[]):
         super(LoadComb, self).__init__(name, stype)
         self.method = method
         self.loadcases = OrderedSet()
+        self.factors = factors
 
         for loadcase in loadcases:
             if isinstance(loadcase, LoadCase):
@@ -332,17 +343,23 @@ class LoadComb(BaseCase):
         movements = Movements()
         movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for loadcase in self.loadcases:
+        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+                                            fillvalue=1):
             if self.method in ("algebraic", "scalar"):
-                movements.results += loadcase.movements.results
-            elif self.method == "SRSS":
-                raise NotImplementedError("implement")
+                movements.results += (factor * loadcase.movements.results)
+            elif self.method == "srss":
+                # note: sign of factor has no effect, always positive
+                movements.results += (factor * loadcase.movements.results)**2
+                movements.results = np.sqrt(movements.results)
             elif self.method == "abs":
-                raise NotImplementedError("implement")
+                movements.results += (factor * np.abs(loadcase.movements.results))
             elif self.method == "signmax":
-                raise NotImplementedError("implement")
+                # overwrite every time through the loop
+                movements.results = np.maximum(movements.results,
+                                               loadcase.movements.results)
             elif self.method == "signmin":
-                raise NotImplementedError("implement")
+                movements.results = np.minimum(movements.results,
+                                               loadcase.movements.results)
 
         return movements
 
@@ -351,17 +368,23 @@ class LoadComb(BaseCase):
         reactions = Reactions()
         reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for loadcase in self.loadcases:
+        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+                                            fillvalue=1):
             if self.method in ("algebraic", "scalar"):
-                reactions.results += loadcase.reactions.results
-            elif self.method == "SRSS":
-                raise NotImplementedError("implement")
+                reactions.results += (factor * loadcase.reactions.results)
+            elif self.method == "srss":
+                # note: sign of factor has no effect, always positive
+                reactions.results += (factor * loadcase.reactions.results)**2
+                reactions.results = np.sqrt(reactions.results)
             elif self.method == "abs":
-                raise NotImplementedError("implement")
+                reactions.results += (factor * np.abs(loadcase.reactions.results))
             elif self.method == "signmax":
-                raise NotImplementedError("implement")
+                # overwrite every time through the loop
+                reactions.results = np.maximum(reactions.results,
+                                               loadcase.movements.results)
             elif self.method == "signmin":
-                raise NotImplementedError("implement")
+                reactions.results = np.minimum(reactions.results,
+                                               loadcase.movements.results)
 
         return reactions
 
@@ -370,19 +393,29 @@ class LoadComb(BaseCase):
         forces = Forces()
         forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for loadcase in self.loadcases:
+        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+                                            fillvalue=1):
             if self.method in ("algebraic", "scalar"):
-                forces.results += loadcase.forces.results
-            elif self.method == "SRSS":
-                raise NotImplementedError("implement")
+                forces.results += (factor * loadcase.forces.results)
+            elif self.method == "srss":
+                # note: sign of factor has no effect, always positive
+                forces.results += (factor * loadcase.forces.results)**2
+                forces.results = np.sqrt(forces.results)
             elif self.method == "abs":
-                raise NotImplementedError("implement")
+                forces.results += (factor * np.abs(loadcase.forces.results))
             elif self.method == "signmax":
-                raise NotImplementedError("implement")
+                # overwrite every time through the loop
+                forces.results = np.maximum(forces.results,
+                                            loadcase.movements.results)
             elif self.method == "signmin":
-                raise NotImplementedError("implement")
+                forces.results = np.minimum(forces.results,
+                                            loadcase.movements.results)
 
         return forces
+
+    @property
+    def stresses(self):
+        raise NotImplementedError("implement")
 
 
 class LoadCaseContainer(EntityContainer):

@@ -24,16 +24,16 @@ anc1.apply([run20])
 W1 = Weight('W1')
 W1.apply([run20])
 
-T1 = Thermal('T1', 150, 70)
-T1.apply([run20])
-
 P1 = Pressure('P1', 250)
 P1.apply([run20])
 
+T1 = Thermal('T1', 150, 70)
+T1.apply([run20])
+
 # loadcases
-L1 = LoadCase('L1', 'OPE', [W1, T1, P1])
-L2 = LoadCase('L2', 'SUS', [W1, P1])
-L3 = LoadComb('L1-L2', 'EXP', 'algebraic', [L1, L2])
+L1 = LoadCase('L1', 'ope', [W1, P1, T1])
+L2 = LoadCase('L2', 'sus', [W1, P1])
+L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code
 b311 = B311('B311')
