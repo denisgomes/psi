@@ -69,7 +69,7 @@ class Translation(object):
 
         Parameters
         ----------
-        values : numpy.array
+        data : numpy.array row vector
         """
         x = data[::6]
         y = data[1::6]
@@ -94,7 +94,7 @@ class Rotation(object):
 
         Parameters
         ----------
-        values : numpy.array
+        data : numpy.array row vector
         """
         rx = data[3::6]
         ry = data[4::6]
@@ -237,11 +237,6 @@ class BaseCase(Entity):
         super(BaseCase, self).__init__(name)
         self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
 
-        # results objects
-        self.movements = Movements()
-        self.reactions = Reactions()
-        self.forces = Forces()
-
     @property
     def points(self):
         return list(self.app.points)
@@ -257,6 +252,7 @@ class LoadCase(BaseCase):
     Note that the loads for a given case must be unique, in other words, the
     same load cannot be specified twice.
     """
+
     def __init__(self, name, stype="SUS", loads=[]):
         super(LoadCase, self).__init__(name, stype)
         self.loads = OrderedSet()
@@ -264,38 +260,129 @@ class LoadCase(BaseCase):
         for load in loads:
             self.loads.add(load)
 
+        # results objects
+        self._movements = Movements()
+        self._reactions = Reactions()
+        self._forces = Forces()
+
+    @property
+    def movements(self):
+        return self._movements
+
+    @property
+    def reactions(self):
+        return self._reactions
+
+    @property
+    def forces(self):
+        return self._forces
+
 
 class LoadComb(BaseCase):
+    """Add loadcases using different combination methods.
 
-    def __init__(self, name, stype="SUS", loadcases=[]):
+    Parameters
+    ----------
+    name : str
+        Unique name for load combination object.
+
+    stype : str
+        Type of code stress. Defaults to sustained stress.
+
+        HGR - hanger load case
+        HYD - hydro load case
+        SUS - sustained stress case
+        EXP - thermal expansion stress.case
+        OCC - occasional stress case
+        OPE - operating stress case
+        FAT - Fatigue stress case
+
+    method : str
+        Result combination method.
+
+        Algebriac - Disp/force results added vectorially. Stresses are derived
+        from the force results.
+
+        Scalar - Disp/force/ results added vectorially similar to the algebraic
+        method. Stresses are added together.
+
+        SRSS - Square root of the sum squared.
+
+        Abs - Absolute summation.
+
+        Signmax - Signed max.
+
+        Signmin - Signed min.
+
+    loadcases : list of loadcases.
+        List of load cases.
+    """
+
+    def __init__(self, name, stype="SUS", method="algebraic", loadcases=[]):
         super(LoadComb, self).__init__(name, stype)
-
+        self.method = method
         self.loadcases = OrderedSet()
 
         for loadcase in loadcases:
-            self.loadcases.add(loadcase)
+            if isinstance(loadcase, LoadCase):
+                self.loadcases.add(loadcase)
 
-    def __add__(self, other):
-        if isinstance(other, LoadComb):
-            # add results here
-            pass
+    @property
+    def movements(self):
+        movements = Movements()
+        movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-    def __sub__(self, other):
-        pass
+        for loadcase in self.loadcases:
+            if self.method in ("algebraic", "scalar"):
+                movements.results += loadcase.movements.results
+            elif self.method == "SRSS":
+                raise NotImplementedError("implement")
+            elif self.method == "abs":
+                raise NotImplementedError("implement")
+            elif self.method == "signmax":
+                raise NotImplementedError("implement")
+            elif self.method == "signmin":
+                raise NotImplementedError("implement")
 
-    def __mult__(self, other):
-        pass
+        return movements
 
-    def __rmul__(self, other):
-        pass
+    @property
+    def reactions(self):
+        reactions = Reactions()
+        reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-    def __truediv__(self, other):
-        pass
+        for loadcase in self.loadcases:
+            if self.method in ("algebraic", "scalar"):
+                reactions.results += loadcase.reactions.results
+            elif self.method == "SRSS":
+                raise NotImplementedError("implement")
+            elif self.method == "abs":
+                raise NotImplementedError("implement")
+            elif self.method == "signmax":
+                raise NotImplementedError("implement")
+            elif self.method == "signmin":
+                raise NotImplementedError("implement")
 
-    __floordiv__ = __truediv__
+        return reactions
 
-    def __pow__(self, other, value):
-        pass
+    @property
+    def forces(self):
+        forces = Forces()
+        forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
+
+        for loadcase in self.loadcases:
+            if self.method in ("algebraic", "scalar"):
+                forces.results += loadcase.forces.results
+            elif self.method == "SRSS":
+                raise NotImplementedError("implement")
+            elif self.method == "abs":
+                raise NotImplementedError("implement")
+            elif self.method == "signmax":
+                raise NotImplementedError("implement")
+            elif self.method == "signmin":
+                raise NotImplementedError("implement")
+
+        return forces
 
 
 class LoadCaseContainer(EntityContainer):

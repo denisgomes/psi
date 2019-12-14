@@ -21,15 +21,19 @@ anc1.apply([run20])
 # d1.apply([run20])
 
 # loads
-w1 = Weight('w1')
-w1.apply([run20])
-t1 = Thermal('t1', 200, 70)
-t1.apply([run20])
-f1 = Force('F1', 20, fy=-5000)
-f1.apply([run20])
+W1 = Weight('W1')
+W1.apply([run20])
+
+T1 = Thermal('T1', 150, 70)
+T1.apply([run20])
+
+P1 = Pressure('P1', 250)
+P1.apply([run20])
 
 # loadcases
-lc1 = LoadCase('LC1', 'SUS', [w1, t1, f1])
+L1 = LoadCase('L1', 'OPE', [W1, T1, P1])
+L2 = LoadCase('L2', 'SUS', [W1, P1])
+L3 = LoadComb('L1-L2', 'EXP', 'algebraic', [L1, L2])
 
 # code
 b311 = B311('B311')
@@ -39,11 +43,11 @@ mdl.analyze()
 # mdl.units = 'si'
 
 # results
-disp = Movements('rset1', [lc1])
+disp = Movements('R1', [L1])
 disp.to_screen()
 
-reac = Reactions('rset2', [lc1])
+reac = Movements('R2', [L2])
 reac.to_screen()
 
-# forc = Forces('rset3', [lc1])
-# forc.to_screen()
+forc = Movements('R3', [L3])
+forc.to_screen()

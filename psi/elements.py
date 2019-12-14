@@ -275,6 +275,17 @@ class Piping(Element):
                 self.geometry.length)
         return mass
 
+    def delete(self):
+        """Deleting an element other than a run has the effect of converting to
+        a run, so the points and underlying vertex data is unaffected.
+
+        Deleting a run....
+
+        Deleting a point has the effect of converting the element to a run and
+        merging adjacent runs together.
+        """
+        raise NotImplementedError("abstract method")
+
 
 @units.define(_dx="length", _dy="length", _dz="length")
 class Run(Piping):
@@ -583,8 +594,11 @@ class Bend(Run):
     when the next adjacent run element is defined. The curve is also
     built/updated when the bend radius is set.
 
-    A bend element is approximated using multiple runs element. The number of
-    elements is a user defined parameter.
+    A bend element is approximated using multiple runs element at runtime. The
+    number of elements is a user defined parameter. The underlying curve data
+    for the geometry is used at runtime to create additional runs and solved.
+    The temporary runs are then deleted so that all the model data is not
+    affected overall.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, radius="long", tol=0.01,
@@ -593,7 +607,7 @@ class Bend(Run):
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
-        self.runs = []          # internal runs
+        self._runs = []          # internal runs - created at runtime
         self.radius = radius    # also calls build
         self.tol = tol
 
@@ -685,7 +699,9 @@ class Bend(Run):
             self.build(self.to_point)
 
     def klocal(self, temp, sfac=1.0):
-        for run in self.runs:
+        # poluate the run list with temporary elements first
+
+        for run in self._runs:
             yield run.klocal(temp, sfac)
 
     def kglobal(self, temp, sfac=1.0):
@@ -710,7 +726,10 @@ class Reducer(Run):
 
     A reducer element is approximated using multiple run element. The number
     of elements is a user defined parameter. The diameter of each element is
-    stepped down from the larger to smaller pipe diameter.
+    stepped down from the larger to smaller pipe diameter. Similar to a bend,
+    a reducer is also approximated using a curve, but in this case straight
+    curve. The straight curve can be easily subdivided by calling the euler
+    operations on the curve.
 
     The code flexibility factor is applied to all approximating elements of
     the reducer.
@@ -722,7 +741,7 @@ class Reducer(Run):
                                       material, insulation, code)
         section2.activate()     # automatic
         self.section2 = section2
-        self.runs = []          # internal runs
+        self._runs = []          # internal runs created at runtime
 
     def build(self, point):
         """Similar to a bend a reducer consists of one curve which consists of
@@ -772,6 +791,7 @@ class Reducer(Run):
         return s.inden*vi
 
     def klocal(self, temp, sfac=1.0):
+        # poluate the run list with temporary elements first
         for run in self.runs:
             yield run.klocal(temp, sfac)
 
@@ -780,8 +800,9 @@ class Reducer(Run):
 
         The bend consists of multiple approximating elements and so the global
         matrix for the reducer is the assembly of all the elements which make
-        up the bend.
+        up the reducer.
         """
+        # poluate the run list with temporary elements first
         for run in self.runs:
             yield run.kglobal(temp, sfac)
 

@@ -42,6 +42,7 @@ import numpy as np
 from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
+from psi.loadcase import LoadCase
 from psi.topology import Geometry
 from psi import units
 from psi.solvers import gauss
@@ -358,6 +359,34 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
            moments.
 
         6. Use the results from step 5 to calculate code stresses.
+
+
+        Non-linear supports
+
+        For each non-linear support and each loadcase:
+
+            Initially a non-linear (+Y) support is converted to a linear full
+            Y support.
+
+            If the solution shows a (-Y) load on the support, the support is
+            modeled correctly. If not, the program gets rid of the support
+            altogether and tracks the displacement at that point.
+
+            If the point shows a (+Y) deflection, this support is modeled
+            correclty for this loadcase. Else, the stiffness matrix is
+            reset to a full Y.
+
+
+
+        Loading sequence and non-linear supports.
+
+        Non linear supports use an iterative approach to determine the final
+        support loads and pipe configuration. The sequence in which loads are
+        applied matters as superposition is not valid for non-linear analysis.
+        Each load is applied and the displacements extracted. These movements
+        are then used for the next step, ie. the model mesh is modified to
+        incorporate the new point locations. As a result the system stiffness
+        matrix is updated each iteration.
         """
         tqdm = logging.getLogger("tqdm")
         tqdm.info("*** Preprocessing, initializing analysis...")
@@ -428,15 +457,16 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 # with redirect_stdout(sys.__stdout__):
                 #     print(loadcase)
 
-                # sum of all loads in a loadcase
-                feg = np.zeros((en*ndof, 1), dtype=np.float64)
-                for load in loadcase.loads:
-                    if load in element.loads:
-                        feg += load.fglobal(element)
+                if isinstance(loadcase, LoadCase):
+                    # sum of all loads in a loadcase
+                    feg = np.zeros((en*ndof, 1), dtype=np.float64)
+                    for load in loadcase.loads:
+                        if load in element.loads:
+                            feg += load.fglobal(element)
 
-                # assemble global system force matrix
-                Fs[niqi:niqj, i] += feg[:6, 0]
-                Fs[njqi:njqj, i] += feg[6:12, 0]
+                    # assemble global system force matrix
+                    Fs[niqi:niqj, i] += feg[:6, 0]
+                    Fs[njqi:njqj, i] += feg[6:12, 0]
 
                 # large stiffness added to each force matrix component with
                 # non-zero support displacements
@@ -503,9 +533,12 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
 
         tqdm.info("*** Writing loadcase results data.")
         for i, loadcase in enumerate(inst.loadcases):
-            loadcase.movements.results = X[:, i]
-            loadcase.reactions.results = R[:, i]
-            loadcase.forces.results = Fi[:, i]
+            # load combs are combined later
+            if isinstance(loadcase, LoadCase):
+                # X[:, i], R[:, i] and Fi[:, i] are row vectors
+                loadcase.movements.results = X[:, i]
+                loadcase.reactions.results = R[:, i]
+                loadcase.forces.results = Fi[:, i]
 
         # with redirect_stdout(sys.__stdout__):
         #     print(Fi)

@@ -27,7 +27,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Different types of pipe supports"""
+"""Different types of pipe supports.
+
+Supports are implemented using the penalty approach where the global system
+stiffness and force matrices are modified by the support stiffness value. A
+stiffness value of 1000*K, where K is the largest stiffness in the global
+stiffness matrix has shown to produce good results.
+"""
 
 import numpy as np
 

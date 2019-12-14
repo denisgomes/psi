@@ -167,6 +167,9 @@ class Pressure(Load):
     straight pipe is pressurized it wants to shrink axially. A pipe bend on the
     other hand wants to open up.
 
+    The pressure on the capped ends also has the effect of pulling on the pipe
+    axially.
+
     The sustained stress in most piping codes also use the internal pressure to
     calculate a longitudinal stress which is added to the bending stress.
 
@@ -178,11 +181,50 @@ class Pressure(Load):
         super(Pressure, self).__init__(name)
         self.pres = pres
 
+    def thrust(self, element):
+        """Pressure thrust force.
+
+        Force causing axial elongation due to the system being closed.
+        """
+        pipe = element.section
+
+        od = pipe.od
+        id_ = pipe.od - 2*pipe.thk  # inner diameter
+
+        return self.pres * np.pi * (od - id_)**2 / 4
+
+    def bourdon(self, element):
+        """Bourdon effect.
+
+        The axial shortening of piping due to the internal pressure. This is
+        a byproduct of the poisson's ratio effect.
+        """
+        pipe = element.section
+        mat = element.material
+
+        od = pipe.od
+        id_ = pipe.od - 2*pipe.thk
+        nu = mat.nu.value
+        area = pipe.area
+
+        return 2 * nu * self.pres * area * (id_**2 / (od**2-id_**2))
+
     def flocal(self, element):
         """If bourdon effect is activated, a force is applied in the axial
         direction of the piping similar to the thermal loading.
         """
-        pass
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        # pressure thrust force - elongation
+        ft = self.thrust(element)
+
+        # bourdon effect - shortening
+        fb = self.bourdon(element)
+
+        f[:, 0] = [-ft+fb, 0, 0, 0, 0, 0,
+                   ft-fb, 0, 0, 0, 0, 0]
+
+        return f
 
 
 @units.define(pres="pressure")
@@ -199,7 +241,7 @@ class Hydro(Load):
         self.pres = pres
 
     def flocal(self, element):
-        pass
+        raise NotImplementedError("implement")
 
 
 @units.define(temp="temperature", tref="temperature")
