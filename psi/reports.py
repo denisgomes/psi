@@ -29,7 +29,7 @@
 
 """Display various result reports generated from the loadcases solved"""
 
-import datetime
+from datetime import datetime
 import sys
 from contextlib import redirect_stdout
 
@@ -76,9 +76,9 @@ class Movements(Report):
 
     def to_screen(self):
         version = options["core.version"]
-        date = datetime.datetime.now().date()
+        date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
-        time = datetime.datetime.now().time()
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
             print(self.template.render(version=version,
@@ -107,9 +107,9 @@ class Reactions(Report):
 
     def to_screen(self):
         version = options["core.version"]
-        date = datetime.datetime.now().date()
+        date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
-        time = datetime.datetime.now().time()
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
             print(self.template.render(version=version,
@@ -138,9 +138,9 @@ class Forces(Report):
 
     def to_screen(self):
         version = options["core.version"]
-        date = datetime.datetime.now().date()
+        date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
-        time = datetime.datetime.now().time()
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
             print(self.template.render(version=version,

@@ -48,7 +48,10 @@ are stored internally in the load case object. Note that properties with units
 for different values are stored separately and combined on the fly.
 """
 
-from itertools import zip_longest
+from itertools import zip_longest, product
+from collections import defaultdict
+from contextlib import redirect_stdout
+import sys
 
 import numpy as np
 
@@ -111,6 +114,9 @@ class Movements(object):
     def __init__(self):
         self._translation = Translation()
         self._rotation = Rotation()
+
+    def __call__(self, point):
+        pass
 
     @property
     def results(self):
@@ -426,5 +432,42 @@ class LoadCaseContainer(EntityContainer):
         self.LoadComb = LoadComb
 
     def defaults(self):
-        """A set of default cases automatically created for the user"""
-        pass
+        """A set of cases automatically created based on the thermal cases.
+        Each temperature case is an operating case. Different combinations of
+        weight and pressure loads associated with each thermal case is
+        considered. In addition, loads such as wind, seismic and force loads
+        (i.e. SRV loads) are applied to each of the operating cases.
+        """
+        loadtypes = defaultdict(list)
+        for load in self.app.loads:
+            loadtypes[load.type].append(load)
+
+        operating = []
+        sustained = []
+        thermal = []
+        for thermal in loadtypes["Thermal"]:
+            operating.append(list(product(loadtypes["Weight"],
+                                          loadtypes["Pressure"],
+                                          # loadtypes["Fluid"],
+                                          [thermal],
+                                          )))
+            sustained.append(list(product(loadtypes["Weight"],
+                                          loadtypes["Pressure"],
+                                          #loadtypes["Fluid"],
+                                          )))
+
+        # operating, sustained, occassional loads - primary loadcases
+        count = 1
+        for oper in operating:
+            LoadCase("L%s" % count, "ope", loads=oper[0])
+            count += 1
+
+        for sus in sustained:
+            LoadCase("L%s" % count, "sus", loads=sus[0])
+            count += 1
+
+        # thermal and occasional stresses - secondary loadcombs
+
+        with redirect_stdout(sys.__stdout__):
+            for case in operating:
+                print(list(case))

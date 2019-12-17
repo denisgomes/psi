@@ -432,8 +432,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             #     print(keg)
 
             # assemble global stiffness matrix, quadrant 1 to 4
-            Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 1st
-            Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 2nd
+            Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 2nd
+            Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 1st
             Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
             Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
@@ -446,7 +446,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             for support in element.supports:
                 ksup = support.kglobal(element)
                 # assign to diagonal elements of system matrix
-                Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]         # 1st
+                Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]         # 2nd
                 Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]       # 4th
 
             # with redirect_stdout(sys.__stdout__):
@@ -543,13 +543,7 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         # with redirect_stdout(sys.__stdout__):
         #     print(Fi)
 
-        tqdm.info("*** Combining loadcase results data.")
-        # do loadcase combination cases
-        # code here
-
-        # with redirect_stdout(sys.__stdout__):
-        #     print(R)
-
+        tqdm.info("*** Analysis complete!\n")
         self.app.units.enable()
 
     def check(self, inst):

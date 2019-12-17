@@ -27,21 +27,29 @@ W1.apply([run20])
 P1 = Pressure('P1', 250)
 P1.apply([run20])
 
-T1 = Thermal('T1', 500, 70)
+T1 = Thermal('T1', 300, 70)
 T1.apply([run20])
 
+T2 = Thermal('T2', 500, 70)
+T2.apply([run20])
+
 # loadcases
-L1 = LoadCase('L1', 'ope', [W1, P1, T1])
-L2 = LoadCase('L2', 'sus', [W1, P1])
-L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
+# L1 = LoadCase('L1', 'ope', [W1, P1, T1])
+# L2 = LoadCase('L2', 'sus', [W1, P1])
+# L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code
 b311 = B311('B311')
 b311.apply([run20])
 
-# solve
+
+loadcases.defaults()
 mdl.analyze()
 # mdl.units = 'si'
+
+
+L1 = loadcases('L1')
+L2 = loadcases('L2')
 
 # reports
 disp = Movements('R1', [L1])
@@ -50,5 +58,5 @@ disp.to_screen()
 reac = Movements('R2', [L2])
 reac.to_screen()
 
-forc = Movements('R3', [L3])
-forc.to_screen()
+# forc = Movements('R3', [L3])
+# forc.to_screen()

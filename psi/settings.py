@@ -48,32 +48,29 @@ from psi import VERSION
 
 class Options:
     # Options should be encapsulated to associate units and default values
-
     pass
 
 
 options = {
-        # Core Options #
+    # units systems, options: ("english", "si")
+    "core.units": "english",
 
-        # units systems, options: ("english", "si")
-        "core.units": "english",
+    # vertical direction, options: ("y", "z")
+    "core.vertical": "y",
 
-        # vertical direction, options: ("y", "z")
-        "core.vertical": "y",
+    # for corrosion allowance and mill tolerance, reduced thickness
+    # is considered for stress calculations
+    "core.stress_cases_corroded": False,
 
-        # ambient temperature
-        "core.tref": 70,
+    # activate bourdon pressure effect
+    "core.bourdon_effect": False,
 
-        # for corrosion allowance and mill tolerance, reduced thickness
-        # is considered for stress calculations
-        "core.stress_cases_corroded": False,
+    # include pressure thrust
+    "core.pressure_thrust": False,
 
-        # activate bourdon pressure effect
-        "code.bourdon_effect": False,
-
-        # program version
-        "core.version": VERSION,
-        }
+    # program version
+    "core.version": VERSION,
+}
 
 options_types = {}
 

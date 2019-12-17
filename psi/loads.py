@@ -55,8 +55,6 @@ import psi
 from psi.entity import Entity, EntityContainer
 from psi import units
 
-from psi.settings import options
-
 import sys
 from contextlib import redirect_stdout
 
@@ -138,7 +136,7 @@ class Weight(Load):
         L = element.length
 
         # the vertical direction
-        vert = options["core.vertical"]
+        vert = self.app.models.active_object.settings["core.vertical"]
 
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
@@ -161,17 +159,19 @@ class Weight(Load):
 class Pressure(Load):
     """Internal or external pressure.
 
-    The pressure can have a stiffening affect on the piping system called the
-    Bourdon effect. For large D/t ratio pipes with large system pressures, the
-    effects of ovalization can be made worse due to this effect. When a
-    straight pipe is pressurized it wants to shrink axially. A pipe bend on the
-    other hand wants to open up.
+    The pressure can have a stiffening effect on the piping system called the
+    Bourdon effect. For large D/t ratio pipe bends with large system pressures,
+    the effects of ovalization can be made worse due to this effect. When a
+    straight pipe is pressurized it wants to shrink axially due to the radial
+    growth whereas a pipe bend wants to open up.
 
-    The pressure on the capped ends also has the effect of pulling on the pipe
-    axially.
-
-    The sustained stress in most piping codes also use the internal pressure to
-    calculate a longitudinal stress which is added to the bending stress.
+    The pressure on capped ends also has the effect of pulling on the pipe
+    axially. The sustained stress in most piping codes uses the internal
+    pressure to calculate a longitudinal stress which is added to the bending
+    stress. For B31.1 piping for example, the longitudinal stress due to
+    pressure is equal to P*D/4*t. If pressure stress per code is accounted for
+    the pressure due to capped ends need not be considered as doing so will in
+    effect double the pressure stress.
 
     A hoop stress can also be calculated to determine if the pipe wall is sized
     properly based on code requirements.
@@ -216,10 +216,14 @@ class Pressure(Load):
         f = np.zeros((12, 1), dtype=np.float64)
 
         # pressure thrust force - elongation
-        ft = self.thrust(element)
+        ft = 0
+        if self.app.models.active_object.settings["core.pressure_thrust"]:
+            ft = self.thrust(element)
 
         # bourdon effect - shortening
-        fb = self.bourdon(element)
+        fb = 0
+        if self.app.models.active_object.settings["core.bourdon_effect"]:
+            fb = self.bourdon(element)
 
         f[:, 0] = [-ft+fb, 0, 0, 0, 0, 0,
                    ft-fb, 0, 0, 0, 0, 0]
@@ -228,20 +232,22 @@ class Pressure(Load):
 
 
 @units.define(pres="pressure")
-class Hydro(Load):
-    """Hydro test pressure
+class Hydro(Pressure):
+    """Hydro test pressure.
 
     Test pressure is typically 1.5 times the design pressure. Hydro testing is
-    performed to ensure that there are no leaks. Pneumatic testing can also be
-    used along with RT (x-ray).
+    performed to ensure there are no leaks. Pneumatic testing can also be used
+    along with RT (x-ray).
+
+    During hydrotesting, spring can are locked using travel stops so that they
+    behave as full Y supports. Springs cans bodies are designed to sustain any
+    additional deadweight load imposed during testing. Extra precaution should
+    be taken to ensure the loads are acceptable.
     """
 
     def __init__(self, name, pres=0):
-        super(Pressure, self).__init__(name)
+        super(Hydro, self).__init__(name)
         self.pres = pres
-
-    def flocal(self, element):
-        raise NotImplementedError("implement")
 
 
 @units.define(temp="temperature", tref="temperature")
