@@ -512,10 +512,10 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                     ksup = support.kglobal(element)
                     dsup = support.dglobal(element)     # support displacement
 
-                    R[niqi:niqj, i] = -ksup[:6, 0] * (X[niqi:niqj, i] -
-                                                      dsup[:6, 0])
-                    R[njqi:njqj, i] = -ksup[6:12, 0] * (X[njqi:njqj, i] -
-                                                        dsup[6:12, 0])
+                    R[niqi:niqj, i] += (-ksup[:6, 0] * (X[niqi:niqj, i] -
+                                                        dsup[:6, 0]))
+                    R[njqi:njqj, i] += (-ksup[6:12, 0] * (X[njqi:njqj, i] -
+                                                          dsup[6:12, 0]))
 
                 # calculate element local forces and moments using the local
                 # element stiffness matrix and fi = kel*x where x is the local
@@ -541,6 +541,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
                 loadcase.forces.results = Fi[:, i]
 
         # with redirect_stdout(sys.__stdout__):
+        #     print(X)
+        #     print(R)
         #     print(Fi)
 
         tqdm.info("*** Analysis complete!\n")

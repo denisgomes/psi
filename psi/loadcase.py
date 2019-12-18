@@ -115,9 +115,6 @@ class Movements(object):
         self._translation = Translation()
         self._rotation = Rotation()
 
-    def __call__(self, point):
-        pass
-
     @property
     def results(self):
         x = self._translation.results[::3]
@@ -241,7 +238,7 @@ class Forces(object):
 
 class BaseCase(Entity):
 
-    def __init__(self, name, stype="SUS"):
+    def __init__(self, name, stype="sus"):
         super(BaseCase, self).__init__(name)
         self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
 
@@ -261,7 +258,7 @@ class LoadCase(BaseCase):
     same load cannot be specified twice.
     """
 
-    def __init__(self, name, stype="SUS", loads=[]):
+    def __init__(self, name, stype="sus", loads=[]):
         super(LoadCase, self).__init__(name, stype)
         self.loads = OrderedSet()
 

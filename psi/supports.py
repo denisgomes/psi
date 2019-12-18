@@ -78,7 +78,7 @@ class Support(Entity):
 @units.define(translation_stiffness="translation_stiffness",
               rotation_stiffness="rotation_stiffness")
 class Anchor(Support):
-    """Suppport with all 6 degrees of freedom at a node fixed"""
+    """Support with all 6 degrees of freedom at a node fixed"""
 
     def __init__(self, name, point, translation_stiffness=1e12,
                  rotation_stiffness=1e12):

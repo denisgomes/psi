@@ -20,6 +20,9 @@ anc1.apply([run20])
 # d1 = Displacement('D1', 10, dy=1.0)
 # d1.apply([run20])
 
+# v1 = GlobalY('V1', 20)
+# v1.apply([run20])
+
 # loads
 W1 = Weight('W1')
 W1.apply([run20])
@@ -29,6 +32,9 @@ P1.apply([run20])
 
 T1 = Thermal('T1', 500, 70)
 T1.apply([run20])
+
+# F1 = Force('F1', 20, fy=-7000)
+# F1.apply([run20])
 
 # loadcases
 L1 = LoadCase('L1', 'ope', [W1, P1, T1])
