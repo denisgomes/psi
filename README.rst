@@ -5,8 +5,8 @@ Pipe Stress Infinity (PSI) is an engineering design and analysis software used
 to evaluate the structural behavior and stresses of piping systems to a variety
 of different codes and standards.
 
-* PSI on [PyPI]
-* PSI [documentation]
+* PSI on PyPI_
+* PSI documentation_
 * PSI discord_ server
 * PSI `mailing list`_
 * PSI `issue tracker`_
@@ -46,27 +46,32 @@ To install PSI, type the following command in the terminal:
 Install From Source
 -------------------
 
-If you're reading this README from a source distribution, you can install
-PSI with:
+If you're reading this README from a source distribution, you can install PSI
+with:
 
-..code::sh
+.. code:: sh
 
     $ python setup.py install --user
 
 You can also install the latest development version direct from Github using:
 
-pip install https://github.com/denisgomes/psi/archive/master.zip
+.. code:: sh
+
+    $ pip install https://github.com/denisgomes/psi/archive/master.zip
 
 For local development install PSI in editable mode:
 
-# with pip
-pip install -e .
-# with setup.py
-python setup.py develop
+.. code:: sh
+
+    # with pip
+    $ pip install -e .
+
+    # with setup.py
+    $ python setup.py develop
 
 There are no compilation steps during the installation; if you prefer, you can
-simply add this directory to your PYTHONPATH and use PSI without installing
-it. You can also copy PSI directly into your project folder.
+simply add this directory to your PYTHONPATH and use PSI without installing it.
+You can also copy PSI directly into your project folder.
 
 
 Quickstart
@@ -78,11 +83,13 @@ To start PSI in interactive mode just type:
 
     $ psi
 
-PSI is a python interpreter with added functionality which allows for creating
-and analyzing piping systems. Write the input file shown below using a text
-editor and save it as **demo.py**:
+PSI is a python interpreter with added for creating and analyzing piping
+systems. Write the input file shown below using a text editor and save it as
+**demo.py**:
 
-.. code:: python
+.. code-block:: python
+    :caption: demo.py
+    :name: demo.py
 
     #! /usr/bin
 
@@ -152,15 +159,16 @@ Soon to come!
 Contact
 -------
 
-PSI is developed by many individual volunteers, and there is no central
-point of contact. If you have a question about developing with PSI, or you
-wish to contribute, please join the mailing list or the discord server.
+PSI is developed by many individual volunteers, and there is no central point
+of contact. If you have a question about developing with PSI, or you wish to
+contribute, please join the mailing list or the discord server.
 
-For license issues, please contact Denis Gomes, the primary author.
+For license questions, please contact `Denis Gomes`_, the primary author.
 
 
-[PyPI]
-[documentation]
+.. _PyPI: https://pypi.org/
+.. _documentation: https://readthedocs.com/
 .. _discord: https://discord.gg/RZvjbAy
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
+.. _Denis Gomes: denis.mp.gomes@gmail.com
