@@ -16,7 +16,7 @@ setup(
 
     author="Denis Gomes",
 
-    author_email="denisgomes@consultant.com",
+    author_email="denis.mp.gomes@gmail.com",
 
     license="BSD",
 
@@ -54,7 +54,6 @@ setup(
 
     # MANIFEST.in works for source distributions only
     data_files=[("", ["LICENSE", "README.rst"])],
-
 
     # scripts= ,
 

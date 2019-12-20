@@ -32,7 +32,6 @@
 import sys
 import code
 import psi
-from psi.settings import options
 from psi.entity import Entity, EntityContainer
 from psi.model import ModelContainer
 from psi.point import PointManager
@@ -78,8 +77,6 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
-        self.options = options
-
         Units._app = self
         self.units = Units()
 
@@ -107,7 +104,6 @@ class App(object):
     def _interp_locals(self):
         return {
                 "app": self,
-                "options": self.options,
 
                 # models
                 "models": self.models,

@@ -4,3 +4,4 @@ PSI.egg-info
 psi.egg-info
 .ipynb_checkpoints
 .tox
+docs/_build/

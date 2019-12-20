@@ -50,7 +50,7 @@ mdl.analyze()
 # mdl.units = 'si'
 
 # reports
-disp = Movements('R1', [L1])
+disp = Reactions('R1', [L1])
 disp.to_screen()
 
 reac = Movements('R2', [L2])
