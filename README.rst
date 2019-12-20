@@ -7,9 +7,9 @@ of different codes and standards.
 
 * PSI on [PyPI]
 * PSI [documentation]
-* PSI [discord] server
-* PSI [mailing list]
-* PSI [issue tracker]
+* PSI discord_ server
+* PSI `mailing list`_
+* PSI `issue tracker`_
 
 PSI has an active developer and user community. If you find a bug or a problem
 with the documentation, please open an issue. Anyone is welcome to join our
@@ -72,11 +72,11 @@ it. You can also copy PSI directly into your project folder.
 Quickstart
 ----------
 
-To start PSI in interactive mode type:
+To start PSI in interactive mode just type:
 
 .. code:: sh
 
-    $ psi   # start psi interpreter
+    $ psi
 
 PSI is a python interpreter with added functionality which allows for creating
 and analyzing piping systems. Write the input file shown below using a text
@@ -126,7 +126,7 @@ Now run the file above to get the displacements at the nodes:
 
 To go directly into interacive model after running the model, use:
 
-..code:: sh
+.. code:: sh
 
     $ psi -i demo.py    # run demo.py and start interpreter
 
@@ -161,6 +161,6 @@ For license issues, please contact Denis Gomes, the primary author.
 
 [PyPI]
 [documentation]
-[discord]: https://discord.gg/RZvjbAy
-[mailing list]: https://groups.google.com/group/pipestressinfinity-users
-[issue tracker]: https://github.com/denisgomes/psi/issues
+.. _discord: https://discord.gg/RZvjbAy
+.. _mailing list: https://groups.google.com/group/pipestressinfinity-users
+.. _issue tracker: https://github.com/denisgomes/psi/issues
