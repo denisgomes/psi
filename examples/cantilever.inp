@@ -17,28 +17,28 @@ run20 = Run(20, L)
 anc1 = Anchor('A1', 10)
 anc1.apply([run20])
 
-# d1 = Displacement('D1', 10, dy=1.0)
+# d1 = Displacement('D1', 1, 10, dy=1.0)
 # d1.apply([run20])
 
 # v1 = GlobalY('V1', 20)
 # v1.apply([run20])
 
 # loads
-W1 = Weight('W1')
+W1 = Weight('W1', 1)
 W1.apply([run20])
 
-P1 = Pressure('P1', 250)
+P1 = Pressure('P1', 1, 250)
 P1.apply([run20])
 
-T1 = Thermal('T1', 500, 70)
+T1 = Thermal('T1', 1, 500, 70)
 T1.apply([run20])
 
-# F1 = Force('F1', 20, fy=-7000)
-# F1.apply([run20])
+F1 = Force('F1', 1, 20, fy=-7000)
+F1.apply([run20])
 
 # loadcases
-L1 = LoadCase('L1', 'ope', [W1, P1, T1])
-L2 = LoadCase('L2', 'sus', [W1, P1])
+L1 = LoadCase('L1', 'ope', [Weight, Pressure, Thermal, Force], [1, 1, 1, 1])
+L2 = LoadCase('L2', 'sus', [Weight, Pressure], [1, 1])
 L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code

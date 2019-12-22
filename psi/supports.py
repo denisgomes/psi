@@ -249,13 +249,18 @@ class Displacement(Support):
     Using the penalty approach, the stiffness and force terms in the global
     system matrix are modified.
 
+    Displacements are associated to an operating and typically used with a
+    thermal case.
+
     TODO: how to specify a 'free' nonzero displacement; dx, dy etc for example
     must be a number value so it is set to 0 by default
     """
 
-    def __init__(self, name, point, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0,
+    def __init__(self, name, opercase, point,
+                 dx=0, dy=0, dz=0, rx=0, ry=0, rz=0,
                  translation_stiffness=1e12, rotation_stiffness=1e12):
         super(Displacement, self).__init__(name, point)
+        self.opercase = opercase
         self.dx = dx
         self.dy = dy
         self.dz = dz

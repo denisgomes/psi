@@ -258,11 +258,11 @@ class LoadCase(BaseCase):
     same load cannot be specified twice.
     """
 
-    def __init__(self, name, stype="sus", loads=[]):
+    def __init__(self, name, stype="sus", loadtypes=[], opercases=[]):
         super(LoadCase, self).__init__(name, stype)
         self.loads = OrderedSet()
 
-        for load in loads:
+        for load in zip(loadtypes, opercases):
             self.loads.add(load)
 
         # results objects
@@ -281,6 +281,14 @@ class LoadCase(BaseCase):
     @property
     def forces(self):
         return self._forces
+
+    @property
+    def label(self):
+        lbl = []
+        for loadtype, opercase in self.loads:
+            lbl.append("%s[%s]" % (loadtype.label, opercase))
+
+        return lbl
 
 
 class LoadComb(BaseCase):

@@ -61,8 +61,9 @@ from contextlib import redirect_stdout
 
 class Load(Entity):
 
-    def __init__(self, name):
+    def __init__(self, name, opercase):
         super(Load, self).__init__(name)
+        self.opercase = opercase
 
     @property
     def parent(self):
@@ -103,8 +104,10 @@ class Weight(Load):
         The gfac is set to 1 by default for earth gravity.
     """
 
-    def __init__(self, name, gfac=1.0):
-        super(Weight, self).__init__(name)
+    label = "W"
+
+    def __init__(self, name, opercase, gfac=1.0):
+        super(Weight, self).__init__(name, opercase)
         self.gfac = gfac
 
     def pipe(self, element):
@@ -177,8 +180,10 @@ class Pressure(Load):
     properly based on code requirements.
     """
 
-    def __init__(self, name, pres=0):
-        super(Pressure, self).__init__(name)
+    label = "P"
+
+    def __init__(self, name, opercase, pres=0):
+        super(Pressure, self).__init__(name, opercase)
         self.pres = pres
 
     def thrust(self, element):
@@ -239,14 +244,16 @@ class Hydro(Pressure):
     performed to ensure there are no leaks. Pneumatic testing can also be used
     along with RT (x-ray).
 
-    During hydrotesting, spring can are locked using travel stops so that they
-    behave as full Y supports. Springs cans bodies are designed to sustain any
+    During hydrotesting, spring cans are locked using travel stops so that they
+    behave as full Y supports. Springs can bodies are designed to sustain any
     additional deadweight load imposed during testing. Extra precaution should
-    be taken to ensure the loads are acceptable.
+    be taken to ensure the loads are acceptable for very large piping.
     """
 
-    def __init__(self, name, pres=0):
-        super(Hydro, self).__init__(name)
+    label = "HP"
+
+    def __init__(self, name, opercase, pres=0):
+        super(Hydro, self).__init__(name, opercase)
         self.pres = pres
 
 
@@ -254,8 +261,10 @@ class Hydro(Pressure):
 class Thermal(Load):
     """Thermal expansion load"""
 
-    def __init__(self, name, temp, tref):
-        super(Thermal, self).__init__(name)
+    label = "T"
+
+    def __init__(self, name, opercase, temp, tref):
+        super(Thermal, self).__init__(name, opercase)
         self.temp = temp
         self.tref = tref
 
@@ -290,8 +299,10 @@ class Thermal(Load):
 class Fluid(Load):
     """Contents load"""
 
-    def __init__(self, name, rho, gfac=1.0):
-        super(Fluid, self).__init__(name)
+    label = "FL"
+
+    def __init__(self, name, opercase, rho, gfac=1.0):
+        super(Fluid, self).__init__(name, opercase)
         self.rho = rho
         self.gfac = gfac
 
@@ -343,8 +354,11 @@ class Fluid(Load):
 class Force(Load):
     """A generic global force vector"""
 
-    def __init__(self, name, point, fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
-        super(Force, self).__init__(name)
+    label = "F"
+
+    def __init__(self, name, opercase, point,
+                 fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
+        super(Force, self).__init__(name, opercase)
         self.point = point
         self.fx = fx
         self.fy = fy
@@ -377,8 +391,10 @@ class Force(Load):
 class Uniform(Load):
     """Generic uniform load"""
 
-    def __init__(self, name, ux=0, uy=0, uz=0):
-        super(Uniform, self).__init__(name)
+    label = "U"
+
+    def __init__(self, name, opercase, ux=0, uy=0, uz=0):
+        super(Uniform, self).__init__(name, opercase)
         self.ux = ux
         self.uy = uy
         self.uz = uz
@@ -403,8 +419,10 @@ class Uniform(Load):
 class Seismic(Weight):
     """Three directional seismic load applied as an uniform g load"""
 
-    def __init__(self, name, gx=0.0, gy=0.0, gz=0.0, gfac=1.0):
-        super(Seismic, self).__init__(name, gfac)
+    label = "S"
+
+    def __init__(self, name, opercase, gx=0.0, gy=0.0, gz=0.0, gfac=1.0):
+        super(Seismic, self).__init__(name, opercase, gfac)
         self.gx = gx
         self.gy = gy
         self.gz = gz
@@ -436,6 +454,8 @@ class Wind(Uniform):
     The pressure due to wind is applied as a uniform force. It is a function
     of the pipe elevation.
     """
+
+    label = "W"
 
     @classmethod
     def from_ASCE7(cls, name, **kwargs):

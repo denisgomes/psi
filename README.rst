@@ -83,13 +83,11 @@ To start PSI in interactive mode just type:
 
     $ psi
 
-PSI is a python interpreter with added for creating and analyzing piping
-systems. Write the input file shown below using a text editor and save it as
-**demo.py**:
+PSI provides an interpreter with added functionality for creating and analyzing
+piping systems using Python scripts. Type the input file shown below in your
+favorite text editor and save it as **demo.py**:
 
-.. code-block:: python
-    :caption: demo.py
-    :name: demo.py
+.. code:: python
 
     #! /usr/bin
 
@@ -131,7 +129,8 @@ Now run the file above to get the displacements at the nodes:
 
     $ psi demo.py   # run demo.py
 
-To go directly into interacive model after running the model, use:
+To go directly into interactive mode after running the model, use the -i
+switch:
 
 .. code:: sh
 
