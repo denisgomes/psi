@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>PSI: Documentation &#8212; Pipe Stress Infinity 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="quick_reference/overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="psi-documentation">
+<h1><strong>PSI</strong>: Documentation<a class="headerlink" href="#psi-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Pipe Stress Infinity (PSI) is an engineering design and analysis software used
+to evaluate the structural behavior and stresses of piping systems to a variety
+of different codes and standards.</p>
+<ul class="simple">
+<li><p>PSI on <a class="reference external" href="https://pypi.org/">PyPI</a></p></li>
+<li><p>PSI <a class="reference external" href="https://readthedocs.com/">documentation</a></p></li>
+<li><p>PSI <a class="reference external" href="https://discord.gg/RZvjbAy">discord</a> server</p></li>
+<li><p>PSI <a class="reference external" href="https://groups.google.com/group/pipestressinfinity-users">mailing list</a></p></li>
+<li><p>PSI <a class="reference external" href="https://github.com/denisgomes/psi/issues">issue tracker</a></p></li>
+</ul>
+<p>PSI has an active developer and user community. If you find a bug or a problem
+with the documentation, please open an issue. Anyone is welcome to join our
+discord server were a lot of the development discussion is going on. It’s also
+a great place to ask for help.</p>
+<p>Some of the features of PSI are:</p>
+<ul class="simple">
+<li><p>Linear static analysis</p></li>
+<li><p>Open source and free to use (consider supporting)</p></li>
+</ul>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>PSI supports Python 3.5 and above. The following is a list of libraries that it
+depends on:</p>
+<ul class="simple">
+<li><p>jinja2</p></li>
+<li><p>numpy</p></li>
+<li><p>pint</p></li>
+<li><p>tqdm</p></li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>To install PSI, type the following command in the terminal:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ pip install psi --user
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-from-source">
+<h3>Install From Source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h3>
+<p>If you’re reading this README from a source distribution, you can install PSI
+with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ python setup.py install --user
+</pre></div>
+</div>
+<p>You can also install the latest development version direct from Github using:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ pip install https://github.com/denisgomes/psi/archive/master.zip
+</pre></div>
+</div>
+<p>For local development install PSI in editable mode:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># with pip</span>
+$ pip install -e .
+
+<span class="c1"># with setup.py</span>
+$ python setup.py develop
+</pre></div>
+</div>
+<p>There are no compilation steps during the installation; if you prefer, you can
+simply add this directory to your PYTHONPATH and use PSI without installing it.
+You can also copy PSI directly into your project folder.</p>
+</div>
+<div class="section" id="quickstart">
+<h3>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h3>
+<p>To start PSI in interactive mode just type:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi
+</pre></div>
+</div>
+<p>PSI provides an interpreter with added functionality for creating and analyzing
+piping systems using Python scripts. Type the input file shown below in your
+favorite text editor and save it as <strong>demo.py</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#! /usr/bin</span>
+
+<span class="c1"># parameters</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">12</span>
+
+<span class="c1"># create top level</span>
+<span class="n">mdl</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+
+<span class="c1"># define properties</span>
+<span class="n">pipe1</span> <span class="o">=</span> <span class="n">Pipe</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;pipe1&#39;</span><span class="p">,</span> <span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;40&#39;</span><span class="p">)</span>
+<span class="n">mat1</span> <span class="o">=</span> <span class="n">Material</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;mat1&#39;</span><span class="p">,</span> <span class="s1">&#39;A53A&#39;</span><span class="p">,</span> <span class="s1">&#39;B31.1&#39;</span><span class="p">)</span>
+
+<span class="c1"># create geometry</span>
+<span class="n">pt10</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">run20</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+
+<span class="c1"># assign supports</span>
+<span class="n">anc1</span> <span class="o">=</span> <span class="n">Anchor</span><span class="p">(</span><span class="s1">&#39;A1&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">anc1</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">run20</span><span class="p">])</span>
+
+<span class="c1"># define loads for operating case 1</span>
+<span class="n">w1</span> <span class="o">=</span> <span class="n">Weight</span><span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="n">Pressure</span><span class="p">(</span><span class="s1">&#39;P1&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+
+<span class="c1"># define a loadcase</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="n">LoadCase</span><span class="p">(</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;ope&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">w1</span><span class="p">,</span> <span class="n">p1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># run the analysis</span>
+<span class="n">mdl</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
+
+<span class="c1"># postprocess</span>
+<span class="n">disp</span> <span class="o">=</span> <span class="n">Movements</span><span class="p">(</span><span class="s1">&#39;r1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">l1</span><span class="p">])</span>
+<span class="n">disp</span><span class="o">.</span><span class="n">to_screen</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now run the file above to get the displacements at the nodes:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi demo.py       <span class="c1"># run demo.py</span>
+</pre></div>
+</div>
+<p>To go directly into interactive mode after running the model, use the -i
+switch:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi -i demo.py    <span class="c1"># run demo.py and start interpreter</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="contribution">
+<h3>Contribution<a class="headerlink" href="#contribution" title="Permalink to this headline">¶</a></h3>
+<p>Coming soon!</p>
+</div>
+<div class="section" id="building-docs">
+<h3>Building Docs<a class="headerlink" href="#building-docs" title="Permalink to this headline">¶</a></h3>
+<p>Coming soon!</p>
+</div>
+<div class="section" id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h3>
+<p>Coming soon!</p>
+</div>
+<div class="section" id="contact">
+<h3>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h3>
+<p>PSI is developed by many individual volunteers, and there is no central point
+of contact. If you have a question about developing with PSI, or you wish to
+contribute, please join the mailing list or the discord server.</p>
+<p>For license questions, please contact <a class="reference external" href="mailto:denis&#46;mp&#46;gomes&#37;&#52;&#48;gmail&#46;com">Denis Gomes</a>, the primary author.</p>
+</div>
+</div>
+<div class="section" id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Permalink to this headline">¶</a></h2>
+<p>The PSI Quick Reference is a good starting point of new users to get up and
+going quickly. It provides a basic introduction and a taste of the program’s
+various usage capabilities.</p>
+<p>If this is your first time reading about PSI, we suggest you start at
+<a class="reference internal" href="quick_reference/quickstart.html"><span class="doc">Quick Start</span></a>.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Quick Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick_reference/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_reference/quickstart.html">Quick Start</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="user-guide">
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
+<p>The PSI User Guide contains general roadmaps, much of the theory behind the
+program and other user related topics.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="programming-guide">
+<h2>Programming Guide<a class="headerlink" href="#programming-guide" title="Permalink to this headline">¶</a></h2>
+<p>The PSI Programming Guide provides in-depth documentation for writing
+applications using PSI. Many topics described here reference the PSI API
+reference, which is listed below.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Programming Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programming_guide/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="application-guide">
+<h2>Application Guide<a class="headerlink" href="#application-guide" title="Permalink to this headline">¶</a></h2>
+<p>The PSI Application Guide consists of tutorials, examples and various modeling
+and analysis techniques.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Application Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="application_guide/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<p>The PSI Application Programming Interface provides the reference for the
+publically available classes, methods and function calls. It is automatically
+generated from the source code documentation and therefore can be used by
+developers and users alike to gain a deeper understanding of the algorithms and
+programming techinques used.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="developer-guide">
+<h2>Developer Guide<a class="headerlink" href="#developer-guide" title="Permalink to this headline">¶</a></h2>
+<p>These documents describe details on how to develop PSI itself further.  Ready
+these to get a more detailed insight into how PSI is designed, and how to help</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="faqs">
+<h2>FAQs<a class="headerlink" href="#faqs" title="Permalink to this headline">¶</a></h2>
+<p>A list of frequently asked questions raised on the mailing list or the discord
+server.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">FAQs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faqs/overview.html">Overview</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Pipe Stress Infinity</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Quick Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick_reference/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_reference/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/overview.html">Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Programming Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programming_guide/overview.html">Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="application_guide/overview.html">Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/overview.html">Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide/overview.html">Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">FAQs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faqs/overview.html">Overview</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="quick_reference/overview.html" title="next chapter">Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Denis Gomes.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
