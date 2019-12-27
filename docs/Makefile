@@ -65,6 +65,8 @@ github:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	@echo "Creating .nojekyll file in $(BUILDDIR)/html."
+	touch $(BUILDDIR)/html/.nojekyll
 	ghp-import -m "Generate Github site" -b $(GITHUB_PAGES_BRANCH) $(BUILDDIR)/html
 	git push origin $(GITHUB_PAGES_BRANCH)
 
