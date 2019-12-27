@@ -109,12 +109,12 @@ favorite text editor and save it as **demo.py**:
     anc1 = Anchor('A1', 10)
     anc1.apply([run20])
 
-    # define loading
-    w1 = Weight('W1')
-    p1 = Pressure('P1', 250)
+    # define loads for operating case 1
+    w1 = Weight('W1', 1)
+    p1 = Pressure('P1', 1, 250)
 
-    # define a  loadcase
-    l1 = LoadCase('l1', 'ope', [w1, p1])
+    # define a loadcase
+    l1 = LoadCase('l1', 'ope', [w1, p1], [1, 1])
 
     # run the analysis
     mdl.analyze()
@@ -127,7 +127,7 @@ Now run the file above to get the displacements at the nodes:
 
 .. code:: sh
 
-    $ psi demo.py   # run demo.py
+    $ psi demo.py       # run demo.py
 
 To go directly into interactive mode after running the model, use the -i
 switch:

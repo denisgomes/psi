@@ -33,12 +33,12 @@ P1.apply([run20])
 T1 = Thermal('T1', 1, 500, 70)
 T1.apply([run20])
 
-F1 = Force('F1', 1, 20, fy=-7000)
-F1.apply([run20])
+# F1 = Force('F1', 1, 20, fy=-10000)
+# F1.apply([run20])
 
 # loadcases
-L1 = LoadCase('L1', 'ope', [Weight, Pressure, Thermal, Force], [1, 1, 1, 1])
-L2 = LoadCase('L2', 'sus', [Weight, Pressure], [1, 1])
+L1 = LoadCase('L1', 'ope', [Weight, Pressure, Thermal], [1, 1, 1, 1])
+L2 = LoadCase('L2', 'sus', [Weight, Pressure], [1, 1, 1])
 L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code
@@ -50,11 +50,11 @@ mdl.analyze()
 # mdl.units = 'si'
 
 # reports
-disp = Reactions('R1', [L1])
-disp.to_screen()
-
-reac = Movements('R2', [L2])
+reac = Reactions('R1', [L1])
 reac.to_screen()
 
-forc = Movements('R3', [L3])
+disp = Movements('R2', [L2])
+disp.to_screen()
+
+forc = Forces('R3', [L3])
 forc.to_screen()

@@ -157,7 +157,7 @@ def main():
                 if lno == num_lines:
                     bar.set_description("Done!")
                 else:
-                    time.sleep(0.000001)
+                    time.sleep(0.00001)
 
         if args.is_interactive:
             app.run()

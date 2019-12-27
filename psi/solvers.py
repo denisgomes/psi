@@ -157,6 +157,9 @@ def static(model):
                         if (isinstance(load, loadtype) and
                                 load.opercase == opercase):
                             feg += load.fglobal(element)
+                        else:
+                            pass
+                            # otherwise print a warning
 
                 # assemble global system force matrix
                 Fs[niqi:niqj, i] += feg[:6, 0]
