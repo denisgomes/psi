@@ -62,6 +62,7 @@ html:
 
 .PHONY: github
 github:
+	cp -f ../README.rst ./index.rst
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

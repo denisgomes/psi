@@ -56,9 +56,9 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         'about.html',
-        'navigation.html',
+        # 'navigation.html',
         # 'relations.html',
-        'searchbox.html',
+        # 'searchbox.html',
         'donate.html',
     ]
 }
@@ -72,6 +72,6 @@ html_theme_options = {
     'github_repo': 'psi',
     'description': 'The pipe stress design and analysis software.',
     'fixed_sidebar': True,
-    # 'github_banner': True,
+    'github_banner': True,
     # 'github_button': True,
 }
