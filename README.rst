@@ -86,7 +86,7 @@ To start PSI in interactive mode just type:
 
 PSI provides an interpreter with added functionality for creating and analyzing
 piping systems using Python scripts. Type the input file shown below in your
-favorite text editor and save it as **demo.py**:
+favorite text editor and save it as *demo.py*:
 
 .. code:: python
 
@@ -147,13 +147,34 @@ Soon to come!
 Building Docs
 -------------
 
-Soon to come!
+PSI's documentation_ is hosted on the `Read the Docs <https://readthedocs.org>`_
+website.
+
+
+Building Website
+----------------
+
+The PSI website (i.e. this site) consists of the project README.rst file hosted
+on GitHub via GitHub Pages.  It lives on a branch called *gh-pages* and is
+viewable at the `project website  <https://denisgomes.github.io/psi>`_.
+
+To build and upload the website, type the following for the project root
+directory:
+
+.. code:: sh
+
+    $ cd www
+    $ make html     # for testing
+    $ make github   # to publish
 
 
 Testing
 -------
 
-Soon to come!
+.. code:: sh
+
+    $ cd tests
+    $ tox
 
 
 Contact
@@ -167,7 +188,7 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 
 
 .. _PyPI: https://pypi.org/
-.. _documentation: https://readthedocs.com/
+.. _documentation: https://pipe-stress-infinity.readthedocs.io
 .. _discord: https://discord.gg/RZvjbAy
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
