@@ -75,3 +75,7 @@ html_theme_options = {
     # 'github_banner': True,
     # 'github_button': True,
 }
+
+
+# for readthedocs build
+master_doc = 'index'
