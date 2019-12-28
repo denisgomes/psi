@@ -1,5 +1,0 @@
-Quick Start
-===========
-
-Coming soon!
-
