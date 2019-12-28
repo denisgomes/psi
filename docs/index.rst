@@ -34,25 +34,25 @@ contribute, please join the `mailing list`_ or the discord_ server.
 For license questions, please contact `Denis Gomes`_, the primary author.
 
 
-Quick Reference
-===============
+:doc:`quick_ref`
+================
 
 The PSI Quick Reference is a good starting point of new users to get up and
 going quickly. It provides a basic introduction and a taste of the program's
 various usage capabilities.
 
-If this is your first time reading about PSI, we suggest you start at
-:doc:`quick_ref/overview`.
+If this is your first time reading about PSI, we suggest you start at the
+:ref:`quick_ref_overview` section.
 
 
-User Guide
-==========
+:doc:`user_guide`
+=================
 
 The PSI User Guide contains general roadmaps, much of the theory behind the
 program and other user related topics.
 
 
-Programming Guide
+:doc:`prog_guide`
 =================
 
 The PSI Programming Guide provides in-depth documentation for writing
@@ -60,15 +60,15 @@ applications using PSI. Many topics described here reference the PSI API
 reference, which is listed below.
 
 
-Application Guide
-=================
+:doc:`app_guide`
+================
 
 The PSI Application Guide consists of tutorials, examples and various modeling
 and analysis techniques.
 
 
-API Reference
-=============
+:doc:`api_ref`
+==============
 
 The PSI Application Programming Interface provides the reference for the
 publically available classes, methods and function calls. It is automatically
@@ -77,15 +77,15 @@ developers and users alike to gain a deeper understanding of the algorithms and
 programming techinques used.
 
 
-Developer Guide
-===============
+:doc:`dev_guide`
+================
 
 These documents describe details on how to develop PSI itself further.  Ready
 these to get a more detailed insight into how PSI is designed, and how to help
 
 
-FAQs
-====
+:doc:`faqs`
+===========
 
 A list of frequently asked questions raised on the mailing list or the discord
 server.
@@ -97,6 +97,7 @@ server.
 
     quick_ref
     user_guide
+    prog_guide
     app_guide
     api_ref
     dev_guide
