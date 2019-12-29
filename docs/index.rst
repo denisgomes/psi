@@ -9,7 +9,7 @@ Pipe Stress Infinity: Documentation
 Overview
 ========
 
-Pipe Stress Infinity (PSI) is an engineering design and analysis software used
+Pipe Stress Infinity (PSI_) is an engineering design and analysis software used
 to evaluate the structural behavior and stresses of piping systems to a variety
 of different codes and standards.
 
@@ -34,58 +34,59 @@ contribute, please join the `mailing list`_ or the discord_ server.
 For license questions, please contact `Denis Gomes`_, the primary author.
 
 
-:doc:`quick_ref`
-================
+:doc:`quick_ref/main`
+=====================
 
 The PSI Quick Reference is a good starting point of new users to get up and
 going quickly. It provides a basic introduction and a taste of the program's
-various usage capabilities.
+different usage capabilities.
 
 If this is your first time reading about PSI, we suggest you start at the
-:ref:`quick_ref_overview` section.
+:doc:`quick_ref/overview` section.
 
 
-:doc:`user_guide`
-=================
+:doc:`user_guide/main`
+======================
 
 The PSI User Guide contains general roadmaps, much of the theory behind the
 program and other user related topics.
 
 
-:doc:`prog_guide`
-=================
+:doc:`prog_guide/main`
+======================
 
 The PSI Programming Guide provides in-depth documentation for writing
 applications using PSI. Many topics described here reference the PSI API
 reference, which is listed below.
 
 
-:doc:`app_guide`
-================
+:doc:`app_guide/main`
+=====================
 
 The PSI Application Guide consists of tutorials, examples and various modeling
 and analysis techniques.
 
 
-:doc:`api_ref`
-==============
+:doc:`api_ref/main`
+===================
 
-The PSI Application Programming Interface provides the reference for the
+The PSI Application Programming Interface (API) provides the reference for the
 publically available classes, methods and function calls. It is automatically
-generated from the source code documentation and therefore can be used by
-developers and users alike to gain a deeper understanding of the algorithms and
-programming techinques used.
+generated from the source code documentation and can be used by developers and
+users alike to gain a deeper understanding of the algorithms and programming
+techinques used.
 
 
-:doc:`dev_guide`
+:doc:`dev_guide/main`
+=====================
+
+These documents describe details on how to develop PSI itself further.  Read
+these to get more detailed insights into how PSI is designed, and how to help
+its future development.
+
+
+:doc:`faqs/main`
 ================
-
-These documents describe details on how to develop PSI itself further.  Ready
-these to get a more detailed insight into how PSI is designed, and how to help
-
-
-:doc:`faqs`
-===========
 
 A list of frequently asked questions raised on the mailing list or the discord
 server.
@@ -93,18 +94,14 @@ server.
 
 .. toctree::
     :hidden:
-    :glob:
 
-    quick_ref
-    user_guide
-    prog_guide
-    app_guide
-    api_ref
-    dev_guide
-    faqs
+    quick_ref/main
+    user_guide/main
+    prog_guide/main
+    app_guide/main
+    api_ref/main
+    dev_guide/main
+    faqs/main
 
 
-.. _discord: https://discord.gg/RZvjbAy
-.. _mailing list: https://groups.google.com/group/pipestressinfinity-users
-.. _issue tracker: https://github.com/denisgomes/psi/issues
-.. _Denis Gomes: denis.mp.gomes@gmail.com
+.. include:: links.rst
