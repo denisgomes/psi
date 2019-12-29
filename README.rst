@@ -189,7 +189,7 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 
 .. _PyPI: https://pypi.org/
 .. _documentation: https://pipe-stress-infinity.readthedocs.io
-.. _discord: https://discord.gg/RZvjbAy
+.. _discord: https://discord.gg/xnHnwbD
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
 .. _Denis Gomes: denis.mp.gomes@gmail.com
