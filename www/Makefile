@@ -65,7 +65,7 @@ github:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
-	ghp-import -n -m "Generate Github site" -b $(GITHUB_PAGES_BRANCH) $(BUILDDIR)/html
+	ghp-import -m "Generate Github site" -b $(GITHUB_PAGES_BRANCH) $(BUILDDIR)/html
 	git push origin $(GITHUB_PAGES_BRANCH)
 
 .PHONY: dirhtml
