@@ -46,9 +46,18 @@ from psi.solvers import static
 
 
 class Model(Entity, ActiveEntityMixin):
-    """The model object contains all other objects"""
+    """The model object contains all internal objects."""
 
     def __init__(self, name):
+        """Create a model instance.
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            >>> mdl = Model("mdl1")
+        """
         self._jobname = None
 
         self._settings = copy.deepcopy(options)
@@ -81,160 +90,195 @@ class Model(Entity, ActiveEntityMixin):
 
     @property
     def jobname(self):
+        """Get the jobname"""
         return self._jobname
 
     @jobname.setter
     def jobname(self, name):
+        """Set the jobname"""
         self._jobname = name
 
     @property
     def settings(self):
+        """Get the settings dictionary"""
         return self._settings
 
     @property
     def geometry(self):
+        """Get the geometry instance"""
         return self._geometry
 
     @property
     def points(self):
+        """Get the list of point"""
         return self._points.values()
 
     @property
     def elements(self):
+        """Get the list of elements"""
         return self._elements.values()
 
     @property
     def sections(self):
+        """Get the list of sections"""
         return self._sections.value()
 
     @property
     def materials(self):
+        """Get the list of materials"""
         return self._materials.values()
 
     @property
     def insulation(self):
+        """Get the list of insulation"""
         return self._insulation.values()
 
     @property
     def codes(self):
+        """Get the list of codes"""
         return self._codes.values()
 
     @property
     def sifs(self):
+        """Get the list of sifs"""
         return self._sifs.values()
 
     @property
     def supports(self):
+        """Get the list of supports"""
         return self._supports.values()
 
     @property
     def loads(self):
+        """Get the list of loads"""
         return self._loads.values()
 
     @property
     def loadcases(self):
+        """Get the list of loadcases"""
         return self._loadcases.values()
 
     @property
     def active_point(self):
+        """Get the active point instance"""
         return self.app.points.active_object
 
     @active_point.setter
     def active_point(self, point):
+        """Set the active point instance"""
         self.app.points.active_object = point
 
     @property
     def active_elements(self):
+        """Get the list of active elements"""
         return self.app.elements.active_objects
 
     @active_elements.setter
     def active_elements(self, elements):
+        """Set the list of active elements"""
         self.app.elements.active_objects = elements
 
     @property
     def active_section(self):
+        """Get the active section"""
         return self.app.sections.active_object
 
     @active_section.setter
     def active_section(self, section):
+        """Set the active section"""
         self.app.sections.active_object = section
 
     @property
     def active_material(self):
+        """Get the active material"""
         return self.app.materials.active_object
 
     @active_material.setter
     def active_material(self, material):
+        """Set the active material"""
         self.app.materials.active_object = material
 
     @property
     def active_insulation(self):
+        """Get the active insulation"""
         return self.app.insulation.active_object
 
     @active_insulation.setter
     def active_insulation(self, insulation):
+        """Set the active insulation"""
         self.app.insulation.active_object = insulation
 
     @property
     def active_code(self):
+        """Get the active code"""
         return self.app.codes.active_object
 
     @active_code.setter
     def active_code(self, code):
+        """Set the active code"""
         self.app.codes.active_object = code
 
     @property
     def active_report(self, code):
+        """Get the active report"""
         return self.app.reports.active_object
 
     @active_report.setter
     def active_report(self, report):
+        """Set the active report"""
         self.app.reports.active_object = report
 
     @property
     def parent(self):
+        """Return the parent ModelContainer instance"""
         return self.app.models
 
     @property
     def units(self):
-        """Assign model units derived from application units"""
+        """Get the current model units"""
         return self._settings["core.units"]
 
     @units.setter
     def units(self, name):
+        """Set the current model units"""
         self.app.units.set_user_units(name)
         self._settings["core.units"] = name
 
     @property
     def vertical(self):
+        """Get the vertical direction"""
         return self._settings["core.vertical"]
 
     @vertical.setter
     def vertical(self, value):
+        """Set the vertical direction"""
         self._settings["core.vertical"] = value
 
     @property
     def tref(self):
+        """Get the reference temperature"""
         return self._settings["core.tref"]
 
     @tref.setter
     def tref(self, value):
+        """Set the reference temperature"""
         self._settings["core.tref"] = value
 
     def close(self):
+        """Close the model instance"""
         self.parent.close(self)
 
     def save(self):
+        """Save the model instance persistantly"""
         self.parent.save(self)
 
     def save_as(self, fname):
+        """Save the model using the given filename"""
         self.parent.save_as(self, fname)
 
     def analyze(self, mode=1):
+        """Run the analysis"""
         self.parent.analyze(self, mode)
-
-    def render(self):
-        self.parent.render(self)
 
 
 class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
@@ -244,10 +288,11 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         self.Model = Model
 
     def open(self, fname, merge=False):
-        """Open a model file. Load the gunzipped pickled file.
+        """Open a model file.
 
-        If merge is set to True, try to merge model settings with application
-        settings even if versions are not the same.
+        Load the gunzipped pickled file. If merge is set to True, try to merge
+        model settings with application settings even if versions are not the
+        same.
         """
         with gzip.open(fname, 'rb') as fp:
             name, inst = pickle.load(fp)   # model instance

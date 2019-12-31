@@ -14,5 +14,11 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 .. toctree::
 
     overview
+    entity
+    model
+    elements
+    sections
+    material
+    loads
 
 .. include:: ../links.rst

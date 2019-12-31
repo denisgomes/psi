@@ -75,9 +75,7 @@ class Pipe(Section):
     @classmethod
     def from_file(cls, name, nps, sch, corra=None, milltol=None, fname=None,
                   default_units='english'):
-        """Create a pipe object by nominal pipe size and the schedule.
-
-        A lookup table is used to determine the corresponding thickness.
+        """Create a pipe object from a csv data file.
 
         Parameters
         ----------
@@ -97,11 +95,19 @@ class Pipe(Section):
             Mill tolerance.
 
         fname : str
-            Full path to the table used to do the lookup.
+            Full path to the csv data file used to do the lookup.
 
         default_units : str
-            The units used for the data. Must match one of the units already
-            defined.
+            The units used for the data. Must be one of the units defined in
+            the psi.UNITS_DIRECTORY path.
+
+        Example
+        -------
+        Create a 10" schedule 40 pipe and activate the section.
+
+        .. code-block:: python
+
+            >>> p1 = Pipe.from_file("p1", "10", "40")
         """
         if fname is None:
             fname = psi.PIPE_DATA_FILE
@@ -139,7 +145,7 @@ class Pipe(Section):
         Parameters
         ----------
         name : str
-            Unique name for pipe object.
+            Unique name for pipe instance.
 
         od : float
             Actual outer diameter of pipe, not to be confused with the nomimal
@@ -156,8 +162,8 @@ class Pipe(Section):
             errode over the course of time. Typically, this type of corrosion
             is added on when the minimum design thickness is determined for
             pressure retention. Systems that experience significant corrosion
-            are far more prone to fatigue related failures. A typical value
-            for CA is 0.062 inches for piping.
+            are far more prone to fatigue related failures. A typical value for
+            CA is 0.062 inches for piping.
 
         milltol : float
             Mill tolerance.
@@ -167,13 +173,21 @@ class Pipe(Section):
             mandrel is off-course. This tolerance, which is (+/-) 12.5% is
             typically accounted for in the min wall calculation per the
             applicable piping code so the user need not put in a value unless
-            otherwise required. It does not apply to welded pipes which need
-            to consider the weld joint efficiency factor since steel plates
-            are easier to manufacture with high accuracy.
+            otherwise required. It does not apply to welded pipes which need to
+            consider the weld joint efficiency factor since steel plates are
+            easier to manufacture with high accuracy.
 
             The specified mill tolerance is typically used to calculate the
             hoop stress of the pipe depending on the code and has not bearing
             on the stiffeness calculation of the element
+
+        Example
+        -------
+        Create a 10" schedule 40 pipe and activate the section.
+
+        .. code-block:: python
+
+            >>> p1 = Pipe("p1", 10.75, 0.365)
         """
         super(Pipe, self).__init__(name)
         self.od = od
@@ -227,7 +241,7 @@ class Pipe(Section):
 
     @property
     def area(self):
-        """Cross sectional area of the pipe"""
+        """Cross sectional area of the pipe."""
         do = self.od
         di = self.od - 2*self.thk
         return (pi/4) * (do**2 - di**2)
@@ -274,11 +288,16 @@ class Pipe(Section):
 
     @property
     def is_heavy_wall(self):
+        """Check to determine if the pipe is heavy wall.
+
+        Pipes with a diameter to thickness ratio less than 10 are considered
+        having heavy walls.
+        """
         return (self.od / self.thk) <= 10
 
     @property
     def is_small_bore(self):
-        """Pipe sizes 2 inches and below are considered small bore.
+        """Pipe sizes 2" and below are considered small bore.
 
         Imperial units are used here for the relational test.
         """
@@ -287,6 +306,7 @@ class Pipe(Section):
 
     @property
     def is_large_bore(self):
+        """Pipe sizes larger than 2" are considered large bore."""
         return not self.is_small_bore
 
     @property
@@ -294,10 +314,11 @@ class Pipe(Section):
         """The D/t ratio of the section.
 
         If a pipe has a D/t ratio of larger than 100 it behaves more like a
-        shell.
+        shell than a beam.
 
         Code based SIF and flexibility factors do not apply for D/t ratios
-        above 100.
+        above 100 due to limitations in the testing performed by Markl and
+        company.
         """
         return self.od / self.thk
 
@@ -377,11 +398,13 @@ class SectionContainer(EntityContainer, ActiveEntityContainerMixin):
         """Apply a section to elements.
 
         Example
-        -------
-        Create a 10" schedule 40 pipe and add it to the active element.
+        ------
+        Create a 10" schedule 40 pipe and assign it to all active elements.
 
-        >>> p1 = Pipe.from_file("p1", "10", "40")
-        >>> sections.apply(p1)
+        .. code-block:: python
+
+            >>> p1 = Pipe.from_file("p1", "10", "40")
+            >>> sections.apply(p1)
         """
         if elements is None:
             elements = []

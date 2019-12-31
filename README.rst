@@ -186,7 +186,7 @@ contribute, please join the mailing list or the discord server.
 
 For license questions, please contact `Denis Gomes`_, the primary author.
 
-
+.. _PSI: https://denisgomes.github.io/psi
 .. _PyPI: https://pypi.org/
 .. _documentation: https://pipe-stress-infinity.readthedocs.io
 .. _discord: https://discord.gg/xnHnwbD

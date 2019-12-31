@@ -38,65 +38,72 @@ Example
 -------
 First define the model centerline using Point and Run.
 
->>> Model("test")
->>> Point(10, 0, 0, 0)
->>> Bend(20, -2, radius=...)    # can be created by a point
->>> Bend(30, 0, 2, radius=...)
->>> Run(40, 0, 0, 2)
->>> Bend(50, 0, 0, 2, radius=...)
->>> Bend(60, 0, -2, radius=...)
->>> Run(70, 2)
->>> Point(80, -10)
->>> Run(90, 0, 2)
->>> Run(100, 0, 0.5)
->>> Point(90)
->>> Run(40)                     # defined twice and loop-closed (1) (2)
+.. code-block:: python
+
+    >>> Model("test")
+    >>> Point(10, 0, 0, 0)
+    >>> Bend(20, -2, radius=...)    # can be created by a point
+    >>> Bend(30, 0, 2, radius=...)
+    >>> Run(40, 0, 0, 2)
+    >>> Bend(50, 0, 0, 2, radius=...)
+    >>> Bend(60, 0, -2, radius=...)
+    >>> Run(70, 2)
+    >>> Point(80, -10)
+    >>> Run(90, 0, 2)
+    >>> Run(100, 0, 0.5)
+    >>> Point(90)
+    >>> Run(40)                     # defined twice and loop-closed (1) (2)
 
 Now define the other components by point.
 
->>> elements(20, 30).split(25)          # split a bend - create run and bend
->>> Valve(25, length, mass, "mid")      # two elements, 3 nodes made
->>> Tee(40, "welding")                  # sif.Tee by point only
->>> Flange(10, length, mass, "down")    # flanged nozzle
->>> Flange(70, length, mass, "up")
+.. code-block:: python
+
+    >>> elements(20, 30).split(25)      # split a bend - create run and bend
+    >>> Valve(25, length, mass, "mid")      # two elements, 3 nodes made
+    >>> Tee(40, "welding")                  # sif.Tee by point only
+    >>> Flange(10, length, mass, "down")    # flanged nozzle
+    >>> Flange(70, length, mass, "up")
 
 There are three possible ways in which a point defined for a component can be
-interpreted. If the point is defined as a midpoint, two elements are made, one
-on each adjacent run. If the component is defined to be upstream, it will be
-placed in the oposite direction to the flow, with respect to the element nodal
-direction. If the component is defined to be downstream, it will be placed in
-the same direction as the flow. In both the latter two cases, only one element
-is created. When a component is defined at a boundary node, it is possible to
+interpreted.
+
+1. If the point is defined as a midpoint, two elements are made, one on each
+   adjacent run.
+
+2. If the component is defined to be upstream, it will be placed in the oposite
+   direction to the flow, with respect to the element nodal direction.
+
+3. If the component is defined to be downstream, it will be placed in the same
+   direction as the flow. In both the latter two cases, only one element is
+   created.
+
+When a component is defined at a boundary node, it is possible to
 create another boundary node by choosing the direction that 'extends' the
 model.
 
 Components can also be created by picking a run element and 'converting' it to
 a different type of element such as a valve or a flange.
 
->>> elements(50, 60).split(54, 0.5, ref=50)     # used node 50 as reference
->>> elements(54, 60).split(55, 0.5, ref=54)
->>> elements(54, 55).convert(Valve, mass=...)
+.. code-block:: python
 
-Notes
------
-Only runs can be split and merged. To split a valve, it must first be changed
-to a run and then split.
+    >>> elements(50, 60).split(54, 0.5, ref=50)     # used node 50 as reference
+    >>> elements(54, 60).split(55, 0.5, ref=54)
+    >>> elements(54, 55).convert(Valve, mass=...)
+
+.. note::
+    Only runs can be split and merged. To split a valve for example, it must
+    first be changed to a run and then split.
 
 
-TODO
-----
-Dealing with element weight vs mass when it comes to units.
+The following items require extra attention:
 
-For Rigid elements the weight must be specified not the mass.
-
-Bend and reducer having multiple run approximation.
-
-How to easily create bends when defining geometry and how to update the
-geometry when point coordinates or bend radius is updated.
-
-How to covert different types of elements to runs and vice versa.
-
-Unit conversion should be disabled before the analysis is performed.
+* Dealing with element weight vs mass when it comes to units.
+* For Rigid elements the weight must be specified not the mass.
+* Bend and reducer having multiple run approximation.
+* How to easily create bends when defining geometry and how to update the
+  geometry when point coordinates or bend radius is updated.
+* How to covert different types of elements to runs and vice versa.
+* Unit conversion should be disabled before the analysis is performed.
 """
 
 from math import cos, pi, sqrt
@@ -289,7 +296,9 @@ class Piping(Element):
 
 @units.define(_dx="length", _dy="length", _dz="length")
 class Run(Piping):
-    """Define a pipe run by incremental offsets in the global x, y and z."""
+    """Define a pipe run by incremental offsets in the global x, y and z
+    directions.
+    """
 
     def __init__(self, point, dx, dy=0, dz=0, from_point=None, section=None,
                  material=None, insulation=None, code=None):
@@ -334,11 +343,11 @@ class Run(Piping):
 
     @property
     def dx(self):
+        """Get and set the vertex x-coordinate of the 'to' point."""
         return self._dx
 
     @dx.setter
     def dx(self, value):
-        """Change the vertex x-coordinate of the 'to' point"""
         xold = self._dx
         self._dx = value    # set x
 
@@ -359,11 +368,11 @@ class Run(Piping):
 
     @property
     def dy(self):
+        """Get and set the vertex y-coordinate of the 'to' point."""
         return self._dy
 
     @dy.setter
     def dy(self, value):
-        """Change the vertex y-coordinate of the 'to' point"""
         yold = self._dy
         self._dy = value    # set y
 
@@ -383,11 +392,11 @@ class Run(Piping):
 
     @property
     def dz(self):
+        """Get and set the vertex z-coordinate of the 'to' point."""
         return self._dz
 
     @dz.setter
     def dz(self, value):
-        """Change the vertex z-coordinate of the 'to' point"""
         zold = self._dz
         self._dz = value    # set y
 
@@ -407,12 +416,12 @@ class Run(Piping):
 
     @property
     def length(self):
+        """Get and set the length of the element."""
         dx, dy, dz = self.dx, self.dy, self.dz
         return sqrt(dx**2 + dy**2 + dz**2)
 
     @length.setter
     def length(self, value):
-        """Set the length of the element."""
         e = self.geometry
         v1, v2 = e.v1, e.v2
         r1 = Vector3(*v1.co)

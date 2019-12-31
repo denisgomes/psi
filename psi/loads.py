@@ -27,36 +27,44 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Applying loads to model elements and nodes.
+"""Applying loads to model nodes and elements.
+
 
 Example
 -------
 Suppose you have a list of elements 'element_list' that you want to apply a
 single or multiple loads to.
 
-To apply a single load do the following:
+To create a Thermal load for operating case 1, type:
 
->>> t = Thermal('T1', 500)
->>> t.apply(element_list)
+.. code-block:: python
 
-For multiple loads use the container apply method:
+    >>> t1 = Thermal('t1', 1, 500)
+    >>> t1.apply(element_list)
 
->>> loads.apply([L1, L2, ..., LN], element_list)
+For multiple loads use the LoadContainer apply method:
+
+.. code-block:: python
+
+    >>> loads.apply([L1, L2, ..., LN], element_list)
+
+.. note::
+    An element can have multiple loads of the same type. However each load
+    must be of a different operating case.
 """
 
 from __future__ import division
 
 import csv
 from math import pi
+import sys
+from contextlib import redirect_stdout
 
 import numpy as np
 
 import psi
 from psi.entity import Entity, EntityContainer
 from psi import units
-
-import sys
-from contextlib import redirect_stdout
 
 
 class Load(Entity):
@@ -65,8 +73,17 @@ class Load(Entity):
         super(Load, self).__init__(name)
         self.opercase = opercase
 
+    def _key(self):
+        """Key used for equality and hashing.
+
+        .. note::
+            A load is uniquely defined by type, name and **opercase**.
+        """
+        return (self.type, self.name, self.opercase)
+
     @property
     def parent(self):
+        """Returns the LoadContainer instance."""
         return self.app.loads
 
     def apply(self, elements=None):
@@ -93,20 +110,24 @@ class Load(Entity):
 
 @units.define(gfac="g_load")
 class Weight(Load):
-    """The weight cases for each element.
-
-    Parameters
-    ----------
-    name : str
-        Unique name for load.
-
-    gfac : float
-        The gfac is set to 1 by default for earth gravity.
-    """
+    """The element weight load."""
 
     label = "W"
 
     def __init__(self, name, opercase, gfac=1.0):
+        """The weight load for each element.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for load.
+
+        opercase : int
+            Operating case the load belongs to.
+
+        gfac : float
+            The gfac is set to 1 by default for earth gravity.
+        """
         super(Weight, self).__init__(name, opercase)
         self.gfac = gfac
 
@@ -183,13 +204,27 @@ class Pressure(Load):
     label = "P"
 
     def __init__(self, name, opercase, pres=0):
+        """The pressure load for each element.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for load.
+
+        opercase : int
+            Operating case the load belongs to.
+
+        pres : float
+            The pressure is set to 0 by default.
+        """
         super(Pressure, self).__init__(name, opercase)
         self.pres = pres
 
     def thrust(self, element):
-        """Pressure thrust force.
+        """Force due to pressure thrust.
 
-        Force causing axial elongation due to the system being closed.
+        Force causing axial elongation due to the system being pressurized and
+        closed.
         """
         pipe = element.section
 
@@ -199,7 +234,7 @@ class Pressure(Load):
         return self.pres * np.pi * (od - id_)**2 / 4
 
     def bourdon(self, element):
-        """Bourdon effect.
+        """The force due to the Bourdon effect.
 
         The axial shortening of piping due to the internal pressure. This is
         a byproduct of the poisson's ratio effect.
@@ -215,8 +250,9 @@ class Pressure(Load):
         return 2 * nu * self.pres * area * (id_**2 / (od**2-id_**2))
 
     def flocal(self, element):
-        """If bourdon effect is activated, a force is applied in the axial
-        direction of the piping similar to the thermal loading.
+        """If pressure thrust or bourdon effects are activated, a force is
+        applied in the axial direction of the piping similar to how thermal
+        loads are applied.
         """
         f = np.zeros((12, 1), dtype=np.float64)
 
@@ -259,11 +295,27 @@ class Hydro(Pressure):
 
 @units.define(temp="temperature", tref="temperature")
 class Thermal(Load):
-    """Thermal expansion load"""
+    """Thermal expansion load."""
 
     label = "T"
 
     def __init__(self, name, opercase, temp, tref):
+        """The thermal load for each element.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for load.
+
+        opercase : int
+            Operating case the load belongs to.
+
+        temp : float
+            The temperature of the element(s).
+
+        tref : float
+            The reference temperature used to calculate delta T.
+        """
         super(Thermal, self).__init__(name, opercase)
         self.temp = temp
         self.tref = tref
@@ -479,15 +531,17 @@ class LoadContainer(EntityContainer):
     def apply(self, loads=[], elements=None):
         """Apply loads to elements.
 
-        A copy of the load is attached to each element, where each copy shares
-        the same name. Multiple pipe runs can have a thermal load with a name
-        'T1' but have varying temperatures. Each load corresponds to an in
-        individual operating case.
+        A reference for each load is assigned to each element.
+
+        .. note::
+            One pipe element can be assigned multiple loads of the same type.
+            Each load must be associated with a different operating case.
 
         Parameters
         ----------
         loads : list
             A list of loads
+
         elements : list
             A list of elements. If elements is None, loads are applied to all
             elements.

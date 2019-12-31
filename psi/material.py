@@ -172,6 +172,45 @@ class Sh(Property):
 class Material(Entity, ActiveEntityMixin):
 
     def __init__(self, name):
+        """Create a material object.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for material instance.
+
+
+        Example
+        -------
+        Create a material and define its density.
+
+        .. code-block:: python
+
+            >>> mat1 = Material("A53A")
+            >>> mat1.rho = 0.365
+
+        .. warning::
+            The user is responsible for entering all required material data
+            such as sh, alp, rho, nu and ymod.
+
+        .. note::
+            A quicker and safer way to define a material is to use the method
+            Material.from_file and to change the properties as needed.
+
+        Example
+        -------
+        To input the material hot allowable enter a list of tuples consisting
+        of the temperature and corresponding value:
+
+        .. code-block:: python
+
+            >>> mat1.sh.table = [(t1, v1), (t2, v2), ..., (tn, vn)]
+
+        .. note::
+            Temperature related data need not be input in ascending order (i.e.
+            t1 < t2 < tn), however it is good practice to do so for clarity.
+
+        """
         super(Material, self).__init__(name)
         self._rho = Rho()
         self._nu = Nu()
@@ -182,19 +221,57 @@ class Material(Entity, ActiveEntityMixin):
         self.activate()
 
     def apply(self, elements=None):
+        """Assign a material instance to a piping element."""
         self.parent.apply(self, elements)
 
     @property
     def parent(self):
+        """Returns the MaterialContainer instance."""
         return self.app.materials
 
     def activate(self):
+        """Activate the material instance.
+
+        .. note::
+            All elements created after this method call will automatically be
+            assigned the material activated.
+        """
         self.parent.activate(self)
 
     @classmethod
     def from_file(cls, name, material, code, fname=None,
                   default_units="english"):
-        """Load a material from the database"""
+        """Create a material from a csv data file.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for pipe object.
+
+        material : str
+            Name of material in database.
+
+        code : str
+            The piping code the material data comes from, 'B31.1' for example.
+
+        fname : str
+            Pull path to the csv data file used to do the lookup.
+
+            .. note::
+                The default path is set to the variable psi.MATERIAL_DATA_FILE.
+
+        default_units : str
+            The units used for the data. Must be one of the units defined in
+            the psi.UNITS_DIRECTORY path.
+
+        Example
+        -------
+        Create a A53A material instance and activate it.
+
+        .. code-block:: python
+
+            >>> mat1 = Material.from_file("A53A", "A53A", "B31.1")
+        """
         if fname is None:
             fname = psi.MATERIAL_DATA_FILE
 
@@ -257,22 +334,87 @@ class Material(Entity, ActiveEntityMixin):
 
     @property
     def sh(self):
+        """Return the hot material allowable of the material.
+
+        .. note::
+            This can mean Sh or Sm, etc, depending on the code used. It is up
+            to the user to interpret the results accordingly.
+
+        Example
+        -------
+        To input the hot allowable for a material:
+
+        .. code-block:: python
+
+            >>> mat1.sh.table = [(t1, sh1), (t2, sh2), ..., (tn, shn)]
+        """
         return self._sh
 
     @property
     def alp(self):
+        """Return the material thermal expansion coefficient.
+
+        Example
+        -------
+        To input the thermal expansion coefficient:
+
+        .. code-block:: python
+
+            >>> mat1.alp.table = [(t1, alp1), (t2, alp2), ..., (tn, alpn)]
+        """
         return self._alp
 
     @property
     def ymod(self):
+        """Return the material young's modulus.
+
+        Example
+        -------
+        To input the thermal expansion coefficient:
+
+        .. code-block:: python
+
+            >>> mat1.ymod.table = [(t1, ymod1), (t2, ymod2), ..., (tn, ymodn)]
+        """
         return self._ymod
 
     @property
     def rho(self):
+        """Returns the material density.
+
+        Example
+        -------
+        To input the material density.
+
+        .. code-block:: python
+
+            >>> mat1.rho.value = 0.365
+
+        .. note::
+            The density of a material is not temperature dependant at the
+            moment, therefore the value at room temperature should be used. In
+            general the density of steels do not change drastically due to
+            thermal effects.
+        """
         return self._rho
 
     @property
     def nu(self):
+        """Returs the material poisson's ratio.
+
+        Example
+        -------
+        To input the material poisson's ratio.
+
+        .. code-block:: python
+
+            >>> mat1.nu.value = 0.3
+
+        .. note::
+            Similar to the density the poisson's ratio for steels is not
+            strongly dependent on the temperature. Therefore a default value of
+            0.3 should be used.
+        """
         return self._nu
 
     def __repr__(self):
