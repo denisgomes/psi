@@ -14,6 +14,9 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 .. toctree::
 
     overview
+    licensing
+    installation
+    features
+    codes
 
 .. include:: ../links.rst
-
