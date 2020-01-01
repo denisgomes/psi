@@ -10,12 +10,10 @@ Pipe
 .. autoclass:: Pipe
 
   .. rubric:: Methods
-
   .. automethod:: __init__
   .. automethod:: from_file
 
   .. rubric:: Attributes
-
   .. autoattribute:: thke
   .. autoattribute:: nps
   .. autoattribute:: id_
@@ -35,5 +33,4 @@ SectionContainer
 .. autoclass:: SectionContainer
 
   .. rubric:: Methods
-
   .. automethod:: apply

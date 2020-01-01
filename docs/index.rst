@@ -6,6 +6,18 @@
 Pipe Stress Infinity: Documentation
 ***********************************
 
+.. toctree::
+    :hidden:
+
+    quick_ref/main
+    user_guide/main
+    prog_guide/main
+    app_guide/main
+    api_ref/main
+    dev_guide/main
+    faqs/main
+
+
 Overview
 ========
 
@@ -90,18 +102,6 @@ its future development.
 
 A list of frequently asked questions raised on the mailing list or the discord
 server.
-
-
-.. toctree::
-    :hidden:
-
-    quick_ref/main
-    user_guide/main
-    prog_guide/main
-    app_guide/main
-    api_ref/main
-    dev_guide/main
-    faqs/main
 
 
 .. include:: links.rst

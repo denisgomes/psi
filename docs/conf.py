@@ -60,7 +60,7 @@ html_sidebars = {
         'navigation.html',
         # 'relations.html',
         'searchbox.html',
-        'donate.html',
+        # 'donate.html',
     ]
 }
 
@@ -68,7 +68,7 @@ html_sidebars = {
 html_theme_options = {
     'logo': 'logo.png',
     # 'logo_name': True,
-    'logo_text_align': 'left',
+    # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
     'description': 'The pipe stress design and analysis software.',

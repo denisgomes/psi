@@ -27,7 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Display various result reports generated from the loadcases solved"""
+"""Display various result reports generated from the loadcases solved."""
 
 from datetime import datetime
 import sys
@@ -64,9 +64,19 @@ class Report(Entity, ActiveEntityMixin):
 
 
 class Movements(Report):
-    """Nodal displacement results"""
+    """Nodal displacement results."""
 
     def __init__(self, name, loadcases):
+        """Create a movements report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
         super(Movements, self).__init__(name, loadcases)
 
         if len(loadcases) == 1:
@@ -75,6 +85,7 @@ class Movements(Report):
             self.template = self.env.get_template("multiple_case_movements")
 
     def to_screen(self):
+        """Print movement report results to screen."""
         version = options["core.version"]
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
@@ -95,9 +106,19 @@ class Movements(Report):
 
 
 class Reactions(Report):
-    """Support reaction results"""
+    """Support reaction results."""
 
     def __init__(self, name, loadcases):
+        """Create a reactions report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
         super(Reactions, self).__init__(name, loadcases)
 
         if len(loadcases) == 1:
@@ -106,6 +127,7 @@ class Reactions(Report):
             self.template = self.env.get_template("multiple_case_reactions")
 
     def to_screen(self):
+        """Print reaction report results to screen."""
         version = options["core.version"]
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
@@ -126,9 +148,19 @@ class Reactions(Report):
 
 
 class Forces(Report):
-    """Internal forces results"""
+    """Internal forces results."""
 
     def __init__(self, name, loadcases):
+        """Create a forces report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
         super(Forces, self).__init__(name, loadcases)
 
         if len(loadcases) == 1:
@@ -137,6 +169,7 @@ class Forces(Report):
             self.template = self.env.get_template("multiple_case_forces")
 
     def to_screen(self):
+        """Print forces report results to screen."""
         version = options["core.version"]
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname

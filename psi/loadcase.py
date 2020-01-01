@@ -62,7 +62,12 @@ from psi import units
 
 @units.define(_values="length")
 class Translation(object):
-    """Translation components of the displacement row vector"""
+    """Translation components of the displacement row vector.
+
+    .. note::
+       The units for the row vector are converted on the fly to base units and
+       back to user units.
+    """
 
     @property
     def results(self):
@@ -87,7 +92,12 @@ class Translation(object):
 
 @units.define(_values="rotation")
 class Rotation(object):
-    """Rotation components of the displacement row vector"""
+    """Rotation components of the displacement row vector.
+
+    .. note::
+       The units for the row vector are converted on the fly to base units and
+       back to user units.
+    """
 
     @property
     def results(self):
@@ -110,6 +120,13 @@ class Rotation(object):
 
 
 class Movements(object):
+    """Both the translation and rotation components of the displacement row
+    vector.
+
+    .. note::
+       The translation and rotation components are separated because they have
+       different units.
+    """
 
     def __init__(self):
         self._translation = Translation()
@@ -137,6 +154,12 @@ class Movements(object):
 
 @units.define(_values="force")
 class Force(object):
+    """Translation components of the force row vector.
+
+    .. note::
+       The units for the row vector are converted on the fly to base units and
+       back to user units.
+    """
 
     @property
     def results(self):
@@ -161,6 +184,12 @@ class Force(object):
 
 @units.define(_values="moment_output")
 class Moment(object):
+    """Rotation components of the force row vector.
+
+    .. note::
+       The units for the row vector are converted on the fly to base units and
+       back to user units.
+    """
 
     @property
     def results(self):
@@ -183,7 +212,12 @@ class Moment(object):
 
 
 class Reactions(object):
-    """Support reactions loads"""
+    """Support reaction loads.
+
+    .. note::
+       The translation and rotation components are separated because they have
+       different units.
+    """
 
     def __init__(self):
         self._force = Force()
@@ -210,7 +244,12 @@ class Reactions(object):
 
 
 class Forces(object):
-    """Member internal forces and moments"""
+    """Member internal forces and moments.
+
+    .. note::
+       The translation and rotation components are separated because they have
+       different units.
+    """
 
     def __init__(self):
         self._force = Force()
@@ -254,8 +293,10 @@ class BaseCase(Entity):
 class LoadCase(BaseCase):
     """A set of primary load cases consisting of different types of loads.
 
-    Note that the loads for a given case must be unique, in other words, the
-    same load cannot be specified twice.
+    .. note::
+        The loads for a given case must be unique. In other words, the same
+        load cannot be specified twice. A equality check is performed based
+        on the load type, name and operating case it belongs to.
     """
 
     def __init__(self, name, stype="sus", loadtypes=[], opercases=[]):
@@ -272,18 +313,22 @@ class LoadCase(BaseCase):
 
     @property
     def movements(self):
+        """Return the nodal displacement results array."""
         return self._movements
 
     @property
     def reactions(self):
+        """Return the nodal reaction results array."""
         return self._reactions
 
     @property
     def forces(self):
+        """Return the force reaction results array."""
         return self._forces
 
     @property
     def label(self):
+        """Return the loadcase label used in the reports."""
         lbl = []
         for loadtype, opercase in self.loads:
             lbl.append("%s[%s]" % (loadtype.label, opercase))
@@ -292,54 +337,53 @@ class LoadCase(BaseCase):
 
 
 class LoadComb(BaseCase):
-    """Add loadcases using different combination methods.
+    """Combine loadcases using different combination methods.
 
-    Note: Combinations pull stored data from loadcases on the fly and do the
-    necessary operations.
-
-    Parameters
-    ----------
-    name : str
-        Unique name for load combination object.
-
-    stype : str
-        Type of code stress. Defaults to sustained stress.
-
-        HGR - hanger load case
-        HYD - hydro load case
-        SUS - sustained stress case
-        EXP - thermal expansion stress.case
-        OCC - occasional stress case
-        OPE - operating stress case
-        FAT - Fatigue stress case
-
-    method : str
-        Result combination method.
-
-        Algebriac - Disp/force results added vectorially. Stresses are derived
-        from the force results.
-
-        Scalar - Disp/force/ results added vectorially similar to the algebraic
-        method. Stresses are added together.
-
-        SRSS - Square root of the sum squared.
-
-        Abs - Absolute summation.
-
-        Signmax - Signed max.
-
-        Signmin - Signed min.
-
-    loadcases : list of loadcases.
-        List of load cases.
-
-    factors : list of numbers.
-        A list of factors corresponding to each loadcase. If a factor is not
-        given, a default value of 1 is used.
+    .. note::
+        Combinations pull stored data from loadcases on the fly and do the
+        necessary combination operations.
     """
 
     def __init__(self, name, stype="ope", method="algebraic", loadcases=[],
                  factors=[]):
+        """Create a loadcomb instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for load combination object.
+
+        stype : str
+            Type of code stress. Defaults to sustained stress.
+
+                * HGR - hanger load case
+                * HYD - hydro load case
+                * SUS - sustained stress case
+                * EXP - thermal expansion stress.case
+                * OCC - occasional stress case
+                * OPE - operating stress case
+                * FAT - Fatigue stress case
+
+        method : str
+            Result combination method.
+
+                * Algebriac - Disp/force results added vectorially. Stresses
+                  are derived from the force results.
+                * Scalar - Disp/force/ results added vectorially similar to the
+                  algebraic method. Stresses are added together.
+                * SRSS - Square root of the sum squared.
+                * Abs - Absolute summation.
+                * Signmax - Signed max.
+                * Signmin - Signed min.
+
+        loadcases : list of loadcases.
+            List of load cases.
+
+        factors : list of numbers.
+            A list of factors corresponding to each loadcase. If a factor is
+            not given, a default value of 1 is used.
+        """
+
         super(LoadComb, self).__init__(name, stype)
         self.method = method
         self.loadcases = OrderedSet()
@@ -351,6 +395,7 @@ class LoadComb(BaseCase):
 
     @property
     def movements(self):
+        """Return the combined nodal displacement array."""
         movements = Movements()
         movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
@@ -376,6 +421,7 @@ class LoadComb(BaseCase):
 
     @property
     def reactions(self):
+        """Return the combined nodal reaction array."""
         reactions = Reactions()
         reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
@@ -401,6 +447,7 @@ class LoadComb(BaseCase):
 
     @property
     def forces(self):
+        """Return the combined nodal forces array."""
         forces = Forces()
         forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
@@ -426,6 +473,11 @@ class LoadComb(BaseCase):
 
     @property
     def stresses(self):
+        """Return the combined nodal stresses array.
+
+        .. note:: Stresses are calculated based on the stress type and the
+           element code.
+        """
         raise NotImplementedError("implement")
 
 

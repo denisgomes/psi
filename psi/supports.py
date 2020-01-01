@@ -78,10 +78,32 @@ class Support(Entity):
 @units.define(translation_stiffness="translation_stiffness",
               rotation_stiffness="rotation_stiffness")
 class Anchor(Support):
-    """Support with all 6 degrees of freedom at a node fixed"""
+    """Support with all 6 degrees of freedom at a node fixed."""
 
     def __init__(self, name, point, translation_stiffness=1e12,
                  rotation_stiffness=1e12):
+        """Create an anchor support instance at a node point.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for pipe object.
+
+        point : Point
+            Point instance where support is located.
+
+        translation_stiffnesss : float
+            Stiffness in the translational directions.
+
+            .. note::
+               The default value is based on imperial units.
+
+        rotation_stiffness : float
+            Stiffness in the rotational directions.
+
+            .. note::
+               The default value is based on imperial units.
+        """
         super(Anchor, self).__init__(name, point)
 
         with units.Units(user_units="english"):
@@ -107,14 +129,50 @@ class Anchor(Support):
               gap="length")
 class RigidSupport(Support):
     """Rigid supports can be translational or rotational. They can also be
-    double-acting or directional. The default support is a rigid double-acting
-    translational support with no gap.
+    double-acting or directional.
+
+    The default support is a rigid double-acting translational support with no
+    gap.
     """
 
     def __init__(self, name, point, dircos=None, friction=None,
                  is_rotational=False, is_directional=False, is_snubber=False,
                  translation_stiffness=1e12, rotation_stiffness=1e12,
                  gap=0):
+        """Create a support instance at a node point.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for pipe object.
+
+        point : Point
+            Point instance where support is located.
+
+        dircos : tuple
+            Support direction cosine.
+
+        friction : float
+            Support friction (non-linear).
+
+        is_rotational : bool
+            True if the support is a rotational restraint.
+
+        is_directional : bool
+            True if the support is a translational restraint.
+
+        is_snubber : bool
+            True if the support is snubber.
+
+        translation_stiffnesss : float
+            Stiffness in the translational direction.
+
+        rotation_stiffness : float
+            Stiffness in the rotational direction.
+
+        gap : float
+            Support gap (non-linear).
+        """
         super(RigidSupport, self).__init__(name, point)
         self._dircos = dircos   # direction cosine
         self.friction = friction
@@ -249,7 +307,7 @@ class Displacement(Support):
     Using the penalty approach, the stiffness and force terms in the global
     system matrix are modified.
 
-    Displacements are associated to an operating and typically used with a
+    Displacements are associated to an operating case and typically used with a
     thermal case.
 
     TODO: how to specify a 'free' nonzero displacement; dx, dy etc for example
@@ -259,6 +317,7 @@ class Displacement(Support):
     def __init__(self, name, opercase, point,
                  dx=0, dy=0, dz=0, rx=0, ry=0, rz=0,
                  translation_stiffness=1e12, rotation_stiffness=1e12):
+        """Create a displacement support instance."""
         super(Displacement, self).__init__(name, point)
         self.opercase = opercase
         self.dx = dx

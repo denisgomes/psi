@@ -19,6 +19,9 @@ For license questions, please contact `Denis Gomes`_, the primary author.
     elements
     sections
     material
+    supports
     loads
+    loadcase
+    reports
 
 .. include:: ../links.rst

@@ -10,37 +10,35 @@ Model
 .. autoclass:: Model
 
   .. rubric:: Methods
-
   .. automethod:: __init__
   .. automethod:: close
   .. automethod:: save
   .. automethod:: save_as
   .. automethod:: analyze
 
-  .. rubric:: Attributes
-
-  .. autoattribute:: jobname
-  .. autoattribute:: settings
-  .. autoattribute:: geometry
-  .. autoattribute:: points
-  .. autoattribute:: elements
-  .. autoattribute:: sections
-  .. autoattribute:: materials
-  .. autoattribute:: insulation
-  .. autoattribute:: codes
-  .. autoattribute:: sifs
-  .. autoattribute:: loads
-  .. autoattribute:: active_point
-  .. autoattribute:: active_elements
-  .. autoattribute:: active_section
-  .. autoattribute:: active_material
-  .. autoattribute:: active_insulation
-  .. autoattribute:: active_code
-  .. autoattribute:: active_report
-  .. autoattribute:: parent
-  .. autoattribute:: units
-  .. autoattribute:: vertical
-  .. autoattribute:: tref
+  .. rubric:: Properties
+  .. autoproperty:: jobname
+  .. autoproperty:: settings
+  .. autoproperty:: geometry
+  .. autoproperty:: points
+  .. autoproperty:: elements
+  .. autoproperty:: sections
+  .. autoproperty:: materials
+  .. autoproperty:: insulation
+  .. autoproperty:: codes
+  .. autoproperty:: sifs
+  .. autoproperty:: loads
+  .. autoproperty:: active_point
+  .. autoproperty:: active_elements
+  .. autoproperty:: active_section
+  .. autoproperty:: active_material
+  .. autoproperty:: active_insulation
+  .. autoproperty:: active_code
+  .. autoproperty:: active_report
+  .. autoproperty:: parent
+  .. autoproperty:: units
+  .. autoproperty:: vertical
+  .. autoproperty:: tref
 
 
 ModelContainer
