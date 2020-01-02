@@ -135,7 +135,7 @@ You can also copy PSI directly into your project folder.</p>
 </div>
 <p>PSI provides an interpreter with added functionality for creating and analyzing
 piping systems using Python scripts. Type the input file shown below in your
-favorite text editor and save it as <em>demo.py</em>:</p>
+favorite text editor and save it as <em>demo.inp</em>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#! /usr/bin</span>
 
 <span class="c1"># parameters</span>
@@ -158,10 +158,17 @@ favorite text editor and save it as <em>demo.py</em>:</p>
 
 <span class="c1"># define loads for operating case 1</span>
 <span class="n">w1</span> <span class="o">=</span> <span class="n">Weight</span><span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">w1</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">run20</span><span class="p">])</span>
+
 <span class="n">p1</span> <span class="o">=</span> <span class="n">Pressure</span><span class="p">(</span><span class="s1">&#39;P1&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+<span class="n">p1</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">run20</span><span class="p">])</span>
 
 <span class="c1"># define a loadcase</span>
-<span class="n">l1</span> <span class="o">=</span> <span class="n">LoadCase</span><span class="p">(</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;ope&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">w1</span><span class="p">,</span> <span class="n">p1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="n">LoadCase</span><span class="p">(</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;ope&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Weight</span><span class="p">,</span> <span class="n">Pressure</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># code</span>
+<span class="n">b311</span> <span class="o">=</span> <span class="n">B311</span><span class="p">(</span><span class="s1">&#39;B311&#39;</span><span class="p">)</span>
+<span class="n">b311</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">run20</span><span class="p">])</span>
 
 <span class="c1"># run the analysis</span>
 <span class="n">mdl</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
@@ -169,26 +176,83 @@ favorite text editor and save it as <em>demo.py</em>:</p>
 <span class="c1"># postprocess</span>
 <span class="n">disp</span> <span class="o">=</span> <span class="n">Movements</span><span class="p">(</span><span class="s1">&#39;r1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">l1</span><span class="p">])</span>
 <span class="n">disp</span><span class="o">.</span><span class="n">to_screen</span><span class="p">()</span>
+
+<span class="n">reac</span> <span class="o">=</span> <span class="n">Reactions</span><span class="p">(</span><span class="s1">&#39;r2&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">l1</span><span class="p">])</span>
+<span class="n">reac</span><span class="o">.</span><span class="n">to_screen</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Now run the file above to get the displacements at the nodes:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi demo.py       <span class="c1"># run demo.py</span>
+<p>Now run the file above to get the displacements at the nodes and the reaction
+force at the anchor:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi demo.py &gt; results.out     <span class="c1"># run demo.py and redirect to results.out</span>
+</pre></div>
+</div>
+<p>Inspect the results.out file to view the output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>PSI Design and Analysis
+Version: 0.0.1 
+Design Codes: All Codes
+
+Input File: demo.inp 
+
+*** Preprocessing, initializing analysis...
+*** Switching to base units.
+*** Assembling system stiffness and force matrices.
+*** Solving system equations for displacements.
+*** Post processing elements...
+*** Calculating support reactions and internal forces.
+*** Writing loadcase results data.
+*** Analysis complete!
+
+PSI 0.0.1, Date: 2020-01-02 Time: 02:40 PM
+Job Name: None
+Licensed To: Humanity
+Movements : Displacement Report
+
+
+L1 (OPE) W[1] + P[1]
+
+
+          ----- Translations (inch) -----     ------- Rotations (deg) -------
+
+NODE              DX        DY        DZ             RX        RY        RZ
+
+10             0.000    -0.000     0.000         0.0000    0.0000   -0.0000
+20             0.000    -0.018     0.000         0.0000   -0.0000   -0.0002
+
+PSI 0.0.1, Date: 2020-01-02 Time: 02:40 PM
+Job Name: None
+Licensed To: Humanity
+Reactions : Support Reaction Report
+
+
+L1 (OPE) W[1] + P[1]
+
+
+          --------- Forces (lbf) ---------     ------ Moments (foot*lbf) ------
+
+NODE              FX        FY        FZ             MX        MY        MZ
+
+10               0.0     404.4       0.0            0.0       0.0    2022.0
+20               0.0       0.0       0.0            0.0       0.0       0.0
+
 </pre></div>
 </div>
 <p>To go directly into interactive mode after running the model, use the -i
 switch:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi -i demo.py    <span class="c1"># run demo.py and start interpreter</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ psi -i demo.py &gt; results.out  <span class="c1"># start the PSI interpreter</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="contribution">
 <h2>Contribution<a class="headerlink" href="#contribution" title="Permalink to this headline">¶</a></h2>
-<p>Soon to come!</p>
+<p>Coming soon!</p>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>Coming soon!</p>
 </div>
 <div class="section" id="building-docs">
 <h2>Building Docs<a class="headerlink" href="#building-docs" title="Permalink to this headline">¶</a></h2>
-<p>PSI’s <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> is hosted on the <a class="reference external" href="https://readthedocs.org">Read the Docs</a>
-website.</p>
+<p>PSI’s <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> is hosted on the <a class="reference external" href="https://readthedocs.org">Read the Docs</a> website.</p>
 </div>
 <div class="section" id="building-website">
 <h2>Building Website<a class="headerlink" href="#building-website" title="Permalink to this headline">¶</a></h2>
