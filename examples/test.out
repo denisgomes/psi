@@ -1,0 +1,63 @@
+PSI Design and Analysis
+Version: 0.0.1 
+Design Codes: All Codes
+
+Input File: cantilever.inp 
+
+*** Preprocessing, initializing analysis...
+*** Switching to base units.
+*** Assembling system stiffness and force matrices.
+*** Solving system equations for displacements.
+*** Post processing elements...
+*** Calculating support reactions and internal forces.
+*** Writing loadcase results data.
+*** Analysis complete!
+
+PSI 0.0.1, Date: 2020-01-02 Time: 12:13 AM
+Job Name: None
+Licensed To: Humanity
+Reactions : Support Reaction Report
+
+
+L1 (OPE) W[1] + P[1] + T[1] + F[1]
+
+
+          --------- Forces (lbf) ---------     ------ Moments (foot*lbf) ------
+
+NODE              FX        FY        FZ             MX        MY        MZ
+
+10               0.0   10404.4       0.0            0.0       0.0  102022.0
+20               0.0       0.0       0.0            0.0       0.0       0.0
+
+PSI 0.0.1, Date: 2020-01-02 Time: 12:13 AM
+Job Name: None
+Licensed To: Humanity
+Movements : Displacement Report
+
+
+L2 (SUS) W[1] + P[1] + F[1]
+
+
+          ----- Translations (inch) -----     ------- Rotations (deg) -------
+
+NODE              DX        DY        DZ             RX        RY        RZ
+
+10             0.000    -0.000     0.000         0.0000    0.0000   -0.0000
+20             0.000    -1.233     0.000         0.0000   -0.0000   -0.0154
+
+PSI 0.0.1, Date: 2020-01-02 Time: 12:13 AM
+Job Name: None
+Licensed To: Humanity
+Forces : Internal Forces Report
+
+
+L1-L2 (EXP) 
+
+
+          --------- Forces (lbf) ---------     ------ Moments (foot*lbf) ------
+
+NODE              FX        FY        FZ             MX        MY        MZ
+
+10        -1060417.3       0.0       0.0            0.0       0.0       0.0
+20         1060417.3       0.0       0.0            0.0       0.0       0.0
+

@@ -1,0 +1,43 @@
+#! /usr/bin
+
+# parameters
+L = 10 * 12
+
+# create top level
+mdl = Model('demo')
+
+# define properties
+pipe1 = Pipe.from_file('pipe1', '10', '40')
+mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
+
+# create geometry
+pt10 = Point(10)
+run20 = Run(20, L)
+
+# assign supports
+anc1 = Anchor('A1', 10)
+anc1.apply([run20])
+
+# define loads for operating case 1
+w1 = Weight('W1', 1)
+w1.apply([run20])
+
+p1 = Pressure('P1', 1, 250)
+p1.apply([run20])
+
+# define a loadcase
+l1 = LoadCase('l1', 'ope', [Weight, Pressure], [1, 1])
+
+# code
+b311 = B311('B311')
+b311.apply([run20])
+
+# run the analysis
+mdl.analyze()
+
+# postprocess
+disp = Movements('r1', [l1])
+disp.to_screen()
+
+reac = Reactions('r2', [l1])
+reac.to_screen()

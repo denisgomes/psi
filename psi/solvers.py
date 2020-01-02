@@ -147,7 +147,7 @@ def static(model):
             #     print(loadcase)
 
             if isinstance(loadcase, LoadCase):
-                # sum of all loads in a loadcase
+                # sum of all loads in a primary loadcase
                 feg = np.zeros((en*ndof, 1), dtype=np.float64)
 
                 for loadtype, opercase in loadcase.loads:
@@ -170,6 +170,7 @@ def static(model):
             # NOTE: this only applies to Displacement supports, for all
             # others dsup is 0 and so added stiffness is also 0
             for support in element.supports:
+
                 ksup = support.kglobal(element)
                 dsup = support.dglobal(element)     # support displacement
 

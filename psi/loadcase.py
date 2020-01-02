@@ -356,12 +356,12 @@ class LoadComb(BaseCase):
         stype : str
             Type of code stress. Defaults to sustained stress.
 
-                * HGR - hanger load case
-                * HYD - hydro load case
-                * SUS - sustained stress case
-                * EXP - thermal expansion stress.case
-                * OCC - occasional stress case
-                * OPE - operating stress case
+                * HGR - Hanger load case
+                * HYD - Hydro load case
+                * SUS - Sustained stress case
+                * EXP - Thermal expansion stress.case
+                * OCC - Occasional stress case
+                * OPE - Operating stress case
                 * FAT - Fatigue stress case
 
         method : str
@@ -380,8 +380,11 @@ class LoadComb(BaseCase):
             List of load cases.
 
         factors : list of numbers.
-            A list of factors corresponding to each loadcase. If a factor is
-            not given, a default value of 1 is used.
+            A list of factors corresponding to each loadcase.
+
+            .. note::
+               If a factor is not given, a default value of 1 is used. Also,
+               the number of factors must match the number of loadcases.
         """
 
         super(LoadComb, self).__init__(name, stype)

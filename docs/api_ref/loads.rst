@@ -30,17 +30,17 @@ Pressure
   .. autoproperty:: parent
 
 
-Thermal
--------
+.. Thermal
+.. -------
 
-.. autoclass:: Thermal
+.. .. autoclass:: Thermal
 
-  .. rubric:: Methods
-  .. automethod:: __init__
-  .. automethod:: apply
+..   .. rubric:: Methods
+..   .. automethod:: __init__
+..   .. automethod:: apply
 
-  .. rubric:: Properties
-  .. autoproperty:: parent
+..   .. rubric:: Properties
+..   .. autoproperty:: parent
 
 
 LoadContainer

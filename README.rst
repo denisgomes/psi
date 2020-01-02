@@ -86,69 +86,47 @@ To start PSI in interactive mode just type:
 
 PSI provides an interpreter with added functionality for creating and analyzing
 piping systems using Python scripts. Type the input file shown below in your
-favorite text editor and save it as *demo.py*:
+favorite text editor and save it as *demo.inp*:
 
-.. code:: python
+.. literalinclude:: ../examples/demo.inp
+    :language: python
 
-    #! /usr/bin
-
-    # parameters
-    L = 10 * 12
-
-    # create top level
-    mdl = Model('demo')
-
-    # define properties
-    pipe1 = Pipe.from_file('pipe1', '10', '40')
-    mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
-
-    # create geometry
-    pt10 = Point(10)
-    run20 = Run(20, L)
-
-    # assign supports
-    anc1 = Anchor('A1', 10)
-    anc1.apply([run20])
-
-    # define loads for operating case 1
-    w1 = Weight('W1', 1)
-    p1 = Pressure('P1', 1, 250)
-
-    # define a loadcase
-    l1 = LoadCase('l1', 'ope', [w1, p1], [1, 1])
-
-    # run the analysis
-    mdl.analyze()
-
-    # postprocess
-    disp = Movements('r1', [l1])
-    disp.to_screen()
-
-Now run the file above to get the displacements at the nodes:
+Now run the file above to get the displacements at the nodes and the reaction
+force at the anchor:
 
 .. code:: sh
 
-    $ psi demo.py       # run demo.py
+    $ psi demo.py > results.out     # run demo.py and redirect to results.out
+
+Inspect the results.out file to view the output:
+
+.. literalinclude:: ../examples/results.out
 
 To go directly into interactive mode after running the model, use the -i
 switch:
 
 .. code:: sh
 
-    $ psi -i demo.py    # run demo.py and start interpreter
+    $ psi -i demo.py > results.out  # start the PSI interpreter
 
 
 Contribution
 ------------
 
-Soon to come!
+Coming soon!
+
+
+Support
+-------
+
+Coming soon!
 
 
 Building Docs
 -------------
 
-PSI's documentation_ is hosted on the `Read the Docs <https://readthedocs.org>`_
-website.
+PSI's documentation_ is hosted on the `Read the Docs
+<https://readthedocs.org>`_ website.
 
 
 Building Website

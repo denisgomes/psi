@@ -11,11 +11,14 @@ Model
 
   .. rubric:: Methods
   .. automethod:: __init__
+  .. automethod:: analyze
+
+..
   .. automethod:: close
   .. automethod:: save
   .. automethod:: save_as
-  .. automethod:: analyze
 
+..
   .. rubric:: Properties
   .. autoproperty:: jobname
   .. autoproperty:: settings
@@ -47,4 +50,3 @@ ModelContainer
 .. autoclass:: ModelContainer
 
   .. rubric:: Methods
-
