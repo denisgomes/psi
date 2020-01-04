@@ -4,25 +4,8 @@ Overview
 Requirements
 ------------
 
-PSI can run on any system Python runs as it is built on top of the Python
+PSI can run on any system Python runs because it is built on top of the Python
 interpreter. Python 3.5 is required at a minimum.
-
-
-License
--------
-
-PSI supports two types of licenses:
-
-1. A Community Edition
-
-   Open source software based on the GPL L3 license, which allows it to be
-   freely **used** by individuals and companies.
-
-2. An Enterprise Edition
-
-   Mainly for companies that want more flexibilty with the source code. This
-   is subscription based and hosted on the `xscode <https://www.xscode.com>`_
-   website.
 
 
 Contributing
@@ -32,11 +15,11 @@ For full disclosure, as there is an Enterprise Edition of PSI, contributors are
 made aware that any contributions made to the Community Edition may be merged
 with the Enterprise version. All contributors are therefore asked to
 acknowledge and agree to this by signing a consent form before being allowed to
-work on the project.
+make contributions to the project.
 
 .. note::
 
-    All funding going towards the Enterprise Edition will eventually go towards
+    All funding going towards the Enterprise Edition will ultimately go towards
     improving and maintaining the Community Edition.
 
 
@@ -46,14 +29,14 @@ Support
 You can support PSI in variety of different ways.
 
 * Become a contributer and help maintain the code base, Code PSI.
-* Join the Community_ and share your stories with other, Promote PSI.
-* You can fund open source development via github sponser, Fund PSI.
+* Join the Community_ and share your stories with others, Promote PSI.
+* You can fund open source development via github sponsers, Fund PSI.
 
 
 Community
 ----------
 
-Before an active member of the community.
+Become an active member of the community.
 
 * Talk to other developers and users at the PSI discord_ server.
 * Join the PSI `mailing list`_.

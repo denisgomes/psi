@@ -3,7 +3,7 @@
 # parameters
 L = 10 * 12
 
-# create top level
+# create model
 mdl = Model('demo')
 
 # define properties

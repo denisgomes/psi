@@ -18,5 +18,6 @@ For license questions, please contact `Denis Gomes`_, the primary author.
     installation
     features
     codes
+    example
 
 .. include:: ../links.rst
