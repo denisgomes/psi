@@ -20,25 +20,27 @@ capabilities:
 * Static linear analysis of loadcases and combinations.
 * Stress evaluation based on B31.1 piping code.
 * Movements, support reactions and internal force results.
-* Much more to come...
+* And more to come...
 
 
 Enterprise Edition
 ------------------
 
-All the features available in the Community Edition of PSI are included in the
-Enterprise edition by default. In addition, the features listed below are only
-available with the upgraded version.
+All the features available in the Community Edition of PSI are also included in
+the Enterprise edition by default. In addition, the features listed below are
+only available with the upgraded version.
 
 * Access to all element types, such as bellows.
 * Comprehensive section and material database.
 * Valve and flange weight database.
-* Support gaps and friction.
+* Additional spring vendors for spring selection.
+* Pipe support gaps and friction.
 * Support for additional codes and standards.
-* Dynamic modal, response spectrum and time history analysis.
+* Dynamic modal, response spectrum and time history analyses capabilities.
 * Trunnion analysis.
-* Nozzle evaluation.
-* Much more to come...
+* Nozzle evaluation for various equipment.
+* Compability with other pipe stress programs such as AutoPIPE and Caesar II.
+* And more to come...
 
 In addition, the Enterprise Edition is subjected to rigorous verification and
 validation, going far above and beyond the Tier 1 textbook examples employed
@@ -47,8 +49,10 @@ software for a variety of different test cases.
 
 .. note::
 
-    The Enterprise Edition is a work in progress. To learn more about it's
-    status and pricing, visit the xscode_ website or email me__ directly.
+    The Enterprise Edition is in active development. To learn more about it's
+    status and pricing setup please email me__ directly. Users who are very
+    satisfied with the Community Edition and/or need the added feature set are
+    welcome to inquire.
 
 __ `Denis Gomes`_
 

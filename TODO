@@ -1,6 +1,4 @@
 Units when dealing with settings options.
-Operating cases.
-Dealing with units and default positional and keyword arguments.
 Utility function for printing to screen for dubugging.
 Inclined supports.
 Spring supports.
@@ -19,3 +17,8 @@ Handling units and g loads. (FIXED)
 
 Changed the base units file to explicity use m/s**2. All other files will use
 the pint gravity unit.
+
+Operating cases. - each load has an opercase associated with it.
+
+Dealing with units and default positional and keyword arguments - units
+contextmanager.

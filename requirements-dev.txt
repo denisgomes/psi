@@ -44,7 +44,6 @@ Pint==0.9
 pluggy==0.13.1
 prometheus-client==0.7.1
 prompt-toolkit==2.0.10
-psi==0.0.1
 ptyprocess==0.6.0
 py==1.8.0
 Pygments==2.4.2

@@ -13,7 +13,7 @@ is going on. It's also a great place to ask for help.
 Some of the features of PSI are:
 
 * Linear static analysis
-* Open source and free to use (consider supporting)
+* Open source and free to use
 
 
 Contact

@@ -26,15 +26,15 @@ Pipe Stress Infinity: Documentation
 
 Pipe Stress Infinity (PSI_) is an engineering design and analysis software used
 to evaluate the structural behavior and stresses of piping systems to a variety
-of different codes and standards. Read :doc:`more... <preface/main>`
+of different codes and standards. :doc:`Read more... <preface/main>`
 
 
 :doc:`quick_ref/main`
 =====================
 
-The PSI Quick Reference is a good starting point of new users to get up and
-going quickly. It provides a basic introduction and a taste of the program's
-different usage capabilities.
+The PSI Quick Reference is a good starting point for new users to get up and
+going quickly. It provides a basic introduction to the project and a small
+taste of the program's capabilities.
 
 If this is your first time reading about PSI, we suggest you start at the
 :doc:`quick_ref/example` section.

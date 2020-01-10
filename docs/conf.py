@@ -30,6 +30,8 @@ release = '0.0.1'
 # ones.
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.napoleon',
+              'sphinx.ext.mathjax',
+              'jupyter_sphinx.execute',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -38,8 +40,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -75,8 +76,13 @@ html_theme_options = {
     # 'fixed_sidebar': True,
     # 'github_banner': True,
     # 'github_button': True,
+    'show_relbars': True,
+    # 'font_size': 8,
 }
 
 
 # for readthedocs build
 master_doc = 'index'
+
+# for figure numbering
+# numfig = True

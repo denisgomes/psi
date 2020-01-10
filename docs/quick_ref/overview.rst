@@ -22,15 +22,23 @@ make contributions to the project.
     All funding going towards the Enterprise Edition will ultimately go towards
     improving and maintaining the Community Edition.
 
+Active members and contributors will be invited to become part of the core
+development team. Off these members, a select few will have the opportunity to
+work on the Enterprise Edition if they so choose. These members will be funded
+for their contributions dependent on the overall success of the project.
+
+All prominent contributors are acknowledged in the CREDITS file found in the
+project root directory.
+
 
 Support
 -------
 
-You can support PSI in variety of different ways.
+You can support PSI in a variety of different ways.
 
 * Become a contributer and help maintain the code base, Code PSI.
 * Join the Community_ and share your stories with others, Promote PSI.
-* You can fund open source development via github sponsers, Fund PSI.
+* You can fund open source development via GitHub sponsers, Fund PSI.
 
 
 Community
