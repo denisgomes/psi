@@ -48,10 +48,37 @@
 
 
 
+<h3>Navigation</h3>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://pypi.org">PSI @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/denisgomes/psi">PSI @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://discord.gg/xnHnwbD">PSI @ Discord</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/denisgomes/psi/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="https://groups.google.com/group/pipestressinfinity-users">Mailing List</a></li>
+    
+    <li class="toctree-l1"><a href="https://pipe-stress-infinity.readthedocs.io/en/latest">Documentation</a></li>
+    
+</ul>
 
 
 
+<h3 class="donation">Donate/support</h3>
 
+
+
+<p>
+<a class="badge" href="https://github.com/denisgomes/psi">
+<img src="https://img.shields.io/badge/donate-%E2%9D%A4%C2%A0-ff69b4.svg?style=flat" alt="Donate">
+</a>
+</p>
 
 
 
@@ -70,13 +97,6 @@
 <p>Pipe Stress Infinity (PSI) is an engineering design and analysis software used
 to evaluate the structural behavior and stresses of piping systems to a variety
 of different codes and standards.</p>
-<ul class="simple">
-<li><p>PSI on <a class="reference external" href="https://pypi.org/">PyPI</a></p></li>
-<li><p>PSI <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a></p></li>
-<li><p>PSI <a class="reference external" href="https://discord.gg/xnHnwbD">discord</a> server</p></li>
-<li><p>PSI <a class="reference external" href="https://groups.google.com/group/pipestressinfinity-users">mailing list</a></p></li>
-<li><p>PSI <a class="reference external" href="https://github.com/denisgomes/psi/issues">issue tracker</a></p></li>
-</ul>
 <p>PSI has an active developer and user community. If you find a bug or a problem
 with the documentation, please open an issue. Anyone is welcome to join our
 discord server were a lot of the development discussion is going on. It’s also
@@ -84,12 +104,12 @@ a great place to ask for help.</p>
 <p>Some of the features of PSI are:</p>
 <ul class="simple">
 <li><p>Linear static analysis</p></li>
-<li><p>Open source and free to use (consider supporting)</p></li>
+<li><p>Open source and free to use</p></li>
 </ul>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>PSI supports Python 3.5 and above. The following is a list of libraries that
-it depends on:</p>
+<p>PSI supports Python 3.5 and above. The following is a list of libraries that it
+depends on:</p>
 <ul class="simple">
 <li><p>jinja2</p></li>
 <li><p>numpy</p></li>
@@ -141,7 +161,7 @@ favorite text editor and save it as <em>demo.inp</em>:</p>
 <span class="c1"># parameters</span>
 <span class="n">L</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">12</span>
 
-<span class="c1"># create top level</span>
+<span class="c1"># create model</span>
 <span class="n">mdl</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 
 <span class="c1"># define properties</span>
@@ -244,26 +264,37 @@ switch:</p>
 </div>
 <div class="section" id="contribution">
 <h2>Contribution<a class="headerlink" href="#contribution" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon!</p>
+<p>There are many different ways to contribute. You can promote PSI, fix bugs,
+participate on the mailing list, etc. Please read the <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> to find
+out more ways to contribute to the Community and Enterprise Editions.</p>
 </div>
 <div class="section" id="support">
 <h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon!</p>
+<p>The Community Edition of PSI is open source and can be used free of charge. If
+the software adds value to your life i.e. you use it to do commercial work for
+example, considered donating to support PSI’s ongoing development. Also please
+read the <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> about the feature rich Enterprise Edition.</p>
 </div>
 <div class="section" id="building-docs">
 <h2>Building Docs<a class="headerlink" href="#building-docs" title="Permalink to this headline">¶</a></h2>
-<p>PSI’s <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> is hosted on the <a class="reference external" href="https://readthedocs.org">Read the Docs</a> website.</p>
+<p>PSI’s <a class="reference external" href="https://pipe-stress-infinity.readthedocs.io">documentation</a> is hosted on <a class="reference external" href="https://readthedocs.org">Read the Docs</a>.
+The <a class="reference external" href="https://readthedocs.org/projects/pipe-stress-infinity/downloads/pdf/latest">PDF</a> version and other popular formats are also available on this website.
+To build the docs, type the following from the project root directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs
+$ make clean <span class="o">&amp;&amp;</span> make html
+</pre></div>
+</div>
 </div>
 <div class="section" id="building-website">
 <h2>Building Website<a class="headerlink" href="#building-website" title="Permalink to this headline">¶</a></h2>
 <p>The PSI website (i.e. this site) consists of the project README.rst file hosted
 on GitHub via GitHub Pages.  It lives on a branch called <em>gh-pages</em> and is
 viewable at the <a class="reference external" href="https://denisgomes.github.io/psi">project website</a>.</p>
-<p>To build and upload the website, type the following for the project root
+<p>To build and upload the website, type the following from the project root
 directory:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> www
-$ make html     <span class="c1"># for testing</span>
-$ make github   <span class="c1"># to publish</span>
+$ make clean <span class="o">&amp;&amp;</span> make html   <span class="c1"># for testing</span>
+$ make github               <span class="c1"># to publish</span>
 </pre></div>
 </div>
 </div>
