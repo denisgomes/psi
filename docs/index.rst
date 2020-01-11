@@ -19,6 +19,7 @@ Pipe Stress Infinity: Documentation
     api_ref/main
     dev_guide/main
     faqs/main
+    v_and_v/main
 
 
 :doc:`preface/main`
@@ -85,6 +86,13 @@ its future development.
 
 A list of frequently asked questions raised on the mailing list or the discord
 server.
+
+
+:doc:`v_and_v/main`
+===================
+
+A list of example problems used for program/machine verification and
+validation.
 
 
 .. include:: links.rst
