@@ -1,0 +1,47 @@
+PSI Design and Analysis
+Version: 0.0.1 
+Design Codes: All Codes
+
+Input File: demo.inp 
+
+*** Preprocessing, initializing analysis...
+*** Switching to base units.
+*** Assembling system stiffness and force matrices.
+*** Solving system equations for displacements.
+*** Post processing elements...
+*** Calculating support reactions and internal forces.
+*** Writing loadcase results data.
+*** Analysis complete!
+
+PSI 0.0.1, Date: 2020-01-11 Time: 07:49 PM
+Job Name: None
+Licensed To: Humanity
+Movements : Displacement Report
+
+
+L1 (OPE) W[1] + P[1]
+
+
+          ----- Translations (inch) -----     ------- Rotations (deg) -------
+
+NODE              DX        DY        DZ             RX        RY        RZ
+
+10             0.000    -0.000     0.000         0.0000    0.0000   -0.0000
+20             0.000    -0.018     0.000         0.0000   -0.0000   -0.0002
+
+PSI 0.0.1, Date: 2020-01-11 Time: 07:49 PM
+Job Name: None
+Licensed To: Humanity
+Reactions : Support Reaction Report
+
+
+L1 (OPE) W[1] + P[1]
+
+
+          --------- Forces (lbf) ---------     ------ Moments (foot*lbf) ------
+
+NODE              FX        FY        FZ             MX        MY        MZ
+
+10               0.0     404.4       0.0            0.0       0.0    2022.0
+20               0.0       0.0       0.0            0.0       0.0       0.0
+

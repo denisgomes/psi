@@ -56,7 +56,7 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         'about.html',
-        # 'navigation.html',
+        'navigation.html',
         # 'relations.html',
         # 'searchbox.html',
         'donate.html',
@@ -67,7 +67,7 @@ html_sidebars = {
 html_theme_options = {
     'logo': 'logo.png',
     # 'logo_name': True,
-    'logo_text_align': 'left',
+    # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
     'description': 'The pipe stress design and analysis software.',
@@ -75,4 +75,13 @@ html_theme_options = {
     'github_banner': True,
     # 'github_button': True,
     'analytics_id': 'UA-155102137-1',
+    'donate_url': 'https://github.com/denisgomes/psi',
+    'extra_nav_links':
+    {'PSI @ PyPI': 'https://pypi.org',
+     'PSI @ GitHub': 'https://github.com/denisgomes/psi',
+     'PSI @ Discord': 'https://discord.gg/xnHnwbD',
+     'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
+     'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
+     'Documentation': 'https://pipe-stress-infinity.readthedocs.io/en/latest',
+    }
 }

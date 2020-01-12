@@ -78,6 +78,14 @@ html_theme_options = {
     # 'github_button': True,
     'show_relbars': True,
     # 'font_size': 8,
+    'extra_nav_links':
+    {'PSI @ PyPI': 'https://pypi.org',
+     'PSI @ GitHub': 'https://github.com/denisgomes/psi',
+     'PSI @ Discord': 'https://discord.gg/xnHnwbD',
+     'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
+     'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
+     'PDF Documentation': 'https://readthedocs.org/projects/pipe-stress-infinity/downloads/pdf/latest',
+    }
 }
 
 
