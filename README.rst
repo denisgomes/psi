@@ -167,7 +167,8 @@ PSI is developed by many individual volunteers, and there is no central point
 of contact. If you have a question about developing with PSI, or you wish to
 contribute, please join the mailing list or the discord server.
 
-For license questions, please contact `Denis Gomes`_, the primary author.
+For license questions, please contact `Denis Gomes`_, the primary author. Also
+check out the project links below.
 
 * PSI on PyPI_
 * PSI documentation_

@@ -14,7 +14,7 @@ capabilities:
   cross-sections.
 * Access to a variety of different support types including Anchors, GlobalX,
   GlobalY, and GlobalZ.
-* Non-linear support capability *excluding* gaps and friction
+* Non-linear support capability *excluding* gaps and friction.
 * Assign loads such as Weight, Pressure, Thermal, Wind and Seismic among
   others.
 * Static linear analysis of loadcases and combinations.

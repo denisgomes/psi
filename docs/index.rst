@@ -18,8 +18,8 @@ Pipe Stress Infinity: Documentation
     app_guide/main
     api_ref/main
     dev_guide/main
-    faqs/main
     v_and_v/main
+    faqs/main
 
 
 :doc:`preface/main`
@@ -81,18 +81,18 @@ these to get more detailed insights into how PSI is designed, and how to help
 its future development.
 
 
-:doc:`faqs/main`
-================
-
-A list of frequently asked questions raised on the mailing list or the discord
-server.
-
-
 :doc:`v_and_v/main`
 ===================
 
 A list of example problems used for program/machine verification and
 validation.
+
+
+:doc:`faqs/main`
+================
+
+A list of frequently asked questions raised on the mailing list or the discord
+server.
 
 
 .. include:: links.rst

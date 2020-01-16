@@ -320,7 +320,7 @@ class LoadCase(BaseCase):
         for loadtype, opercase in self.loads:
             lbl.append("%s[%s]" % (loadtype.label, opercase))
 
-        return lbl
+        return " + ".join(lbl)
 
 
 class LoadComb(BaseCase):
@@ -329,6 +329,10 @@ class LoadComb(BaseCase):
     .. note::
         Combinations pull stored data from loadcases on the fly and do the
         necessary combination operations.
+
+    .. attention::
+        A loadcase and a loadcomb are derived from the same basecase and so
+        they have the same namespace when it comes to name.
     """
 
     def __init__(self, name, stype="ope", method="algebraic", loadcases=[],

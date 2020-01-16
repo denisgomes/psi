@@ -85,7 +85,7 @@ def static(model):
 
     Loading sequence and non-linear supports.
 
-    Non linear supports use an iterative approach to determine the final
+    Non-linear supports use an iterative approach to determine the final
     support loads and pipe configuration. The sequence in which loads are
     applied matters as superposition is not valid for non-linear analysis.
     Each load is applied and the displacements extracted. These movements are
@@ -96,7 +96,7 @@ def static(model):
     tqdm = logging.getLogger("tqdm")
     tqdm.info("*** Preprocessing, initializing analysis...")
 
-    # Note: All internal object data is stored in SI once loaded from
+    # Note: All internal object data is stored in SI once loaded from an
     # external files, disabling unit consersion allows for working with
     # only SI
     model.app.units.disable()

@@ -2,6 +2,6 @@
 
 {% block header %}
 {% for loadcase in loadcases %}
-{{ loadcase.name | upper }} ({{ loadcase.stype | upper }}) {{ loadcase.label | join(" + ") }}
+{{ loadcase.name | upper }} ({{ loadcase.stype | upper }}) {{ loadcase.label }}
 {% endfor %}
 {% endblock %}

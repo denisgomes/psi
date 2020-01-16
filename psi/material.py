@@ -83,6 +83,11 @@ class Property(object):
                 sorted(tvals, key=lambda p: p[0])   # by temp
                 temps, vals = zip(*tvals)
 
+                # 999.9999999F will properly round to 1000F
+                # user not expected to enter temp with 6 digits
+                # of precision
+                temps = [round(temp, 6) for temp in temps]
+
                 # input temp in range?
                 mintemp = min(temps)
                 maxtemp = max(temps)
@@ -95,6 +100,7 @@ class Property(object):
                         uidx = idx
                         lidx = uidx - 1
                         break
+
                 if temp == item:    # exact match
                     return vals[uidx]
                 else:
@@ -251,6 +257,10 @@ class Material(Entity, ActiveEntityMixin):
             The units used for the data. Must be one of the units defined in
             the psi.UNITS_DIRECTORY path.
 
+            .. note::
+                The values are converted to base units upon loading. Conversion
+                to and from base to user units occurs on the fly.
+
         Example
         -------
         Create a A53A material instance and activate it.
@@ -321,7 +331,7 @@ class Material(Entity, ActiveEntityMixin):
 
     @property
     def sh(self):
-        """Return the hot material allowable of the material.
+        """Return the material hot allowable.
 
         .. note::
             This can mean Sh or Sm, etc, depending on the code used. It is up

@@ -1,41 +1,40 @@
 """Pipe section property tests"""
 
-import pytest
 
-from psi.app import App
-
-
-@pytest.fixture(scope="module")
-def pipe():
-    app = App()
-
-    model = app.models.Model("test")
-    model.units = "english"
-
-    pipe = app.sections.Pipe.from_file("pipe", "10", "40")
-
-    yield pipe
+from .test_appsetup import app
 
 
-def test_od(pipe):
+def test_od(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.od, 2) == 10.75
 
 
-def test_thk(pipe):
+def test_thk(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.thk, 3) == 0.365
 
 
-def test_area(pipe):
+def test_area(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.area, 3) == 11.908
 
 
-def test_ixx(pipe):
+def test_ixx(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.ixx, 3) == 321.468
 
 
-def test_iyy(pipe):
+def test_iyy(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.iyy, 3) == 160.734
 
 
-def test_izz(pipe):
+def test_izz(app):
+    pipe = app.sections("PIPE1")
+
     assert round(pipe.izz, 3) == 160.734
