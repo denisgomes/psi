@@ -43,6 +43,7 @@ import sys
 import numpy as np
 
 from psi.entity import Entity, EntityContainer
+from psi.point import Point
 from psi.utils.orderedset import OrderedSet
 from psi import units
 
@@ -67,11 +68,15 @@ class Translation(object):
         Parameters
         ----------
         data : numpy.array row vector
+
+        .. note::
+            Data is passed in as a row vector and then converted to a column
+            vector.
         """
-        x = data[::6]
-        y = data[1::6]
-        z = data[2::6]
-        xyz = np.array(list(zip(x, y, z)), dtype=np.float64)
+        dx = data[::6]
+        dy = data[1::6]
+        dz = data[2::6]
+        xyz = np.array(list(zip(dx, dy, dz)), dtype=np.float64)
 
         # column vector of translation
         self._values = xyz.flatten().reshape((-1, 1))
@@ -97,6 +102,10 @@ class Rotation(object):
         Parameters
         ----------
         data : numpy.array row vector
+
+        .. note::
+            Data is passed in as a row vector and then converted to a column
+            vector.
         """
         rx = data[3::6]
         ry = data[4::6]
@@ -115,20 +124,51 @@ class Movements(object):
        different units.
     """
 
-    def __init__(self):
+    def __init__(self, app):
+        self._app = app
         self._translation = Translation()
         self._rotation = Rotation()
 
+    def __getitem__(self, item):
+        """Get nodal results.
+
+        .. code-block: python
+
+            >>> r1.movements[pt10]          # returns all comps
+            >>> r1.movements[pt10][0:3]     # returns dx, dy, dz
+            >>> r1.movements[pt10][3:6]     # returns rx, ry, rz
+
+        Slices with strides can also be used such as:
+
+        .. code-block: python
+
+            >>> r1.movements[pt10][::2]     # returns dx, dz, ry
+        """
+        ndof = 6    # degrees of freedom per node
+        if isinstance(item, Point):
+            try:
+                model = self._app.models.active_object
+                idxi = list(model.points).index(item)
+                niqi, niqj = idxi*ndof, idxi*ndof + ndof
+
+                # note that .results is a column vector
+                return self.results[niqi:niqj, 0]
+            except:
+                raise ValueError("node is not in results array")
+
+        else:
+            raise ValueError("value not found")
+
     @property
     def results(self):
-        x = self._translation.results[::3]
-        y = self._translation.results[1::3]
-        z = self._translation.results[2::3]
+        dx = self._translation.results[::3]
+        dy = self._translation.results[1::3]
+        dz = self._translation.results[2::3]
         rx = self._rotation.results[::3]
         ry = self._rotation.results[1::3]
         rz = self._rotation.results[2::3]
 
-        disp = np.array(list(zip(x, y, z, rx, ry, rz)), dtype=np.float64)
+        disp = np.array(list(zip(dx, dy, dz, rx, ry, rz)), dtype=np.float64)
         values = disp.flatten().reshape((-1, 1))
 
         return values
@@ -206,9 +246,40 @@ class Reactions(object):
        different units.
     """
 
-    def __init__(self):
+    def __init__(self, app):
+        self._app = app
         self._force = Force()
         self._moment = Moment()
+
+    def __getitem__(self, item):
+        """Get nodal results.
+
+        .. code-block: python
+
+            >>> r1.reactions[pt10]          # returns all comps
+            >>> r1.reactions[pt10][0:3]     # returns dx, dy, dz
+            >>> r1.reactions[pt10][3:6]     # returns rx, ry, rz
+
+        Slices with strides can also be used such as:
+
+        .. code-block: python
+
+            >>> r1.reactions[pt10][::2]     # returns dx, dz, ry
+        """
+        ndof = 6    # degrees of freedom per node
+        if isinstance(item, Point):
+            try:
+                model = self._app.models.active_object
+                idxi = list(model.points).index(item)
+                niqi, niqj = idxi*ndof, idxi*ndof + ndof
+
+                # note that .results is a column vector
+                return self.results[niqi:niqj, 0]
+            except:
+                raise ValueError("node is not in results array")
+
+        else:
+            raise ValueError("value not found")
 
     @property
     def results(self):
@@ -238,9 +309,40 @@ class Forces(object):
        different units.
     """
 
-    def __init__(self):
+    def __init__(self, app):
+        self._app = app
         self._force = Force()
         self._moment = Moment()
+
+    def __getitem__(self, item):
+        """Get nodal results.
+
+        .. code-block: python
+
+            >>> r1.forces[pt10]          # returns all comps
+            >>> r1.forces[pt10][0:3]     # returns dx, dy, dz
+            >>> r1.forces[pt10][3:6]     # returns rx, ry, rz
+
+        Slices with strides can also be used such as:
+
+        .. code-block: python
+
+            >>> r1.forces[pt10][::2]     # returns dx, dz, ry
+        """
+        ndof = 6    # degrees of freedom per node
+        if isinstance(item, Point):
+            try:
+                model = self._app.models.active_object
+                idxi = list(model.points).index(item)
+                niqi, niqj = idxi*ndof, idxi*ndof + ndof
+
+                # note that .results is a column vector
+                return self.results[niqi:niqj, 0]
+            except:
+                raise ValueError("node is not in results array")
+
+        else:
+            raise ValueError("value not found")
 
     @property
     def results(self):
@@ -294,9 +396,9 @@ class LoadCase(BaseCase):
             self.loads.add(load)
 
         # results objects
-        self._movements = Movements()
-        self._reactions = Reactions()
-        self._forces = Forces()
+        self._movements = Movements(self.app)
+        self._reactions = Reactions(self.app)
+        self._forces = Forces(self.app)
 
     @property
     def movements(self):
@@ -312,6 +414,11 @@ class LoadCase(BaseCase):
     def forces(self):
         """Return the force reaction results array."""
         return self._forces
+
+    @property
+    def stresses(self):
+        """Return the nodal stress results array."""
+        raise NotImplementedError("implement")
 
     @property
     def label(self):

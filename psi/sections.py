@@ -384,6 +384,17 @@ class SectionContainer(EntityContainer, ActiveEntityContainerMixin):
     def apply(self, inst, elements=None):
         """Apply a section to elements.
 
+        Parameters
+        ----------
+        inst : Section
+            An instance of a section.
+
+        elements : List of Elements
+            A list of elements.
+
+            .. note::
+                If elements is None, the active set of elements is used.
+
         Example
         ------
         Create a 10" schedule 40 pipe and assign it to all active elements.

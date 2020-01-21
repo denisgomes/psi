@@ -12,8 +12,18 @@ a great place to ask for help.
 
 Some of the features of PSI are:
 
+* Modeling of piping components such as Runs, Bends, Reducers, Valves, and
+  Flanges
+* Ability to specify section and material data properties for different
+  cross-sections
+* Access to a variety of different support types such as Anchors, GlobalX,
+  GlobalY, and GlobalZ including non-linear support capability
+* Assign loads such as Weight, Pressure, Thermal, Wind and Seismic among others
+* Linear combinations of loads and combinations of loads
+* Stress evaluation based on B31.1 power piping code
 * Linear static analysis
-* Open source and free to use
+* Movements, support reactions and internal force results
+* And more...
 
 
 Requirements
@@ -90,18 +100,18 @@ force at the anchor:
 
 .. code:: sh
 
-    $ psi demo.py > results.out     # run demo.py and redirect to results.out
+    $ psi demo.py > demo.out        # run demo.py and redirect to demo.out
 
-Inspect the results.out file to view the output:
+Inspect the demo.out file to view the output:
 
-.. literalinclude:: ../examples/results.out
+.. literalinclude:: ../examples/demo.out
 
 To go directly into interactive mode after running the model, use the -i
 switch:
 
 .. code:: sh
 
-    $ psi -i demo.py > results.out  # start the PSI interpreter
+    $ psi -i demo.py > demo.out     # start the PSI interpreter
 
 
 Contribution

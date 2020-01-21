@@ -13,7 +13,7 @@ Input File: demo.inp
 *** Writing loadcase results data.
 *** Analysis complete!
 
-PSI 0.0.1, Date: 2020-01-02 Time: 02:40 PM
+PSI 0.0.1, Date: 2020-01-16 Time: 11:13 PM
 Job Name: None
 Licensed To: Humanity
 Movements : Displacement Report
@@ -29,7 +29,7 @@ NODE              DX        DY        DZ             RX        RY        RZ
 10             0.000    -0.000     0.000         0.0000    0.0000   -0.0000
 20             0.000    -0.018     0.000         0.0000   -0.0000   -0.0002
 
-PSI 0.0.1, Date: 2020-01-02 Time: 02:40 PM
+PSI 0.0.1, Date: 2020-01-16 Time: 11:13 PM
 Job Name: None
 Licensed To: Humanity
 Reactions : Support Reaction Report

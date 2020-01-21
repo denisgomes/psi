@@ -196,6 +196,31 @@ class Element(Entity):
         """Global element mass matrix"""
         raise NotImplementedError("abstract method")
 
+    def select(self):
+        """Select an element.
+
+        The element is placed in the active element set.
+
+        Example
+        -------
+        Active elements can then be assigned different properties such as loads
+        in one step.
+
+        .. code-block:: python
+
+            ...
+            >>> [elem.select() for elem in elements if elem.mat is mat1]
+            >>> p1 = Weight("W1", 1)
+            >>> p1.apply()  # assigns to all active elements
+        """
+        self.parent.select(self)
+
+    def unselect(self):
+        self.parent.unselect(self)
+
+    def is_active(self):
+        return self.parent.is_active(self)
+
     def __repr__(self):
         return "%s(%s, %s)" % (self.type, self.from_point.name,
                                self.to_point.name)
@@ -493,7 +518,7 @@ class Run(Piping):
 
         Note, the code flexibility factor is applied to the element for the
         bending directions. The stiffness is divided by the flexibility factor,
-        effectively making the element more flexible in the tranverse bending
+        effectively making the element more flexible in the transverse bending
         directions. The torsional stiffness is not altered.
         """
         kmat = np.zeros((12, 12), dtype=np.float64)
@@ -875,16 +900,12 @@ class ElementContainer(EntityContainer):
         self.Valve = Valve
         self.Flange = Flange
 
-        # selected object
+        # selected set of elements
         self._active_objects = set()
 
     @property
     def active_objects(self):
         return self._active_objects
-
-    @active_objects.setter
-    def active_objects(self, elements):
-        self._active_objects.update(elements)
 
     def _iter_all(self, typ):
         """Helper generator method"""
@@ -937,40 +958,18 @@ class ElementContainer(EntityContainer):
                     and val.to_point.name == to_point):
                 return val
 
-    def select(self, type_, item, *args):
-        """Select a subset of elements"""
+    def select(self, inst):
+        """Add the element instance to the active set"""
+        self._active_objects.update(inst)
 
-        if type_ == "all":
-            self._active_objects.clear()
-            self._active_objects.update(set(self._objects.values()))
+    def unselect(self, inst):
+        """Remove the element instance from the active set"""
+        self._active_objects.remove(inst)
 
-        elif type_ == "none":
-            self._active_objects.clear()
+    def is_active(self, inst):
+        """Check to see if the element is in the active set"""
+        return inst in self._active_objects
 
-        elif type_ == "invert":
-            selobjs = set(self._objects.values())
-            selset = set(selobjs).difference(self._active_objects)
-            if selset:
-                self._active_objects.clear()
-                self._active_objects.update(selset)
-
-        elif type_ == "s":
-            selset = set()
-            if item == "type":
-                for arg in args:
-                    for elem in self._objects.values():
-                        if isinstance(elem, arg):
-                            selset.add(elem)
-            elif item in "section":
-                for arg in args:
-                    for elem in self._objects.values():
-                        if elem.section == arg:
-                            selset.add(elem)
-            elif item in "material":
-                for arg in args:
-                    for elem in self._objects.values():
-                        if elem.material == arg:
-                            selset.add(elem)
-
-            self._active_objects.clear()
-            self._active_objects.update(selset)
+    def clear_active_objects(self):
+        """Clear the active set of elements"""
+        self._active_objects.clear()

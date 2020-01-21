@@ -177,7 +177,7 @@ class App(object):
         msg = ('Python %s\n'
                'Type "copyright", "credits" or "license" for more '
                'information.\n'
-               'PSI %s -- The pipe stress analysis and design program.\n' %
+               'PSI %s -- The pipe stress design and analysis program.\n' %
                (sys.version.split('\n')[0], psi.VERSION)
                )
 

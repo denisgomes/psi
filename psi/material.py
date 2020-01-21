@@ -425,7 +425,28 @@ class MaterialContainer(EntityContainer, ActiveEntityContainerMixin):
         self.Material = Material
 
     def apply(self, inst, elements=None):
-        """Apply a material to elements"""
+        """Apply a material to elements.
+
+        Parameters
+        ----------
+        inst : Material
+            An instance of a material.
+
+        elements : List of Elements
+            A list of elements.
+
+            .. note::
+                If elements is None, the active set of elements is used.
+
+        Example
+        ------
+        Create a material and assign it to all active elements.
+
+        .. code-block:: python
+
+            >>> mat1 = Material.from_file("A53A", "A53A", "B31.1")
+            >>> mat1.apply(p1)
+        """
         if elements is None:
             elements = []
 
