@@ -1,7 +1,28 @@
 """Pipe section property tests"""
 
+import pytest
 
-from .test_appsetup import app
+# from .test_appsetup import app
+
+from psi.app import App
+from psi.model import Model
+from psi.sections import Pipe
+
+
+@pytest.fixture(scope="module")
+def app():
+    """A cantilevered beam model"""
+
+    # parameter
+    L = 10*12
+
+    app = App()
+    mdl = Model('simple')
+
+    # properties
+    Pipe.from_file('PIPE1', '10', '40')
+
+    return app
 
 
 def test_od(app):

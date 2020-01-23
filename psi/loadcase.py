@@ -120,8 +120,29 @@ class Movements(object):
     vector.
 
     .. note::
-       The translation and rotation components are separated because they have
-       different units.
+       The translation and rotation components are seperately stored because
+       they have different units.
+
+    .. code-block: python
+
+        >>> r1.movements[pt10]          # returns all comps
+        >>> r1.movements[pt10][0:3]     # returns dx, dy, dz
+        >>> r1.movements[pt10][3:6]     # returns rx, ry, rz
+
+    Slices with strides can also be used such as:
+
+    .. code-block: python
+
+        >>> r1.movements[pt10][::2]     # returns dx, dz, ry
+
+    Data index and corresponding nodal displacement.
+
+    * 0 = dx
+    * 1 = dy
+    * 2 = dz
+    * 3 = rx
+    * 4 = ry
+    * 5 = rz
     """
 
     def __init__(self, app):
@@ -130,20 +151,7 @@ class Movements(object):
         self._rotation = Rotation()
 
     def __getitem__(self, item):
-        """Get nodal results.
-
-        .. code-block: python
-
-            >>> r1.movements[pt10]          # returns all comps
-            >>> r1.movements[pt10][0:3]     # returns dx, dy, dz
-            >>> r1.movements[pt10][3:6]     # returns rx, ry, rz
-
-        Slices with strides can also be used such as:
-
-        .. code-block: python
-
-            >>> r1.movements[pt10][::2]     # returns dx, dz, ry
-        """
+        """Get nodal results."""
         ndof = 6    # degrees of freedom per node
         if isinstance(item, Point):
             try:
@@ -244,6 +252,27 @@ class Reactions(object):
     .. note::
        The translation and rotation components are separated because they have
        different units.
+
+    .. code-block: python
+
+        >>> r1.reactions[pt10]          # returns all comps
+        >>> r1.reactions[pt10][0:3]     # returns dx, dy, dz
+        >>> r1.reactions[pt10][3:6]     # returns rx, ry, rz
+
+    Slices with strides can also be used such as:
+
+    .. code-block: python
+
+        >>> r1.reactions[pt10][::2]     # returns dx, dz, ry
+
+    Data index and corresponding nodal force/moment.
+
+    * 0 = fx
+    * 1 = fy
+    * 2 = fz
+    * 3 = mx
+    * 4 = my
+    * 5 = mz
     """
 
     def __init__(self, app):
@@ -252,20 +281,7 @@ class Reactions(object):
         self._moment = Moment()
 
     def __getitem__(self, item):
-        """Get nodal results.
-
-        .. code-block: python
-
-            >>> r1.reactions[pt10]          # returns all comps
-            >>> r1.reactions[pt10][0:3]     # returns dx, dy, dz
-            >>> r1.reactions[pt10][3:6]     # returns rx, ry, rz
-
-        Slices with strides can also be used such as:
-
-        .. code-block: python
-
-            >>> r1.reactions[pt10][::2]     # returns dx, dz, ry
-        """
+        """Get nodal results."""
         ndof = 6    # degrees of freedom per node
         if isinstance(item, Point):
             try:
@@ -307,6 +323,27 @@ class Forces(object):
     .. note::
        The translation and rotation components are separated because they have
        different units.
+
+    .. code-block: python
+
+        >>> r1.forces[pt10]          # returns all comps
+        >>> r1.forces[pt10][0:3]     # returns dx, dy, dz
+        >>> r1.forces[pt10][3:6]     # returns rx, ry, rz
+
+    Slices with strides can also be used such as:
+
+    .. code-block: python
+
+        >>> r1.forces[pt10][::2]     # returns dx, dz, ry
+
+    Data index and corresponding nodal force/moment.
+
+    * 0 = fx
+    * 1 = fy
+    * 2 = fz
+    * 3 = mx
+    * 4 = my
+    * 5 = mz
     """
 
     def __init__(self, app):
@@ -315,20 +352,7 @@ class Forces(object):
         self._moment = Moment()
 
     def __getitem__(self, item):
-        """Get nodal results.
-
-        .. code-block: python
-
-            >>> r1.forces[pt10]          # returns all comps
-            >>> r1.forces[pt10][0:3]     # returns dx, dy, dz
-            >>> r1.forces[pt10][3:6]     # returns rx, ry, rz
-
-        Slices with strides can also be used such as:
-
-        .. code-block: python
-
-            >>> r1.forces[pt10][::2]     # returns dx, dz, ry
-        """
+        """Get nodal results."""
         ndof = 6    # degrees of freedom per node
         if isinstance(item, Point):
             try:
@@ -468,7 +492,7 @@ class LoadComb(BaseCase):
                 * Algebriac - Disp/force results added vectorially. Stresses
                   are derived from the force results.
                 * Scalar - Disp/force/ results added vectorially similar to the
-                  algebraic method. Stresses are added together.
+                algebraic method. Stresses are added together.
                 * SRSS - Square root of the sum squared.
                 * Abs - Absolute summation.
                 * Signmax - Signed max.
@@ -497,7 +521,7 @@ class LoadComb(BaseCase):
     @property
     def movements(self):
         """Return the combined nodal displacement array."""
-        movements = Movements()
+        movements = Movements(self.app)
         movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
         for factor, loadcase in zip_longest(self.factors, self.loadcases,
@@ -523,7 +547,7 @@ class LoadComb(BaseCase):
     @property
     def reactions(self):
         """Return the combined nodal reaction array."""
-        reactions = Reactions()
+        reactions = Reactions(self.app)
         reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
         for factor, loadcase in zip_longest(self.factors, self.loadcases,
@@ -549,7 +573,7 @@ class LoadComb(BaseCase):
     @property
     def forces(self):
         """Return the combined nodal forces array."""
-        forces = Forces()
+        forces = Forces(self.app)
         forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
         for factor, loadcase in zip_longest(self.factors, self.loadcases,

@@ -71,8 +71,9 @@ class Code(Entity, ActiveEntityMixin):
 
 class B311(Code):
 
-    def __init__(self, name):
+    def __init__(self, name, year='1965'):
         super(B311, self).__init__(name)
+        self.year = year
 
     def thke(self):
         """Effective thickness used for stress calculations"""

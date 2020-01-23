@@ -1,7 +1,21 @@
 """Pipe material property tests"""
 
+# from .test_appsetup import app
+import pytest
 
-from .test_appsetup import app
+from psi.app import App
+from psi.model import Model
+from psi.material import Material
+
+@pytest.fixture(scope="module")
+def app():
+    app = App()
+    mdl = Model('simple')
+
+    # properties
+    Material.from_file('MAT1', 'A53A', 'B31.1')
+
+    return app
 
 
 def test_rho(app):
