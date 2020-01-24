@@ -123,7 +123,7 @@ class RigidSupport(Support):
     """
 
     def __init__(self, name, point, dircos=None, friction=None,
-                 is_rotational=False, is_directional=False, is_snubber=False,
+                 is_rotational=False, is_nonlinear=False, is_snubber=False,
                  translation_stiffness=1e12, rotation_stiffness=1e12,
                  gap=0):
         """Create a support instance at a node point.
@@ -145,8 +145,8 @@ class RigidSupport(Support):
         is_rotational : bool
             True if the support is a rotational restraint.
 
-        is_directional : bool
-            True if the support is a translational restraint.
+        is_nonlinear : bool
+            True if the support is a nonlinear restraint (i.e can liftoff)
 
         is_snubber : bool
             True if the support is snubber.
@@ -164,7 +164,7 @@ class RigidSupport(Support):
         self._dircos = dircos   # direction cosine
         self.friction = friction
         self.is_rotational = is_rotational
-        self.is_directional = is_directional
+        self.is_nonlinear = is_nonlinear
         self.is_snubber = is_snubber
 
         with units.Units(user_units="english"):
@@ -200,11 +200,21 @@ class GlobalX(RigidSupport):
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
 
-        if self.point == element.from_point.name:
-            f[0, 0] = self.translation_stiffness
+        if self.is_rotational:
 
-        elif self.point == element.to_point.name:
-            f[6, 0] = self.translation_stiffness
+            if self.point == element.from_point.name:
+                f[3, 0] = self.rotation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[9, 0] = self.rotation_stiffness
+
+        else:
+
+            if self.point == element.from_point.name:
+                f[0, 0] = self.translation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[6, 0] = self.translation_stiffness
 
         return f
 
@@ -214,11 +224,21 @@ class GlobalY(RigidSupport):
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
 
-        if self.point == element.from_point.name:
-            f[1, 0] = self.translation_stiffness
+        if self.is_rotational:
 
-        elif self.point == element.to_point.name:
-            f[7, 0] = self.translation_stiffness
+            if self.point == element.from_point.name:
+                f[4, 0] = self.rotation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[10, 0] = self.rotation_stiffness
+
+        else:
+
+            if self.point == element.from_point.name:
+                f[1, 0] = self.translation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[7, 0] = self.translation_stiffness
 
         return f
 
@@ -228,11 +248,21 @@ class GlobalZ(RigidSupport):
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
 
-        if self.point == element.from_point.name:
-            f[2, 0] = self.translation_stiffness
+        if self.is_rotational:
 
-        elif self.point == element.to_point.name:
-            f[8, 0] = self.translation_stiffness
+            if self.point == element.from_point.name:
+                f[5, 0] = self.rotation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[11, 0] = self.rotation_stiffness
+
+        else:
+
+            if self.point == element.from_point.name:
+                f[2, 0] = self.translation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[8, 0] = self.translation_stiffness
 
         return f
 
