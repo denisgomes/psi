@@ -23,7 +23,7 @@ from contextlib import redirect_stdout
 from jinja2 import Environment, FileSystemLoader
 
 from psi import TEMPLATE_DIRECTORY
-from psi.settings import options
+# from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.units import Quantity
@@ -73,7 +73,7 @@ class Movements(Report):
 
     def to_screen(self):
         """Print movement report results to screen."""
-        version = options["core.version"]
+        version = self.app.models.active_object.settings.version
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
         time = datetime.strftime(datetime.now(), "%I:%M %p")
@@ -115,7 +115,8 @@ class Reactions(Report):
 
     def to_screen(self):
         """Print reaction report results to screen."""
-        version = options["core.version"]
+        # version = options["core.version"]
+        version = self.app.models.active_object.settings.version
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
         time = datetime.strftime(datetime.now(), "%I:%M %p")
@@ -157,7 +158,8 @@ class Forces(Report):
 
     def to_screen(self):
         """Print forces report results to screen."""
-        version = options["core.version"]
+        # version = options["core.version"]
+        version = self.app.models.active_object.settings.version
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
         time = datetime.strftime(datetime.now(), "%I:%M %p")

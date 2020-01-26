@@ -67,8 +67,7 @@ class Support(Entity):
 class Anchor(Support):
     """Support with all 6 degrees of freedom at a node fixed."""
 
-    def __init__(self, name, point, translation_stiffness=1e12,
-                 rotation_stiffness=1e12):
+    def __init__(self, name, point):
         """Create an anchor support instance at a node point.
 
         Parameters
@@ -93,9 +92,10 @@ class Anchor(Support):
         """
         super(Anchor, self).__init__(name, point)
 
+        model = self.app.models.active_object
         with units.Units(user_units="english"):
-            self.translation_stiffness = translation_stiffness
-            self.rotation_stiffness = rotation_stiffness
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
 
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
@@ -124,7 +124,6 @@ class RigidSupport(Support):
 
     def __init__(self, name, point, dircos=None, friction=None,
                  is_rotational=False, is_nonlinear=False, is_snubber=False,
-                 translation_stiffness=1e12, rotation_stiffness=1e12,
                  gap=0):
         """Create a support instance at a node point.
 
@@ -167,24 +166,11 @@ class RigidSupport(Support):
         self.is_nonlinear = is_nonlinear
         self.is_snubber = is_snubber
 
+        model = self.app.models.active_object
         with units.Units(user_units="english"):
-            self.translation_stiffness = translation_stiffness
-            self.rotation_stiffness = rotation_stiffness
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
             self.gap = gap
-
-    @property
-    def stiffness(self):
-        if self.is_rotational is False:
-            return self.translation_stiffness
-        else:
-            return self.rotation_stiffness
-
-    @stiffness.setter
-    def stiffness(self, value):
-        if self.is_rotational is False:
-            self.translation_stiffness = value
-        else:
-            self.rotation_stiffness = value
 
     @property
     def direction(self):
@@ -331,9 +317,8 @@ class Displacement(Support):
     must be a number value so it is set to 0 by default
     """
 
-    def __init__(self, name, opercase, point,
-                 dx=0, dy=0, dz=0, rx=0, ry=0, rz=0,
-                 translation_stiffness=1e12, rotation_stiffness=1e12):
+    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
+                 rx=0, ry=0, rz=0):
         """Create a displacement support instance."""
         super(Displacement, self).__init__(name, point)
         self.opercase = opercase
@@ -343,8 +328,11 @@ class Displacement(Support):
         self.rx = rx
         self.ry = ry
         self.rz = rz
-        self.translation_stiffness = translation_stiffness
-        self.rotation_stiffness = rotation_stiffness
+
+        model = self.app.models.active_object
+        with units.Units(user_units="english"):
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
 
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)

@@ -7,7 +7,8 @@ from psi.app import App
 from psi.model import Model
 from psi.material import Material
 
-@pytest.fixture(scope="module")
+
+@pytest.fixture()
 def app():
     app = App()
     mdl = Model('simple')

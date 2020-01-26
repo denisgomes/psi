@@ -9,7 +9,7 @@ from psi.model import Model
 from psi.sections import Pipe
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def app():
     """A cantilevered beam model"""
 

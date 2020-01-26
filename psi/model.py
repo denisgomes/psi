@@ -21,7 +21,8 @@ import gzip
 import pickle
 import copy
 
-from psi.settings import options
+# from psi.settings import options
+from psi.settings import Configuration
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
@@ -47,7 +48,8 @@ class Model(Entity, ActiveEntityMixin):
         """
         self._jobname = None
 
-        self._settings = copy.deepcopy(options)
+        self._config = Configuration()
+
         self._geometry = Geometry()
 
         # internal containers
@@ -88,7 +90,7 @@ class Model(Entity, ActiveEntityMixin):
     @property
     def settings(self):
         """Get the settings dictionary"""
-        return self._settings
+        return self._config
 
     @property
     def geometry(self):
@@ -220,37 +222,6 @@ class Model(Entity, ActiveEntityMixin):
         """Return the parent ModelContainer instance"""
         return self.app.models
 
-    @property
-    def units(self):
-        """Get the current model units"""
-        return self._settings["core.units"]
-
-    @units.setter
-    def units(self, name):
-        """Set the current model units"""
-        self.app.units.set_user_units(name)
-        self._settings["core.units"] = name
-
-    @property
-    def vertical(self):
-        """Get the vertical direction"""
-        return self._settings["core.vertical"]
-
-    @vertical.setter
-    def vertical(self, value):
-        """Set the vertical direction"""
-        self._settings["core.vertical"] = value
-
-    @property
-    def tref(self):
-        """Get the reference temperature"""
-        return self._settings["core.tref"]
-
-    @tref.setter
-    def tref(self, value):
-        """Set the reference temperature"""
-        self._settings["core.tref"] = value
-
     def close(self):
         """Close the model instance"""
         self.parent.close(self)
@@ -283,6 +254,9 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         """
         with gzip.open(fname, 'rb') as fp:
             name, inst = pickle.load(fp)   # model instance
+
+            # the user units should be set here
+            ##
             self.new(name, inst)
             inst.activate()
 

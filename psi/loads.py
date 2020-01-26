@@ -147,7 +147,7 @@ class Weight(Load):
         L = element.length
 
         # the vertical direction
-        vert = self.app.models.active_object.settings["core.vertical"]
+        vert = self.app.models.active_object.settings.vertical
 
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
@@ -245,12 +245,12 @@ class Pressure(Load):
 
         # pressure thrust force - elongation
         ft = 0
-        if self.app.models.active_object.settings["core.pressure_thrust"]:
+        if self.app.models.active_object.settings.pressure_thrust:
             ft = self.thrust(element)
 
         # bourdon effect - shortening
         fb = 0
-        if self.app.models.active_object.settings["core.bourdon_effect"]:
+        if self.app.models.active_object.settings.bourdon_effect:
             fb = self.bourdon(element)
 
         f[:, 0] = [-ft+fb, 0, 0, 0, 0, 0,

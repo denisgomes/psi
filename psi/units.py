@@ -31,7 +31,7 @@ import csv
 from pint import UnitRegistry
 
 from psi import UNITS_DIRECTORY
-from psi.settings import options
+# from psi.settings import options
 
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
@@ -106,13 +106,26 @@ class Quantity(object):
 
 
 class UnitsContextManagerMixin(object):
-    """Allows for any units to be used within a specific code section"""
+    """Allows for any units to be used within a specific code section.
+
+    For object attributes that are defined using the units.define decorator,
+    this manager allows for redefining those attributes using any other unit
+    system in the units directory.
+
+    .. note::
+        An active model must already be set before this context manger can be
+        used.
+    """
 
     def __enter__(self):
         self.set_user_units(self.user_units)
 
     def __exit__(self, type, value, traceback):
-        name = self.app.models.active_object.units
+        try:
+            name = self.app.models.active_object.units
+        except AttributeError:
+            # a model object is not active
+            name = "english"
         self.set_user_units(name)
 
 
@@ -147,7 +160,8 @@ class Units(UnitsContextManagerMixin):
     def set_user_units(self, name=None):
         """Load user defined units"""
         if name is None:
-            name = options["core.units"]
+            # english by default
+            name = "english"
 
         self.user_units = name
         Quantity.user_units.update(self.load_units_file(name))

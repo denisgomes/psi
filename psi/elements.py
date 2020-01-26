@@ -477,7 +477,7 @@ class Run(Piping):
         global x (this is arbitrary) and the local z is the cross product of
         local x with local y.
         """
-        up = self.app.models.active_object.settings["core.vertical"]
+        up = self.app.models.active_object.settings.vertical
         # note, local y is being set to a global direction
         if up == "y":
             local_y = np.array([0., 1., 0.], dtype=np.float64)

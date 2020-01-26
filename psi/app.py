@@ -19,6 +19,7 @@
 import sys
 import code
 import psi
+from psi.settings import Configuration
 from psi.entity import Entity, EntityContainer
 from psi.model import ModelContainer
 from psi.point import PointManager
@@ -64,7 +65,8 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
-        Units._app = self
+        Configuration._app = self
+
         self.units = Units()
 
         # pass app to objects/containers

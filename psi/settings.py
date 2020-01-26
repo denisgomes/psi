@@ -16,56 +16,105 @@
 
 """Default application settings.
 
-When a model is first saved or when model options are saved, the application
-settings are saved as model settings. Application settings are settings that
-reside on the application side whereas model settings are transfered via the
-saved file. The model settings, if one exists are merged with the application
-settings when a model is opened. The model settings are then used for the
-remainder of the session.
+A configuration object is created when a model is first instantiated. The
+program will use the model settings defined in the configuration instance.
 
-Applications settings and model settings may diverge over the course of time
-due to different versions. When the software is update new application settings
-will be merged onto the model settings to ensure, backwards compatibility
-between version.
+Application and model settings may diverge over time due to different versions.
+When the software is updated new application settings will be merged onto the
+model settings to ensure backwards compatibility between version. Note that
+application settings in this context are the settings in this file with respect
+to the latest version of the software.
 """
 
 from psi import VERSION
+from psi import units
 
 
-class Options:
-    # Options should be encapsulated to associate units and default values
-    pass
+@units.define(weak_spring_stiffness="translation_stiffness",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness",
+              tref="temperature")
+class Configuration:
+    """Default model settings.
 
+    Paramaters
+    ----------
+    units : str
+        Define the model units. 'english' by default.
 
-options = {
-    # units systems, options: ("english", "si")
-    "core.units": "english",
+    vertical : str
+        Define the vertical direction for the model.
 
-    # vertical direction, options: ("y", "z")
-    "core.vertical": "y",
+    stress_case_corroded : bool
+        Use reduced thickness to evaluate pipe stresses. Reduced pipe wall is
+        not used for sections property calculations.
 
-    # for corrosion allowance and mill tolerance, reduced thickness
-    # is considered for stress calculations
-    "core.stress_cases_corroded": False,
+    bourdon_effect : bool
+        Include bourdon effects.
 
-    # activate bourdon pressure effect
-    "core.bourdon_effect": False,
+    pressure_thrust : bool
+        Include pressure thrust effects.
 
-    # include pressure thrust
-    "core.pressure_thrust": False,
+    weak_springs : bool
+        Include weak springs for numerical stability.
 
-    # program version
-    "core.version": VERSION,
-}
+    weak_spring_stiffness : float
+        Stiffness used for modeling weak springs.
 
-options_types = {}
+    translation_stiffness : float
+        Support stiffness used in the translation directions.
 
+    rotation_stiffness : float
+        Support stiffness used in the rotation directions.
 
-def validate(settings):
-    """Validate all settings"""
-    pass
+    tref : float
+        Reference temperture used for thermal expansion calculations.
 
+    version : str
+        Latest software version.
+    """
 
-def merge(settings):
-    """Merge application settings with model settings"""
-    pass
+    _app = None
+
+    @property
+    def app(self):
+        return self._app
+
+    def __init__(self, default_units="english"):
+        with units.Units(user_units=default_units):
+            self._units = default_units
+            self.vertical = "y"
+            self.stress_case_corroded = True
+            self.bourdon_effect = False
+            self.pressure_thrust = False
+            self.weak_springs = True
+            self.weak_spring_stiffness = 1.0e2
+            self.translation_stiffness = 1.0e12
+            self.rotation_stiffness = 1.0e12
+            self.tref = 70.0
+            self.version = VERSION
+
+    @property
+    def units(self):
+        return self._units
+
+    @units.setter
+    def units(self, value):
+        self._units = value
+        self.app.units.set_user_units(value)
+
+    def export(self, fname):
+        """Export the current model settings"""
+        pass
+
+    def import_(self, fname):
+        """Import settings from an outside source"""
+        pass
+
+    def merge(self, other):
+        """Merge configuration settings from another configuration"""
+        pass
+
+    def validate(self, other):
+        """Determine that the configuation types are consistant"""
+        pass
