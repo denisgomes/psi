@@ -20,7 +20,7 @@ A configuration object is created when a model is first instantiated. The
 program will use the model settings defined in the configuration instance.
 
 Application and model settings may diverge over time due to different versions.
-When the software is updated new application settings will be merged onto the
+When the software is updated new application settings will be merged with the
 model settings to ensure backwards compatibility between version. Note that
 application settings in this context are the settings in this file with respect
 to the latest version of the software.
@@ -30,20 +30,19 @@ from psi import VERSION
 from psi import units
 
 
-@units.define(weak_spring_stiffness="translation_stiffness",
-              translation_stiffness="translation_stiffness",
+@units.define(translation_stiffness="translation_stiffness",
               rotation_stiffness="rotation_stiffness",
               tref="temperature")
 class Configuration:
     """Default model settings.
 
-    Paramaters
+    Parameters
     ----------
     units : str
         Define the model units. 'english' by default.
 
     vertical : str
-        Define the vertical direction for the model.
+        Define the vertical direction for the model. 'y' by default.
 
     stress_case_corroded : bool
         Use reduced thickness to evaluate pipe stresses. Reduced pipe wall is
@@ -57,9 +56,6 @@ class Configuration:
 
     weak_springs : bool
         Include weak springs for numerical stability.
-
-    weak_spring_stiffness : float
-        Stiffness used for modeling weak springs.
 
     translation_stiffness : float
         Support stiffness used in the translation directions.
@@ -88,7 +84,6 @@ class Configuration:
             self.bourdon_effect = False
             self.pressure_thrust = False
             self.weak_springs = True
-            self.weak_spring_stiffness = 1.0e2
             self.translation_stiffness = 1.0e12
             self.rotation_stiffness = 1.0e12
             self.tref = 70.0
@@ -104,7 +99,7 @@ class Configuration:
         self.app.units.set_user_units(value)
 
     def export(self, fname):
-        """Export the current model settings"""
+        """Export th)e current model settings"""
         pass
 
     def import_(self, fname):

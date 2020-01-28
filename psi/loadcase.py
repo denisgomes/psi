@@ -492,7 +492,7 @@ class LoadComb(BaseCase):
                 * Algebriac - Disp/force results added vectorially. Stresses
                   are derived from the force results.
                 * Scalar - Disp/force/ results added vectorially similar to the
-                algebraic method. Stresses are added together.
+                  algebraic method. Stresses are added together.
                 * SRSS - Square root of the sum squared.
                 * Abs - Absolute summation.
                 * Signmax - Signed max.

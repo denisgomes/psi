@@ -16,6 +16,7 @@
 
 """Static, modal and dynamic solvers."""
 
+import math
 import sys
 import logging
 from contextlib import redirect_stdout
@@ -24,6 +25,11 @@ import numpy as np
 
 from psi.loadcase import LoadCase
 from psi import units
+
+
+def order(n):
+    """Return the order of magnitude of a number n"""
+    return math.floor(math.log10(n))
 
 
 def static(model):
@@ -197,7 +203,29 @@ def static(model):
     #     print(Ks)
 
     tqdm.info("*** Solving system equations for displacements.")
-    X = np.linalg.solve(Ks, Fs)
+
+    try:
+        X = np.linalg.solve(Ks, Fs)
+
+    except np.linalg.LinAlgError:
+        # introduce weak springs
+        if model.settings.weak_springs:
+            tqdm.info("*** Singular stiffness matrix, using weak springs.")
+
+            di = np.diag_indices_from(Ks)   # Ks is square
+
+            # support stiffness is reduced by 75% order of magnitude
+            trans_order = order(model.settings.translation_stiffness) * 0.75
+            rota_order = order(model.settings.rotation_stiffness) * 0.75
+
+            weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
+            weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order
+            weak_spring_arr[3::3] = model.settings.rotation_stiffness * 10**-rota_order
+
+            # apply small stiffness to diagonals for numerical stability
+            Ks[di] += weak_spring_arr
+
+            X = np.linalg.solve(Ks, Fs)
 
     # with redirect_stdout(sys.__stdout__):
     #     print(X)

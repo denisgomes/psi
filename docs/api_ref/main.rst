@@ -14,6 +14,7 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 .. toctree::
 
     overview
+    settings
     entity
     model
     elements
