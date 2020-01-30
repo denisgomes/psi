@@ -13,6 +13,8 @@ from psi.supports import Anchor, GlobalX, GlobalY, GlobalZ
 from psi.loads import Force
 from psi.loadcase import LoadCase
 
+from .utils import compare
+
 
 @pytest.fixture()
 def app():
@@ -68,15 +70,15 @@ def test_anchor(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert round(L1.reactions[pt10][1]) == 10000
-    assert round(L1.reactions[pt10][5]) == 100000
+    assert compare(L1.reactions[pt10][1], 10000)
+    assert compare(L1.reactions[pt10][5], 100000)
 
     # check reaction due to fx
-    assert round(L2.reactions[pt10][0]) == 10000
+    assert compare(L2.reactions[pt10][0], 10000)
 
     # check reaction due to fz
-    assert round(L3.reactions[pt10][2]) == 10000
-    assert round(L3.reactions[pt10][4]) == -100000
+    assert compare(L3.reactions[pt10][2], 10000)
+    assert compare(L3.reactions[pt10][4], -100000)
 
 
 def test_global_y(app):
@@ -120,8 +122,8 @@ def test_global_y(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert round(L1.reactions[pt10][1]) == 5000
-    assert round(L1.reactions[pt20][1]) == 5000
+    assert compare(L1.reactions[pt10][1], 5000)
+    assert compare(L1.reactions[pt20][1], 5000)
 
     # check max moment at the middle
-    assert round(L1.forces[pt15][5]) == -25000
+    assert compare(L1.forces[pt15][5], -25000)

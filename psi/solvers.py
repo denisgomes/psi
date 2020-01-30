@@ -27,7 +27,7 @@ from psi.loadcase import LoadCase
 from psi import units
 
 
-def order(n):
+def order_of_mag(n):
     """Return the order of magnitude of a number n"""
     return math.floor(math.log10(n))
 
@@ -215,8 +215,8 @@ def static(model):
             di = np.diag_indices_from(Ks)   # Ks is square
 
             # support stiffness is reduced by 75% order of magnitude
-            trans_order = order(model.settings.translation_stiffness) * 0.75
-            rota_order = order(model.settings.rotation_stiffness) * 0.75
+            trans_order = order_of_mag(model.settings.translation_stiffness) * 0.75
+            rota_order = order_of_mag(model.settings.rotation_stiffness) * 0.75
 
             weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
             weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order

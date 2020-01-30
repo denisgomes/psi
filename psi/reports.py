@@ -23,7 +23,6 @@ from contextlib import redirect_stdout
 from jinja2 import Environment, FileSystemLoader
 
 from psi import TEMPLATE_DIRECTORY
-# from psi.settings import options
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.units import Quantity

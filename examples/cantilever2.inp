@@ -19,11 +19,11 @@ anc1 = Anchor('A1', 10)
 anc1.apply([run20])
 
 # loads
-f1 = Force('f1', 30, fy=-10000)
+f1 = Force('f1', 1, 30, fy=-10000)
 f1.apply([run30])
 
 # loadcases
-l1 = LoadCase('L1', 'SUS', [f1])
+l1 = LoadCase('l1', 'sus', [Force], [1])
 
 # code
 b311 = B311('B311')
@@ -32,5 +32,5 @@ b311.apply([run20, run30])
 mdl.analyze()
 
 # results
-# disp = results.Displacement(l1)
-# disp.to_text('disp.out')
+disp = Movements('r1', [l1])
+disp.to_screen()
