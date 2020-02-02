@@ -273,11 +273,14 @@ def static(model):
             Fi[niqi:niqj, i] = fi[:6, 0]
             Fi[njqi:njqj, i] = fi[6:12, 0]
 
+            # calculate code stresses per element
+            # here
+
     tqdm.info("*** Writing loadcase results data.")
     for i, loadcase in enumerate(model.loadcases):
         # load combs are combined later
         if isinstance(loadcase, LoadCase):
-            # X[:, i], R[:, i] and Fi[:, i] are row vectors
+            # X[:, i], R[:, i] and Fi[:, i] return row vectors
             loadcase.movements.results = X[:, i]
             loadcase.reactions.results = R[:, i]
             loadcase.forces.results = Fi[:, i]

@@ -516,6 +516,9 @@ class Run(Piping):
         elements with the expection of bends and reducers are derived from a
         run. The stiffness is a function of the temperature.
 
+        sfac is used for Rigid types only so that the thickness for these types
+        can be increased by a factor of 10.
+
         Note, the code flexibility factor is applied to the element for the
         bending directions. The stiffness is divided by the flexibility factor,
         effectively making the element more flexible in the transverse bending

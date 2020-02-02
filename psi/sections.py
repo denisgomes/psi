@@ -184,18 +184,18 @@ class Pipe(Section):
 
     @property
     def thke(self):
-        """The effective wall thickness used for stress calcultions when
-        corrosion and mill tolerance are taken into consideration. Both the
-        pressure and bending stresses are affected, if the code calls for it.
-        For example B31.1 does not require that the effective thickness be used
-        for stress calculation.
+        """The effective wall thickness used for stress calcultions when the
+        corrosion allowance and mill tolerance are taken into consideration.
+        Both the pressure and bending stresses are affected, if the code calls
+        for it.  For example B31.1 does not require that the effective
+        thickness be used for stress calculation.
 
-        Only used for code stress calculations and as a result, the stress will
-        be higher. This wall is not, however, used for the stiffness
-        calculations, since a lighter wall will result in lower loads and
-        ultimately give less conservative stress values. In other words, the
-        actual thickness is used for the moment of inertia and area of pipe
-        formulations.
+        Only used for code stress calculations and as a result will generate
+        higher stresses. The reduced wall is not used for pipe weight or
+        stiffness calculations, since a lighter and more flexible wall will
+        result in lower loads and ultimately give less conservative stress
+        values. In other words, the actual thickness is used for the moment of
+        inertia and area of pipe formulations.
 
         Depending on the code, the mill tolerance may be included for hoop
         stress calculation only to ensure the proper min wall was specified by
@@ -203,11 +203,12 @@ class Pipe(Section):
         """
         nomthk = effthk = self.thk
 
+        # order matters, do mill tolerance reduction first
+        if self.milltol:   # pos or neg
+            effthk -= (self.milltol/100.0) * nomthk
+
         if self.corra:
             effthk -= self.corra
-
-        if self.milltol:   # pos or neg
-            effthk += (self.milltol/100.0) * nomthk
 
         return effthk
 
@@ -255,6 +256,14 @@ class Pipe(Section):
         do = self.od
         di = self.od - 2*self.thk
         return (pi/32) * (do**4 - di**4)
+
+    @property
+    def z(self):
+        """Section modulus of pipe.
+
+        Same in both directions due to symmetry.
+        """
+        return self.izz * (self.od/2)
 
     @property
     def is_thin_wall(self):

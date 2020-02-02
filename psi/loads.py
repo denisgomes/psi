@@ -36,8 +36,12 @@ For multiple loads use the LoadContainer apply method:
     >>> loads.apply([L1, L2, ..., LN], element_list)
 
 .. note::
-    An element can have multiple loads of the same type. However each load
-    must be of a different operating case.
+    An element can have multiple loads of the same type however each load must
+    be of a different operating case. This applies to loads that are operating
+    case dependent such as Thermal and Pressure. Forces on the other hand do
+    not have to be opercase dependent. This is not enforced by the program at
+    the moment so an element can have two Weight loads defined for the same
+    operating case, in which the effect of the weights will added together.
 """
 
 from __future__ import division
@@ -59,14 +63,6 @@ class Load(Entity):
     def __init__(self, name, opercase):
         super(Load, self).__init__(name)
         self.opercase = opercase
-
-    def _key(self):
-        """Key used for equality and hashing.
-
-        .. note::
-            A load is uniquely defined by type, name and **opercase**.
-        """
-        return (self.type, self.name, self.opercase)
 
     @property
     def parent(self):
@@ -119,7 +115,7 @@ class Weight(Load):
         self.gfac = gfac
 
     def pipe(self, element):
-        """Pipe component weight
+        """Pipe component weight.
 
         Parameters
         ----------
@@ -223,8 +219,9 @@ class Pressure(Load):
     def bourdon(self, element):
         """The force due to the Bourdon effect.
 
-        The axial shortening of piping due to the internal pressure. This is
-        a byproduct of the poisson's ratio effect.
+        The axial shortening of piping due to the internal pressure. This is a
+        byproduct of the poisson's ratio effect. This effect is present for
+        underground and unrestrained piping.
         """
         pipe = element.section
         mat = element.material

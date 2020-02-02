@@ -49,7 +49,7 @@ from psi import units
 
 
 @units.define(_values="length")
-class Translation(object):
+class Translation:
     """Translation components of the displacement row vector.
 
     .. note::
@@ -83,7 +83,7 @@ class Translation(object):
 
 
 @units.define(_values="rotation")
-class Rotation(object):
+class Rotation:
     """Rotation components of the displacement row vector.
 
     .. note::
@@ -115,7 +115,7 @@ class Rotation(object):
         self._values = rxyz.flatten().reshape((-1, 1))
 
 
-class Movements(object):
+class Movements:
     """Both the translation and rotation components of the displacement row
     vector.
 
@@ -188,7 +188,7 @@ class Movements(object):
 
 
 @units.define(_values="force")
-class Force(object):
+class Force:
     """Translation components of the force row vector.
 
     .. note::
@@ -218,7 +218,7 @@ class Force(object):
 
 
 @units.define(_values="moment_output")
-class Moment(object):
+class Moment:
     """Rotation components of the force row vector.
 
     .. note::
@@ -246,7 +246,7 @@ class Moment(object):
         self._values = mxyz.flatten().reshape((-1, 1))
 
 
-class Reactions(object):
+class Reactions:
     """Support reaction loads.
 
     .. note::
@@ -317,7 +317,7 @@ class Reactions(object):
         self._moment.results = data
 
 
-class Forces(object):
+class Forces:
     """Member internal forces and moments.
 
     .. note::
@@ -388,6 +388,96 @@ class Forces(object):
         self._moment.results = data
 
 
+units.define(_values="stress")
+class Stress:
+    """Element hoop stress due to pressure"""
+
+    @property
+    def results(self):
+        return self._values
+
+    @results.setter
+    def results(self, data):
+        """Convert row to column vector"""
+        self._values = data.flatten().reshape((-1, 1))
+
+
+units.define(_values="stress")
+class Shoop(Stress):
+    """Element hoop stress due to pressure"""
+    pass
+
+
+units.define(_values="stress")
+class Slp(Stress):
+    """Element longitudinal stress due to pressure"""
+    pass
+
+
+units.define(_values="stress")
+class Slb(Stress):
+    """Element longitudinal stress due to bending"""
+    pass
+
+
+units.define(_values="stress")
+class Stor(Stress):
+    """Element torsional stress"""
+    pass
+
+
+units.define(_values="stress")
+class Sax(Stress):
+    """Element axial (F/A) stress"""
+    pass
+
+
+units.define(_values="stress")
+class Scode(Stress):
+    """Element code stress at a node"""
+    pass
+
+
+class Stresses:
+
+    def __init__(self, app):
+        self._app = app
+        self._shoop = Shoop()
+        self._slp = Slp()
+        self._slb = Slb()
+        self._stor = Stor()
+        self._sax = Sax()
+        self._sifi = None
+        self._sifo = None
+        self._scode = Scode()
+        self._sratio = None
+
+    def __getitem__(self, item):
+        """Get nodal results."""
+        ndof = 6    # degrees of freedom per node
+        if isinstance(item, Point):
+            try:
+                model = self._app.models.active_object
+                idxi = list(model.points).index(item)
+                niqi, niqj = idxi*ndof, idxi*ndof + ndof
+
+                # note that .results is a column vector
+                return self.results[niqi:niqj, 0]
+            except:
+                raise ValueError("node is not in results array")
+
+        else:
+            raise ValueError("value not found")
+
+    @property
+    def results(self):
+        pass
+
+    @results.setter
+    def results(data):
+        pass
+
+
 class BaseCase(Entity):
 
     def __init__(self, name, stype="sus"):
@@ -408,7 +498,7 @@ class LoadCase(BaseCase):
 
     .. note::
         The loads for a given case must be unique. In other words, the same
-        load cannot be specified twice. A equality check is performed based
+        load cannot be specified twice. An equality check is performed based
         on the load type, name and operating case it belongs to.
     """
 
@@ -423,6 +513,7 @@ class LoadCase(BaseCase):
         self._movements = Movements(self.app)
         self._reactions = Reactions(self.app)
         self._forces = Forces(self.app)
+        self._stresses = Stresses(self.app)
 
     @property
     def movements(self):
@@ -442,7 +533,7 @@ class LoadCase(BaseCase):
     @property
     def stresses(self):
         """Return the nodal stress results array."""
-        raise NotImplementedError("implement")
+        return self._stresses
 
     @property
     def label(self):
