@@ -269,12 +269,18 @@ def static(model):
             # x is the element local displacements
             fi = kel @ (T @ _x)
 
-            # internal force and moment matrix
-            Fi[niqi:niqj, i] = fi[:6, 0]
-            Fi[njqi:njqj, i] = fi[6:12, 0]
+            # internal force and moment matrix at node i and j
+            (fxi, fyi, fzi, mxi, myi, mzi) = Fi[niqi:niqj, i] = fi[:6, 0]
+            (fxj, fyj, fzj, mxj, myj, mzj) = Fi[njqi:njqj, i] = fi[6:12, 0]
 
-            # calculate code stresses per element
-            # here
+            # code stresses per element, equations are unit dependent
+            A = element.section.area
+            Z = element.section.z
+            J = element.seciton.ixx
+            do = element.section.od
+
+            saxi = fxi / A          # axial stress
+            stor = mxi*do / (2*J)   # torsion stress
 
     tqdm.info("*** Writing loadcase results data.")
     for i, loadcase in enumerate(model.loadcases):
