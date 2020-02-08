@@ -168,8 +168,8 @@ def static(model):
             # with redirect_stdout(sys.__stdout__):
             #     print(loadcase)
 
+            # sum of all loads in a primary/primitive loadcase
             if isinstance(loadcase, LoadCase):
-                # sum of all loads in a primary loadcase
                 feg = np.zeros((en*ndof, 1), dtype=np.float64)
 
                 for loadtype, opercase in loadcase.loads:
@@ -183,12 +183,12 @@ def static(model):
                             pass
                             # otherwise print a warning
 
-                # assemble global system force matrix
+                # assemble global system force matrix per loadcase
                 Fs[niqi:niqj, i] += feg[:6, 0]
                 Fs[njqi:njqj, i] += feg[6:12, 0]
 
             # large stiffness added to each force matrix component with
-            # non-zero support displacements
+            # non-zero support displacements, again per loadcase
             # NOTE: this only applies to Displacement supports, for all
             # others dsup is 0 and so added stiffness is also 0
             for support in element.supports:
@@ -207,7 +207,7 @@ def static(model):
     try:
         X = np.linalg.solve(Ks, Fs)
 
-    except np.linalg.LinAlgError:
+    except np.linalg.LinAlgError as nplaerr:
         # introduce weak springs
         if model.settings.weak_springs:
             tqdm.info("*** Singular stiffness matrix, using weak springs.")
@@ -227,6 +227,8 @@ def static(model):
 
             X = np.linalg.solve(Ks, Fs)
 
+        raise nplaerr
+
     # with redirect_stdout(sys.__stdout__):
     #     print(X)
 
@@ -245,6 +247,7 @@ def static(model):
 
         # element local stiffness and transformation matrix
         kel = element.klocal(294.2611)
+
         T = element.T()
 
         # nodal displacement vector per loadcase
@@ -270,17 +273,8 @@ def static(model):
             fi = kel @ (T @ _x)
 
             # internal force and moment matrix at node i and j
-            (fxi, fyi, fzi, mxi, myi, mzi) = Fi[niqi:niqj, i] = fi[:6, 0]
-            (fxj, fyj, fzj, mxj, myj, mzj) = Fi[njqi:njqj, i] = fi[6:12, 0]
-
-            # code stresses per element, equations are unit dependent
-            A = element.section.area
-            Z = element.section.z
-            J = element.seciton.ixx
-            do = element.section.od
-
-            saxi = fxi / A          # axial stress
-            stor = mxi*do / (2*J)   # torsion stress
+            Fi[niqi:niqj, i] = fi[:6, 0]
+            Fi[njqi:njqj, i] = fi[6:12, 0]
 
     tqdm.info("*** Writing loadcase results data.")
     for i, loadcase in enumerate(model.loadcases):
@@ -296,8 +290,60 @@ def static(model):
     #     print(R)
     #     print(Fi)
 
-    tqdm.info("*** Analysis complete!\n")
+    # switch back to user units - analysis is complete
     model.app.units.enable()
+
+    tqdm.info("*** Performing element code checking.")
+    # code stres, [sl, sallow, ratio] per each row
+    S = np.zeros((nn, 3, lc), dtype=np.float64)
+
+    for element in model.elements:
+        idxi = points.index(element.from_point)
+        idxj = points.index(element.to_point)
+
+        # node and corresponding dof (start, finish)
+        niqi, niqj = idxi*ndof, idxi*ndof + ndof
+        njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+        for i, loadcase in enumerate(model.loadcases):
+            # load combs are combined later
+            if isinstance(loadcase, LoadCase):
+
+                with units.Units(user_units="code_english"):
+                    fori = loadcase.reactions.results[niqi:niqj, 0]
+                    forj = loadcase.reactions.results[njqi:njqj, 0]
+
+                    # code stresses per element node i and j for each loadcase
+                    sli = element.code.Sl(element, loadcase, fori)
+                    slj = element.code.Sl(element, loadcase, forj)
+                    sallowi = element.code.Sallow(element, loadcase, fori)
+                    sallowj = element.code.Sallow(element, loadcase, forj)
+
+                    try:
+                        sratioi = sli / sallowi  # code ratio at node i
+                        sratioj = slj / sallowj  # code ratio at node j
+                    except ZeroDivisionError:
+                        sratioi = 0
+                        sratioj = 0
+
+                    with redirect_stdout(sys.__stdout__):
+                        print(sli, slj)
+
+                    # take the worst code stress at node
+                    if sratioi > S[idxi, 2, i]:
+                        S[idxi, :3, i] = sli, sallowi, sratioi
+
+                    if sratioj > S[idxj, 2, i]:
+                        S[idxj, :3, i] = slj, sallowj, sratioj
+
+                    # TODO : Implement Ma, Mb and Mc calculation loads
+                    # for each loadcase when Ma is for sustained, Mb is
+                    # for occasional and Mc is for expansion type loads
+                    # This applies to code stress calculations only
+
+    tqdm.info("*** Code checking complete.\n")
+
+    tqdm.info("*** Analysis complete!\n")
 
 
 def modal(model):

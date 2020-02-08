@@ -54,6 +54,9 @@ class Configuration:
     pressure_thrust : bool
         Include pressure thrust effects.
 
+    liberal_stress : bool
+        Use liberal stress allowable for expansion stresses.
+
     weak_springs : bool
         Include weak springs for numerical stability.
 
@@ -83,6 +86,7 @@ class Configuration:
             self.stress_case_corroded = True
             self.bourdon_effect = False
             self.pressure_thrust = False
+            self.liberal_stress = False
             self.weak_springs = True
             self.translation_stiffness = 1.0e12
             self.rotation_stiffness = 1.0e12
@@ -99,7 +103,7 @@ class Configuration:
         self.app.units.set_user_units(value)
 
     def export(self, fname):
-        """Export th)e current model settings"""
+        """Export the current model settings"""
         pass
 
     def import_(self, fname):

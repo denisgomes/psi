@@ -22,6 +22,7 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
 from psi.loads import (Weight, Pressure, Thermal)
+from psi import units
 
 
 class Code(Entity, ActiveEntityMixin):
@@ -97,8 +98,8 @@ class Code(Entity, ActiveEntityMixin):
         """Element thermal stress allowable"""
         raise NotImplementedError("implement")
 
-    def get_max_temp(self, element, loadcase):
-        """Convenience function to get the largest element temperature for
+    def get_max_tload(self, element, loadcase):
+        """Convenience function to get the largest element temperature load for
         a particular operating case.
         """
         for loadtype, opercase in loadcase.loads:
@@ -107,17 +108,16 @@ class Code(Entity, ActiveEntityMixin):
             thermals.sort(key=lambda x: x.temp, reverse=True)
 
         try:
-            thermal = thermals[0]
-            temp = thermal.temp
+            tload = thermals[0]
         except IndexError:
-            # pressure load not defined
-            temp = 0
+            # thermal load not defined
+            tload = None
 
-        return temp
+        return tload
 
-    def get_max_pres(self, element, loadcase):
-        """Convenience function to get the largest element pressure for
-        a particular operating case.
+    def get_max_pload(self, element, loadcase):
+        """Convenience function to get the largest element pressure load for a
+        particular operating case.
         """
         # pressure load specified for loadcase and opercase sorted by maximum
         for loadtype, opercase in loadcase.loads:
@@ -130,13 +130,12 @@ class Code(Entity, ActiveEntityMixin):
         # the element, then proceed to take the max worst pressure
 
         try:
-            pressure = pressures[0]
-            pres = pressure.pres
+            pload = pressures[0]
         except IndexError:
             # pressure load not defined
-            pres = 0
+            pload = None
 
-        return pres
+        return pload
 
 
 class B311(Code):
@@ -154,7 +153,7 @@ class B311(Code):
         super(B311, self).__init__(name)
         self.year = year
         self.k = 1.15    # usage factor
-        self.f = 0.80    # fatigue cycle
+        self.f = 0.90    # fatigue reduction factor
 
     def sifi(self, element):
         """In plane stress intensification factor"""
@@ -182,83 +181,110 @@ class B311(Code):
         """Longitudinal stress due to pressure.
 
         Exact formulation for the pressure stress per code section 102.3.2.
-        The pressure stress is a primary stress and by definition can result in
-        large gross deformations and overall failure, i.e., pipe rupture.
+        The pressure stress is a primary stress and by definition can result
+        in large gross deformations and overall failure, i.e., pipe rupture.
         """
-        section = element.section
+        with units.Units(user_units="code_english"):
+            section = element.section
+            do = section.od
+            di = section.id_
 
-        do = section.od
-        di = section.id_
+            pload = self.get_max_pload(element, loadcase)
 
-        p = self.get_max_pres(element, loadcase)
+            # exact formulation
+            try:
+                return pload.pres*di**2 / (do**2-di**2)
+            except AttributeError:
+                return 0
 
-        # use the exact formulation
-        return p*di**2 / (do**2-di**2)
-
-    def Slb(self, element, moments):
+    def Slb(self, element, forces):
         """Longitudinal stress due to bending moments."""
-        section = element.section
-        Z = section.z   # section modulus
+        with units.Units(user_units="code_english"):
+            my, mz = forces[-2:]
+            M = math.sqrt(my**2 + mz**2)
 
-        _, my, mz = moments
-        M = math.sqrt(my**2 + mz**2)
+            # note for B31.1 sifi equals sifo
+            i = self.sifi(element)
 
-        # note for B31.1 sifi and sifo are the same
-        i = self.sifi(element)
+            section = element.section
+            Z = section.z   # section modulus
 
-        return M*i / Z
+            return M*i / Z
 
-    def Stor(self, element, moments):
+    def Stor(self, element, forces):
         """Shear stress due to torsion"""
-        section = element.section
-        do = section.od
-        ip = section.ixx    # polar moment
+        with units.Units(user_units="code_english"):
+            mx = forces[3]
 
-        mx, _, _ = moments
+            section = element.section
+            do = section.od
+            Ip = section.ixx    # polar moment
 
-        return mx*do / (2*ip)
+            return mx*do / (2*Ip)
 
-    def Sax(self, element, loadcase):
+    def Sax(self, element, loadcase, forces):
         """Axial stress due to mechanical loading.
 
         Axial stress can be included by user defined option otherwise zero by
         default.
         """
-        return 0
+        with units.Units(user_units="code_english"):
+            fx = forces[0]
 
-    def Sl(self, element, loadcase, moments):
+            section = element.section
+            area = section.area
+
+            return fx/area
+
+    def Sl(self, element, loadcase, forces):
         """Total longitudinal stress due to pressure and bending+torsion"""
+        with units.Units(user_units="code_english"):
+            slp = self.Slp(element, loadcase)
+            slb = self.Slb(element, forces)
+            stor = self.Stor(element, forces)
 
-        slp = self.Slp(element, loadcase)
-        slb = self.Slb(element, moments)
-        stor = self.Stor(element, moments)
+            if loadcase.stype == "sus" or loadcase.stype == "occ":
+                return slp + math.sqrt(slb**2 + 4*stor**2)
+            elif loadcase.stype == "exp":
+                return math.sqrt(slb**2 + 4*stor**2)
+            else:
+                return 0
 
-        if loadcase.stype == "sus" or loadcase.stype == "occ":
-            return slp + math.sqrt(slb**2 + 4*stor**2)
-
-        elif loadcase.stype == "exp":
-            return math.sqrt(slb**2 + 4*stor**2)
-
-    def Sallow(self, element, loadcase):
+    def Sallow(self, element, loadcase, forces):
         """Allowable stress for sustained, occasional and expansion loadcases.
 
         Liberal stress can be excluded for the expansion case by user defined
         option otherwise enabled by default per code.
         """
         material = element.material
-        temp = self.get_max_temp(element, loadcase)
+        tload = self.get_max_tload(element, loadcase)
 
-        if loadcase.stype == "sus":
-            return material.sh[temp]
+        with units.Units(user_units="code_english"):
+            try:
+                temp = tload.temp
+                tref = tload.tref
+            except AttributeError:
+                temp = 70   # fahrenheit
+                tref = 70
 
-        elif loadcase.stype == "occ":
-            # k factor is 1.15 for events lasting 8hrs or less and
-            # 1.20 for 1hr or less per code para. 102.3.3, use 1.15 to
-            # be conservative
-            return self.k * material.sh[temp]
+            sh = material.sh[temp]
+            sc = material.sh[tref]
 
-        elif loadcase.stype == "exp":
-            pass
+            if loadcase.stype == "sus":
+                return sh
+            elif loadcase.stype == "occ":
+                # k factor is 1.15 for events lasting 8hrs or less and
+                # 1.20 for 1hr or less per code para. 102.3.3, use 1.15 to
+                # be conservative
+                return self.k * sh
+            elif loadcase.stype == "exp":
+                liberal_stress = 0
+                if self.app.models.active_object.settings.liberal_stress:
+                    liberal_stress = sh - self.Sl(element, loadcase, forces)
+
+                return self.f * (1.25*sc + 0.25*sh + liberal_stress)
+            else:
+                return 0
 
 
 class CodeContainer(EntityContainer, ActiveEntityContainerMixin):

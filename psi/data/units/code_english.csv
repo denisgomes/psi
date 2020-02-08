@@ -1,0 +1,2 @@
+length,rotation,force,mass,moment_input,moment_output,stress,temperature,pressure,elastic_modulus,pipe_density,insulation_density,fluid_density,translation_stiffness,rotation_stiffness,uniform_load,wind_load,elevation,g_load,diameter,thickness,expansion_coefficient
+inch,deg,lbf,pound,inch*lbf,inch*lbf,psi,degF,psi,psi,pound/inch**3,pound/inch**3,pound/inch**3,lbf/inch,inch*lbf/deg,lbf/inch,lbf/ft**2,ft,gravity,inch,inch,1/degF

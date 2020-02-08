@@ -26,7 +26,7 @@ p1 = Pressure('P1', 1, 250)
 p1.apply([run20])
 
 # define a loadcase
-l1 = LoadCase('l1', 'ope', [Weight, Pressure], [1, 1])
+l1 = LoadCase('l1', 'sus', [Weight, Pressure], [1, 1])
 
 # code
 b311 = B311('B311')

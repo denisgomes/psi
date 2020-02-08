@@ -55,6 +55,10 @@ class Section(Entity, ActiveEntityMixin):
     def izz(self):
         pass
 
+    @abstractproperty
+    def z(self):
+        pass
+
 
 @units.define(od="length", thk="length")
 class Pipe(Section):
@@ -140,7 +144,7 @@ class Pipe(Section):
             diameters are the same.
 
         thk : float
-            Pipe wall thickness.
+            Pipe wall thickness, ie. the nominal.thickness.
 
         corro :  float
             Corrosion allowance (CA).
@@ -187,7 +191,7 @@ class Pipe(Section):
         """The effective wall thickness used for stress calcultions when the
         corrosion allowance and mill tolerance are taken into consideration.
         Both the pressure and bending stresses are affected, if the code calls
-        for it.  For example B31.1 does not require that the effective
+        for it. For example B31.1 does not require for the reduced effective
         thickness be used for stress calculation.
 
         Only used for code stress calculations and as a result will generate
@@ -259,11 +263,25 @@ class Pipe(Section):
 
     @property
     def z(self):
-        """Section modulus of pipe.
+        """Classical section modulus of pipe.
 
-        Same in both directions due to symmetry.
+        For pipes the section modulus is the same in both directions due to
+        symmetry.
         """
-        return self.izz * (self.od/2)
+        return self.izz / (self.od/2)
+
+    @property
+    def zi(self):
+        """For reduced outlet intersections, i.e. tees with small branch od to
+        run od.
+
+        The reduced section modulus is used to calculate stresses at tee points
+        with varying run and branch pipe.
+        """
+        rm = (self.od-self.thk) / 2     # mean radius
+        tn = self.thk                   # nominal thickness
+
+        return pi * rm**2 * tn
 
     @property
     def is_thin_wall(self):
