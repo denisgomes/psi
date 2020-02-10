@@ -293,9 +293,9 @@ def static(model):
     # switch back to user units - analysis is complete
     model.app.units.enable()
 
-    tqdm.info("*** Performing element code checking.")
-    # code stres, [sl, sallow, ratio] per each row
-    S = np.zeros((nn, 3, lc), dtype=np.float64)
+    tqdm.info("*** Element code checking.")
+
+    S = np.zeros((nn, 10, lc), dtype=np.float64)
 
     for element in model.elements:
         idxi = points.index(element.from_point)
@@ -314,10 +314,26 @@ def static(model):
                     forj = loadcase.reactions.results[njqi:njqj, 0]
 
                     # code stresses per element node i and j for each loadcase
-                    sli = element.code.Sl(element, loadcase, fori)
-                    slj = element.code.Sl(element, loadcase, forj)
-                    sallowi = element.code.Sallow(element, loadcase, fori)
-                    sallowj = element.code.Sallow(element, loadcase, forj)
+                    shoop = element.code.shoop(element, loadcase)
+
+                    saxi = element.code.sax(element, loadcase, fori)
+                    saxj = element.code.sax(element, loadcase, forj)
+
+                    stori = element.code.stor(element, fori)
+                    storj = element.code.stor(element, forj)
+
+                    slp = element.code.slp(element, loadcase)
+
+                    slbi = element.code.slb(element, fori)
+                    slbj = element.code.slb(element, forj)
+
+                    sli = element.code.sl(element, loadcase, fori)
+                    slj = element.code.sl(element, loadcase, forj)
+
+                    sif = element.code.sifi(element)
+
+                    sallowi = element.code.sallow(element, loadcase, fori)
+                    sallowj = element.code.sallow(element, loadcase, forj)
 
                     try:
                         sratioi = sli / sallowi  # code ratio at node i
@@ -326,15 +342,19 @@ def static(model):
                         sratioi = 0
                         sratioj = 0
 
-                    with redirect_stdout(sys.__stdout__):
-                        print(sli, slj)
-
+                    # header
+                    # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
                     # take the worst code stress at node
                     if sratioi > S[idxi, 2, i]:
-                        S[idxi, :3, i] = sli, sallowi, sratioi
+                        S[idxi, :10, i] = (shoop, saxi, stori, slp, slbi, sli,
+                                           sif, sif, sallowi, sratioi)
 
                     if sratioj > S[idxj, 2, i]:
-                        S[idxj, :3, i] = slj, sallowj, sratioj
+                        S[idxj, :10, i] = (shoop, saxj, storj, slp, slbj, slj,
+                                           sif, sif, sallowj, sratioj)
+
+                    # with redirect_stdout(sys.__stdout__):
+                    #     print(S)
 
                     # TODO : Implement Ma, Mb and Mc calculation loads
                     # for each loadcase when Ma is for sustained, Mb is
@@ -342,6 +362,13 @@ def static(model):
                     # This applies to code stress calculations only
 
     tqdm.info("*** Code checking complete.\n")
+
+    tqdm.info("*** Writing code check results data.")
+    for i, loadcase in enumerate(model.loadcases):
+        # load combs are combined later
+        if isinstance(loadcase, LoadCase):
+            # X[:, i], R[:, i] and Fi[:, i] return row vectors
+            loadcase.stresses.results = S[:, :, i]
 
     tqdm.info("*** Analysis complete!\n")
 

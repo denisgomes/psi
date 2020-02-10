@@ -41,3 +41,6 @@ disp.to_screen()
 
 reac = Reactions('r2', [l1])
 reac.to_screen()
+
+stress = Stresses('r3', [l1])
+stress.to_screen()

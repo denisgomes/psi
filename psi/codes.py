@@ -78,23 +78,23 @@ class Code(Entity, ActiveEntityMixin):
         """Element hoop stress due to pressure"""
         raise NotImplementedError("implement")
 
-    def Slp(self, element, loadcase):
+    def slp(self, element, loadcase):
         """Element longitudinal stress due to pressure"""
         raise NotImplementedError("implement")
 
-    def Slb(self, element, loadcase):
+    def slb(self, element, loadcase):
         """Element longitudinal stress due to bending"""
         raise NotImplementedError("implement")
 
-    def Stor(self, element, loadcase):
+    def stor(self, element, loadcase):
         """Element torsional stress"""
         raise NotImplementedError("implement")
 
-    def Sax(self, element, loadcase):
+    def sax(self, element, loadcase):
         """Element axial stress due to structural loading"""
         raise NotImplementedError("implement")
 
-    def Sallow(self, element, loadcase):
+    def sallow(self, element, loadcase):
         """Element thermal stress allowable"""
         raise NotImplementedError("implement")
 
@@ -170,14 +170,14 @@ class B311(Code):
         if isinstance(element, Run):
             return 1.0
 
-    def Shoop(self, element, loadcase):
+    def shoop(self, element, loadcase):
         """Hoop stress due to pressure.
 
         Equal to two times the longitudinal stress due to pressure.
         """
-        return 2 * self.Slp(element, loadcase)
+        return 2 * self.slp(element, loadcase)
 
-    def Slp(self, element, loadcase):
+    def slp(self, element, loadcase):
         """Longitudinal stress due to pressure.
 
         Exact formulation for the pressure stress per code section 102.3.2.
@@ -191,13 +191,13 @@ class B311(Code):
 
             pload = self.get_max_pload(element, loadcase)
 
-            # exact formulation
             try:
+                # exact formulation
                 return pload.pres*di**2 / (do**2-di**2)
             except AttributeError:
                 return 0
 
-    def Slb(self, element, forces):
+    def slb(self, element, forces):
         """Longitudinal stress due to bending moments."""
         with units.Units(user_units="code_english"):
             my, mz = forces[-2:]
@@ -211,7 +211,7 @@ class B311(Code):
 
             return M*i / Z
 
-    def Stor(self, element, forces):
+    def stor(self, element, forces):
         """Shear stress due to torsion"""
         with units.Units(user_units="code_english"):
             mx = forces[3]
@@ -222,35 +222,41 @@ class B311(Code):
 
             return mx*do / (2*Ip)
 
-    def Sax(self, element, loadcase, forces):
+    def sax(self, element, loadcase, forces):
         """Axial stress due to mechanical loading.
 
-        Axial stress can be included by user defined option otherwise zero by
+        Axial stress can be included by user defined option. Force is zero by
         default.
         """
-        with units.Units(user_units="code_english"):
-            fx = forces[0]
+        sx = 0  # code default
 
-            section = element.section
-            area = section.area
+        if self.app.models.active_object.settings.axial_force:
+            with units.Units(user_units="code_english"):
+                fx = forces[0]
 
-            return fx/area
+                section = element.section
+                area = section.area
 
-    def Sl(self, element, loadcase, forces):
+                sx = fx/area
+
+        return sx
+
+    def sl(self, element, loadcase, forces):
         """Total longitudinal stress due to pressure and bending+torsion"""
         with units.Units(user_units="code_english"):
-            slp = self.Slp(element, loadcase)
-            slb = self.Slb(element, forces)
-            stor = self.Stor(element, forces)
+            slp = self.slp(element, loadcase)
+            slb = self.slb(element, forces)
+            sax = self.sax(element, loadcase, forces)
+            stor = self.stor(element, forces)
 
             if loadcase.stype == "sus" or loadcase.stype == "occ":
-                return slp + math.sqrt(slb**2 + 4*stor**2)
+                return sax + slp + math.sqrt(slb**2 + 4*stor**2)
             elif loadcase.stype == "exp":
                 return math.sqrt(slb**2 + 4*stor**2)
             else:
                 return 0
 
-    def Sallow(self, element, loadcase, forces):
+    def sallow(self, element, loadcase, forces):
         """Allowable stress for sustained, occasional and expansion loadcases.
 
         Liberal stress can be excluded for the expansion case by user defined
@@ -273,14 +279,14 @@ class B311(Code):
             if loadcase.stype == "sus":
                 return sh
             elif loadcase.stype == "occ":
-                # k factor is 1.15 for events lasting 8hrs or less and
-                # 1.20 for 1hr or less per code para. 102.3.3, use 1.15 to
-                # be conservative
+                # # k factor is 1.15 for events lasting 8hrs or less and 1.20
+                # for 1hr or less per code para. 102.3.3, use 1.15 to be
+                # conservative
                 return self.k * sh
             elif loadcase.stype == "exp":
-                liberal_stress = 0
+                liberal_stress = 0  # default
                 if self.app.models.active_object.settings.liberal_stress:
-                    liberal_stress = sh - self.Sl(element, loadcase, forces)
+                    liberal_stress = sh - self.sl(element, loadcase, forces)
 
                 return self.f * (1.25*sc + 0.25*sh + liberal_stress)
             else:

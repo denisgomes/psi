@@ -179,7 +179,45 @@ class Forces(Report):
 
 class Stresses(Report):
     """Code stress output results"""
-    pass
+
+    def __init__(self, name, loadcases):
+        """Create a forces report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
+        super(Stresses, self).__init__(name, loadcases)
+
+        if len(loadcases) == 1:
+            self.template = self.env.get_template("single_case_stresses")
+        else:
+            self.template = self.env.get_template("multiple_case_stresses")
+
+    def to_screen(self):
+        """Print forces report results to screen."""
+        # version = options["core.version"]
+        version = self.app.models.active_object.settings.version
+        date = datetime.now().date()
+        jobname = self.app.models.active_object.jobname
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
+
+        with redirect_stdout(sys.__stdout__):
+            print(self.template.render(version=version,
+                                       date=date,
+                                       time=time,
+                                       jobname=jobname,
+                                       licensed_to="Community",
+                                       report_type=self.__class__.__name__,
+                                       report_desc="Stress Report",
+                                       units=Quantity.user_units,
+                                       loadcases=self.loadcases,
+                                       zip=zip,     # pass zip
+                                       ))
 
 
 class ReportContainer(EntityContainer, ActiveEntityContainerMixin):

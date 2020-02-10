@@ -421,6 +421,12 @@ class Slb(Stress):
 
 
 units.define(_values="stress")
+class Sl(Stress):
+    """Total element longitudinal stress"""
+    pass
+
+
+units.define(_values="stress")
 class Stor(Stress):
     """Element torsional stress"""
     pass
@@ -433,7 +439,7 @@ class Sax(Stress):
 
 
 units.define(_values="stress")
-class Scode(Stress):
+class Sallow(Stress):
     """Element code stress at a node"""
     pass
 
@@ -443,13 +449,14 @@ class Stresses:
     def __init__(self, app):
         self._app = app
         self._shoop = Shoop()
+        self._sax = Sax()
+        self._stor = Stor()
         self._slp = Slp()
         self._slb = Slb()
-        self._stor = Stor()
-        self._sax = Sax()
+        self._sl = Sl()
         self._sifi = None
         self._sifo = None
-        self._scode = Scode()
+        self._sallow = Sallow()
         self._sratio = None
 
     def __getitem__(self, item):
@@ -471,11 +478,34 @@ class Stresses:
 
     @property
     def results(self):
-        pass
+        shoop = self._shoop.results
+        sax = self._sax.results
+        stor = self._stor.results
+        slp = self._slp.results
+        slb = self._slb.results
+        sl = self._sl.results
+        sifi = self._sifi
+        sifo = self._sifo
+        sallow = self._sallow
+        sratio = self._sratio
+
+        data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio)
+        values = np.array(list(data), dtype=np.float64)
+
+        return values
 
     @results.setter
-    def results(data):
-        pass
+    def results(self, data):
+        self._shoop.results = data[:, 0]
+        self._sax.results = data[:, 1]
+        self._stor.results = data[:, 2]
+        self._slp.results = data[:, 3]
+        self._slb.results = data[:, 4]
+        self._sl.results = data[:, 5]
+        self._sifi = data[:, 6]
+        self._sifo = data[:, 7]
+        self._sallow = data[:, 8]
+        self._sratio = data[:, 9]
 
 
 class BaseCase(Entity):

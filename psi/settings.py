@@ -66,6 +66,10 @@ class Configuration:
     rotation_stiffness : float
         Support stiffness used in the rotation directions.
 
+    axial_force : bool
+        Include axial force due to structural loading for code stress
+        calculations.
+
     tref : float
         Reference temperture used for thermal expansion calculations.
 
@@ -90,6 +94,7 @@ class Configuration:
             self.weak_springs = True
             self.translation_stiffness = 1.0e12
             self.rotation_stiffness = 1.0e12
+            self.axial_force = False
             self.tref = 70.0
             self.version = VERSION
 
