@@ -102,10 +102,13 @@ class Code(Entity, ActiveEntityMixin):
         """Convenience function to get the largest element temperature load for
         a particular operating case.
         """
+        thermals = []
         for loadtype, opercase in loadcase.loads:
-            thermals = [load for load in element.loads if isinstance(load,
-                        Thermal) and load.opercase==opercase]
-            thermals.sort(key=lambda x: x.temp, reverse=True)
+            for load in element.loads:
+                if isinstance(load, Thermal) and load.opercase==opercase:
+                    thermals.append(load)
+
+        thermals.sort(key=lambda x: x.temp, reverse=True)
 
         try:
             tload = thermals[0]
@@ -120,10 +123,13 @@ class Code(Entity, ActiveEntityMixin):
         particular operating case.
         """
         # pressure load specified for loadcase and opercase sorted by maximum
+        pressures = []
         for loadtype, opercase in loadcase.loads:
-            pressures = [load for load in element.loads if isinstance(load,
-                         Pressure) and load.opercase==opercase]
-            pressures.sort(key=lambda x: x.pres, reverse=True)
+            for load in element.loads:
+                if isinstance(load, Pressure) and load.opercase==opercase:
+                    pressures.append(load)
+
+        pressures.sort(key=lambda x: x.pres, reverse=True)
 
         # if length of pressures is greater than one, print warning message
         # saying multiple pressure loads exist for the same operating case for

@@ -629,7 +629,6 @@ class LoadComb(BaseCase):
                If a factor is not given, a default value of 1 is used. Also,
                the number of factors must match the number of loadcases.
         """
-
         super(LoadComb, self).__init__(name, stype)
         self.method = method
         self.loadcases = OrderedSet()

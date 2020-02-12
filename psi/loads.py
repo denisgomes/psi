@@ -55,6 +55,7 @@ import numpy as np
 
 import psi
 from psi.entity import Entity, EntityContainer
+from psi.elements import Rigid
 from psi import units
 
 
@@ -93,7 +94,9 @@ class Load(Entity):
 
 @units.define(gfac="g_load")
 class Weight(Load):
-    """The element weight load."""
+    """The element weight load. Includes pipe, insulation, cladding and
+    refractory weights.
+    """
 
     label = "W"
 
@@ -135,9 +138,25 @@ class Weight(Load):
         except:
             return 0.0
 
+    def cladding(self, element):
+        """Weight of cladding based on thickness"""
+        return 0    # implement
+
+    def refractory(self, element):
+        """Weight of refractory based on thickness"""
+        return 0    # implement
+
     def total(self, element):
-        """Total weight of piping element"""
-        return self.pipe(element) + self.insulation(element)
+        """Total weight of piping element.
+
+        If the weight is set to zero for rigid elements all terms are also
+        zero.
+        """
+        if isinstance(element, Rigid) and element.weight == 0:
+            return 0
+
+        return (self.pipe(element) + self.insulation(element) +
+                self.cladding(element) + self.refractory(element))
 
     def flocal(self, element):
         L = element.length
@@ -318,6 +337,10 @@ class Thermal(Load):
         # larger E produces larger force and displacement
         fa = (E*A) * (alp*delT)
 
+        # thermal effect turned off for rigids
+        if isinstance(element, Rigid) and not element.include_thermal:
+            fa = 0
+
         # with redirect_stdout(sys.__stdout__):
         #     print(E)
         #     print(delT)
@@ -378,6 +401,10 @@ class Fluid(Load):
         # note that for riser piping the fluid weigth in the column can be
         # larger because the water does not stick to the pipe
         wx = wy = wz = self.weight(element) / L
+
+        # fluid weight effect turned off for rigids
+        if isinstance(element, Rigid) and not element.include_fluid:
+            wx = wy = wx = 0
 
         f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
                    -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]

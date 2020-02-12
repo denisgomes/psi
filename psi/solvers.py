@@ -345,11 +345,11 @@ def static(model):
                     # header
                     # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
                     # take the worst code stress at node
-                    if sratioi > S[idxi, 2, i]:
+                    if sratioi > S[idxi, -1, i]:
                         S[idxi, :10, i] = (shoop, saxi, stori, slp, slbi, sli,
                                            sif, sif, sallowi, sratioi)
 
-                    if sratioj > S[idxj, 2, i]:
+                    if sratioj > S[idxj, -1, i]:
                         S[idxj, :10, i] = (shoop, saxj, storj, slp, slbj, slj,
                                            sif, sif, sallowj, sratioj)
 

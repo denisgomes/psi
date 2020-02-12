@@ -281,18 +281,30 @@ class Piping(Element):
         raise NotImplementedError("abstract method")
 
     def mass(self):
+        """Pipe element mass"""
         mass = (self.material.rho.value * self.section.area *
                 self.geometry.length)
+
         return mass
 
     def insulation_mass(self):
+        """Insulation mass"""
         dins = self.section.od + 2*self.insulation.thk
         do = self.section.od
         insulation_area = (pi/4) * (dins**2-do**2)
 
         mass = (self.insulation.rho * insulation_area *
                 self.geometry.length)
+
         return mass
+
+    def refractory_mass(self):
+        """Mass of refractory"""
+        raise NotImplementedError("implement")
+
+    def cladding_mass(self):
+        """Mass of cladding"""
+        raise NotImplementedError("implement")
 
     def delete(self):
         """Deleting an element other than a run has the effect of converting to
@@ -848,6 +860,8 @@ class Rigid(Run):
         super(Rigid, self).__init__(point, dx, dy, dz, from_point, section,
                                     material, insulation, code)
         self.weight = weight
+        self.include_thermal = True     # include temperature
+        self.include_fluid = True
 
     def mass(self, accel):
         """The mass is returned since the weight is a user defined parameter
@@ -856,13 +870,20 @@ class Rigid(Run):
         return self.weight / accel
 
     def klocal(self, temp, sfac=10.0):
+        """The thickness of rigid elements are multiplied by a factor of 10."""
         return super(Rigid, self).klocal(temp, sfac)
 
     def kglobal(self, temp, sfac=10.0):
+        """The thickness of rigid elements are multiplied by a factor of 10."""
         return super(Rigid, self).kglobal(temp, sfac)
 
 
 class Valve(Rigid):
+    """A valve is a rigid element with a user defined weight.
+
+    User defined weights can be loaded from a data file. Insulation and pipe
+    cladding weight is multiplied by 1.75 to account for additional material.
+    """
 
     @classmethod
     def from_file(cls, point, dx, dy=0, dz=0, rating=150, valve_type="gate",
@@ -870,6 +891,13 @@ class Valve(Rigid):
                   material=None, insulation=None, code=None):
         """Select a valve from a data file"""
         raise NotImplementedError("implement")
+
+    def insulation_mass(self):
+        """Valves have more insulation to cover surface area."""
+        return 1.75 * super(Valve, self).insulation_mass()
+
+    def cladding_mass(self):
+        raise 1.75 * super(Valve, self).cladding_mass()
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
                  section=None, material=None, insulation=None, code=None):
@@ -885,6 +913,13 @@ class Flange(Rigid):
                   material=None, insulation=None, code=None):
         """Select a flange from a data file"""
         raise NotImplementedError("implement")
+
+    def insulation_mass(self):
+        """Flanges have more insulation to cover surface area."""
+        return 1.75 * super(Flange, self).insulation_mass()
+
+    def cladding_mass(self):
+        raise 1.75 * super(Flange, self).cladding_mass()
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
                  section=None, material=None, insulation=None, code=None):
