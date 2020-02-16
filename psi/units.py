@@ -26,7 +26,9 @@ finally analyzed in base units.
 """
 
 import os
+import sys
 import csv
+from contextlib import redirect_stdout
 
 from pint import UnitRegistry
 
@@ -35,6 +37,9 @@ from psi import UNITS_DIRECTORY
 
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
+
+
+DEFAULT_UNITS = "english"
 
 
 class Quantity(object):
@@ -118,15 +123,22 @@ class UnitsContextManagerMixin(object):
     """
 
     def __enter__(self):
-        self.set_user_units(self.user_units)
+        """Save the current active units being used and change units to new
+        system.
+        """
+        try:
+            self.__user_units = self.app.models.active_object.settings.units
+            self.app.models.active_object.settings.units = self.user_units
+        except AttributeError:
+            self.__user_units = DEFAULT_UNITS
 
     def __exit__(self, type, value, traceback):
+        """Restore the previous system of units"""
         try:
-            name = self.app.models.active_object.units
+            self.set_user_units(self.__user_units)
+            self.app.models.active_object.settings.units = self.__user_units
         except AttributeError:
-            # a model object is not active
-            name = "english"
-        self.set_user_units(name)
+            pass
 
 
 class Units(UnitsContextManagerMixin):

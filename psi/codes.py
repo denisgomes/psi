@@ -17,12 +17,14 @@
 """Implementation of different piping codes"""
 
 import math
+import sys
 
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
 from psi.loads import (Weight, Pressure, Thermal)
 from psi import units
+from contextlib import redirect_stdout
 
 
 class Code(Entity, ActiveEntityMixin):
@@ -102,46 +104,48 @@ class Code(Entity, ActiveEntityMixin):
         """Convenience function to get the largest element temperature load for
         a particular operating case.
         """
-        thermals = []
-        for loadtype, opercase in loadcase.loads:
-            for load in element.loads:
-                if isinstance(load, Thermal) and load.opercase==opercase:
-                    thermals.append(load)
+        with units.Units(user_units="code_english"):
+            thermals = []
+            for loadtype, opercase in loadcase.loads:
+                for load in element.loads:
+                    if isinstance(load, Thermal) and load.opercase==opercase:
+                        thermals.append(load)
 
-        thermals.sort(key=lambda x: x.temp, reverse=True)
+            thermals.sort(key=lambda x: x.temp, reverse=True)
 
-        try:
-            tload = thermals[0]
-        except IndexError:
-            # thermal load not defined
-            tload = None
+            try:
+                tload = thermals[0]
+            except IndexError:
+                # thermal load not defined
+                tload = None
 
-        return tload
+            return tload
 
     def get_max_pload(self, element, loadcase):
         """Convenience function to get the largest element pressure load for a
         particular operating case.
         """
-        # pressure load specified for loadcase and opercase sorted by maximum
-        pressures = []
-        for loadtype, opercase in loadcase.loads:
-            for load in element.loads:
-                if isinstance(load, Pressure) and load.opercase==opercase:
-                    pressures.append(load)
+        with units.Units(user_units="code_english"):
+            # pressure load specified for loadcase and opercase sorted by maximum
+            pressures = []
+            for loadtype, opercase in loadcase.loads:
+                for load in element.loads:
+                    if isinstance(load, Pressure) and load.opercase==opercase:
+                        pressures.append(load)
 
-        pressures.sort(key=lambda x: x.pres, reverse=True)
+            pressures.sort(key=lambda x: x.pres, reverse=True)
 
-        # if length of pressures is greater than one, print warning message
-        # saying multiple pressure loads exist for the same operating case for
-        # the element, then proceed to take the max worst pressure
+            # if length of pressures is greater than one, print warning message
+            # saying multiple pressure loads exist for the same operating case for
+            # the element, then proceed to take the max worst pressure
 
-        try:
-            pload = pressures[0]
-        except IndexError:
-            # pressure load not defined
-            pload = None
+            try:
+                pload = pressures[0]
+            except IndexError:
+                # pressure load not defined
+                pload = None
 
-        return pload
+            return pload
 
 
 class B311(Code):
@@ -268,10 +272,10 @@ class B311(Code):
         Liberal stress can be excluded for the expansion case by user defined
         option otherwise enabled by default per code.
         """
-        material = element.material
-        tload = self.get_max_tload(element, loadcase)
-
         with units.Units(user_units="code_english"):
+            material = element.material
+            tload = self.get_max_tload(element, loadcase)
+
             try:
                 temp = tload.temp
                 tref = tload.tref

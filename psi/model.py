@@ -46,9 +46,8 @@ class Model(Entity, ActiveEntityMixin):
 
             >>> mdl = Model("mdl1")
         """
-        self._jobname = None
-
         self._config = Configuration()
+        self._jobname = None
 
         self._geometry = Geometry()
 
@@ -76,6 +75,7 @@ class Model(Entity, ActiveEntityMixin):
 
         super(Model, self).__init__(name)   # call last
         self.activate()     # activate on init
+
 
     @property
     def jobname(self):

@@ -310,6 +310,9 @@ def static(model):
             if isinstance(loadcase, LoadCase):
 
                 with units.Units(user_units="code_english"):
+                    # Note: Units are changed to code_english for the moments
+                    # to have units of inch*lbf per code requirement
+
                     fori = loadcase.reactions.results[niqi:niqj, 0]
                     forj = loadcase.reactions.results[njqi:njqj, 0]
 

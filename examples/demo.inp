@@ -34,6 +34,7 @@ b311.apply([run20])
 
 # run the analysis
 mdl.analyze()
+mdl.settings.units = 'si'
 
 # postprocess
 disp = Movements('r1', [l1])

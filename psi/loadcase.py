@@ -388,7 +388,7 @@ class Forces:
         self._moment.results = data
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Stress:
     """Element hoop stress due to pressure"""
 
@@ -402,44 +402,44 @@ class Stress:
         self._values = data.flatten().reshape((-1, 1))
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Shoop(Stress):
     """Element hoop stress due to pressure"""
     pass
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Slp(Stress):
     """Element longitudinal stress due to pressure"""
     pass
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Slb(Stress):
     """Element longitudinal stress due to bending"""
     pass
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Sl(Stress):
     """Total element longitudinal stress"""
     pass
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Stor(Stress):
     """Element torsional stress"""
     pass
 
 
-units.define(_values="stress")
+@units.define(_values="stress")
 class Sax(Stress):
     """Element axial (F/A) stress"""
     pass
 
 
-units.define(_values="stress")
-class Sallow(Stress):
+@units.define(result="stress")
+class Sallow:
     """Element code stress at a node"""
     pass
 
@@ -486,7 +486,7 @@ class Stresses:
         sl = self._sl.results
         sifi = self._sifi
         sifo = self._sifo
-        sallow = self._sallow
+        sallow = self._sallow.result
         sratio = self._sratio
 
         data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio)
@@ -504,7 +504,7 @@ class Stresses:
         self._sl.results = data[:, 5]
         self._sifi = data[:, 6]
         self._sifo = data[:, 7]
-        self._sallow = data[:, 8]
+        self._sallow.result = data[:, 8]
         self._sratio = data[:, 9]
 
 

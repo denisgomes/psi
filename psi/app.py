@@ -65,11 +65,10 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
-        Configuration._app = self
-
         self.units = Units()
 
-        # pass app to objects/containers
+        # pass app to class objects/containers
+        Configuration._app = self
         Entity._app = self
         EntityContainer._app = self
 

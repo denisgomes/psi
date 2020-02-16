@@ -287,6 +287,10 @@ class Piping(Element):
 
         return mass
 
+    def cladding_mass(self):
+        """Mass of cladding"""
+        raise NotImplementedError("implement")
+
     def insulation_mass(self):
         """Insulation mass"""
         dins = self.section.od + 2*self.insulation.thk
@@ -300,10 +304,6 @@ class Piping(Element):
 
     def refractory_mass(self):
         """Mass of refractory"""
-        raise NotImplementedError("implement")
-
-    def cladding_mass(self):
-        """Mass of cladding"""
         raise NotImplementedError("implement")
 
     def delete(self):
@@ -906,6 +906,7 @@ class Valve(Rigid):
 
 
 class Flange(Rigid):
+    """A flanged piping connections"""
 
     @classmethod
     def from_file(cls, point, dx, dy=0, dz=0, rating=150,

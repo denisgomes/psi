@@ -28,6 +28,7 @@ to the latest version of the software.
 
 from psi import VERSION
 from psi import units
+from psi.units import DEFAULT_UNITS
 
 
 @units.define(translation_stiffness="translation_stiffness",
@@ -83,7 +84,7 @@ class Configuration:
     def app(self):
         return self._app
 
-    def __init__(self, default_units="english"):
+    def __init__(self, default_units=DEFAULT_UNITS):
         with units.Units(user_units=default_units):
             self._units = default_units
             self.vertical = "y"

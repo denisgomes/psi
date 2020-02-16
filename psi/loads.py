@@ -94,8 +94,9 @@ class Load(Entity):
 
 @units.define(gfac="g_load")
 class Weight(Load):
-    """The element weight load. Includes pipe, insulation, cladding and
-    refractory weights.
+    """The element deadweight load.
+
+    Includes pipe, insulation, cladding and refractory.
     """
 
     label = "W"
@@ -129,7 +130,17 @@ class Weight(Load):
         -------
         The weight of the element.
         """
+        if isinstance(element, Rigid):
+            return element.mass(self.gfac) * self.gfac
+
         return element.mass() * self.gfac
+
+    def cladding(self, element):
+        """Weight of cladding based on thickness"""
+        try:
+            return element.cladding_mass() * self.gfac
+        except:
+            return 0    # implement
 
     def insulation(self, element):
         """Insulation weight"""
@@ -138,19 +149,18 @@ class Weight(Load):
         except:
             return 0.0
 
-    def cladding(self, element):
-        """Weight of cladding based on thickness"""
-        return 0    # implement
-
     def refractory(self, element):
         """Weight of refractory based on thickness"""
-        return 0    # implement
+        try:
+            return element.refractory_mass() * self.gfac
+        except:
+            return 0    # implement
 
     def total(self, element):
-        """Total weight of piping element.
+        """Total weight of piping element including pipe, cladding, insulation
+        and refractory.
 
-        If the weight is set to zero for rigid elements all terms are also
-        zero.
+        If the weight is set to zero for rigid elements all terms are zero.
         """
         if isinstance(element, Rigid) and element.weight == 0:
             return 0
