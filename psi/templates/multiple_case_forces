@@ -19,7 +19,7 @@
 
 {%- for loadcase in loadcases -%}
 
-{%- set results = loadcase.reactions.results[i*6:i*6+6] -%}
+{%- set results = loadcase.forces.results[i*6:i*6+6] -%}
 {%- set fx = results[0][0] -%}
 {%- set fy = results[1][0] -%}
 {%- set fz = results[2][0] -%}

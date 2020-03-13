@@ -116,7 +116,6 @@ class Reactions(Report):
 
     def to_screen(self):
         """Print reaction report results to screen."""
-        # version = options["core.version"]
         version = self.app.models.active_object.settings.version
         date = datetime.now().date()
         jobname = self.app.models.active_object.jobname
@@ -129,11 +128,12 @@ class Reactions(Report):
                                        jobname=jobname,
                                        licensed_to="Community",
                                        report_type=self.__class__.__name__,
-                                       report_desc="Support Reaction Report",
+                                       report_desc="Reactions Report",
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
                                        enumerate=enumerate,
+                                       abs=abs,
                                        ))
 
 
@@ -173,11 +173,12 @@ class Forces(Report):
                                        jobname=jobname,
                                        licensed_to="Community",
                                        report_type=self.__class__.__name__,
-                                       report_desc="Internal Forces Report",
+                                       report_desc="Forces Report",
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
                                        enumerate=enumerate,
+                                       abs=abs,
                                        ))
 
 
@@ -217,11 +218,12 @@ class Stresses(Report):
                                        jobname=jobname,
                                        licensed_to="Community",
                                        report_type=self.__class__.__name__,
-                                       report_desc="Stress Report",
+                                       report_desc="Stresses Report",
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
                                        enumerate=enumerate,
+                                       abs=abs,
                                        ))
 
 
