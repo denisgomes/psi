@@ -92,7 +92,7 @@ class Configuration:
             self.bourdon_effect = False
             self.pressure_thrust = False
             self.liberal_stress = False
-            self.weak_springs = True
+            self.weak_springs = False
             self.translation_stiffness = 1.0e12
             self.rotation_stiffness = 1.0e12
             self.axial_force = False

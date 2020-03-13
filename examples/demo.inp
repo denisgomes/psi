@@ -27,6 +27,7 @@ p1.apply([run20])
 
 # define a loadcase
 l1 = LoadCase('l1', 'sus', [Weight, Pressure], [1, 1])
+l2 = LoadCase('l2', 'sus', [Weight, Pressure], [1, 1])
 
 # code
 b311 = B311('B311')
@@ -34,14 +35,14 @@ b311.apply([run20])
 
 # run the analysis
 mdl.analyze()
-mdl.settings.units = 'si'
+# mdl.settings.units = 'si'
 
 # postprocess
-disp = Movements('r1', [l1])
+disp = Movements('r1', [l1, l2])
 disp.to_screen()
 
-reac = Reactions('r2', [l1])
-reac.to_screen()
+# reac = Reactions('r2', [l1])
+# reac.to_screen()
 
-stress = Stresses('r3', [l1])
-stress.to_screen()
+# stress = Stresses('r3', [l1])
+# stress.to_screen()

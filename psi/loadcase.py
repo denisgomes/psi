@@ -611,10 +611,10 @@ class LoadComb(BaseCase):
             Result combination method.
 
                 * Algebriac - Disp/force results added vectorially. Stresses
-                  are derived from the force results.
-                * Scalar - Disp/force/ results added vectorially similar to the
+                  are derived from the vectorially added force results.
+                * Scalar - Disp/force results added vectorially similar to the
                   algebraic method. Stresses are added together.
-                * SRSS - Square root of the sum squared.
+                * SRSS - Square root of the sum squared. Direction independant.
                 * Abs - Absolute summation.
                 * Signmax - Signed max.
                 * Signmin - Signed min.
@@ -651,7 +651,6 @@ class LoadComb(BaseCase):
             elif self.method == "srss":
                 # note: sign of factor has no effect, always positive
                 movements.results += (factor * loadcase.movements.results)**2
-                movements.results = np.sqrt(movements.results)
             elif self.method == "abs":
                 movements.results += (factor * np.abs(loadcase.movements.results))
             elif self.method == "signmax":
@@ -661,6 +660,10 @@ class LoadComb(BaseCase):
             elif self.method == "signmin":
                 movements.results = np.minimum(movements.results,
                                                loadcase.movements.results)
+
+        if self.method == "srss":
+            # this should be done once
+            movements.results = np.sqrt(movements.results)
 
         return movements
 
@@ -677,7 +680,6 @@ class LoadComb(BaseCase):
             elif self.method == "srss":
                 # note: sign of factor has no effect, always positive
                 reactions.results += (factor * loadcase.reactions.results)**2
-                reactions.results = np.sqrt(reactions.results)
             elif self.method == "abs":
                 reactions.results += (factor * np.abs(loadcase.reactions.results))
             elif self.method == "signmax":
@@ -687,6 +689,9 @@ class LoadComb(BaseCase):
             elif self.method == "signmin":
                 reactions.results = np.minimum(reactions.results,
                                                loadcase.movements.results)
+
+        if self.method == "srss":
+            reactions.results = np.sqrt(reactions.results)
 
         return reactions
 
@@ -703,7 +708,6 @@ class LoadComb(BaseCase):
             elif self.method == "srss":
                 # note: sign of factor has no effect, always positive
                 forces.results += (factor * loadcase.forces.results)**2
-                forces.results = np.sqrt(forces.results)
             elif self.method == "abs":
                 forces.results += (factor * np.abs(loadcase.forces.results))
             elif self.method == "signmax":
@@ -714,6 +718,9 @@ class LoadComb(BaseCase):
                 forces.results = np.minimum(forces.results,
                                             loadcase.movements.results)
 
+        if self.method == "srss":
+            forces.results = np.sqrt(forces.results)
+
         return forces
 
     @property
@@ -722,8 +729,51 @@ class LoadComb(BaseCase):
 
         .. note:: Stresses are calculated based on the stress type and the
            element code.
+
+        The individual loadcases that make up the load combination can each
+        have a different allowable stress associated with each. The following
+        logic is used to determine the allowable stress to use.
+
+
+        TODO: Verify combination methods below
         """
-        raise NotImplementedError("implement")
+        stresses = Stresses(self.app)
+        stresses.results = np.zeros((len(self.points), 10), dtype=np.float64)
+
+        # copy sifi, sifo, and sallow as they are unchanged between loadcases
+        # stresses.results[:, 6:8] =
+
+        # the combined sallow must be calculated somehow?
+
+        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+                                            fillvalue=1):
+            if self.method == "algebraic":
+                # add internal forces algebraically first then calculate code
+                # stress
+                raise NotImplementedError("implement")
+            elif self.method == "scaler":
+                stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])
+            elif self.method == "srss":
+                # note: sign of factor has no effect, always positive
+                stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])**2
+            elif self.method == "abs":
+                stresses.results[:, :6] += (factor * np.abs(loadcase.stresses.results[:, :6]))
+            elif self.method == "signmax":
+                # overwrite every time through the loop
+                stresses.results[:, :6] = np.maximum(stresses.results[:, :6],
+                                              loadcase.stresses.results[:, :6])
+            elif self.method == "signmin":
+                stresses.results[:, :6] = np.minimum(stresses.results[:, :6],
+                                              loadcase.stresses.results[:, :6])
+
+        # final IR calculated based on combined stress how should the
+        # allowables be combined?
+        stresses.results[:, -1] = stresses.results[:, 5] / stresses.results[:, -2]
+
+        if self.method == "srss":
+            stresses.results[:, :6] = np.sqrt(stresses.results[:, :6])
+
+        return stresses
 
 
 class LoadCaseContainer(EntityContainer):

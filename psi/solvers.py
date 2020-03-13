@@ -204,30 +204,29 @@ def static(model):
 
     tqdm.info("*** Solving system equations for displacements.")
 
+    if model.settings.weak_springs:
+        tqdm.info("*** Turning on weak springs.")
+
+        di = np.diag_indices_from(Ks)   # Ks is square
+
+        # support stiffness is reduced by 75% order of magnitude
+        trans_order = order_of_mag(model.settings.translation_stiffness) * 0.75
+        rota_order = order_of_mag(model.settings.rotation_stiffness) * 0.75
+
+        weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
+        weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order
+        weak_spring_arr[3::3] = model.settings.rotation_stiffness * 10**-rota_order
+
+        # apply small stiffness to diagonals for numerical stability
+        Ks[di] += weak_spring_arr
+
     try:
         X = np.linalg.solve(Ks, Fs)
-
-    except np.linalg.LinAlgError as nplaerr:
-        # introduce weak springs
-        if model.settings.weak_springs:
-            tqdm.info("*** Singular stiffness matrix, using weak springs.")
-
-            di = np.diag_indices_from(Ks)   # Ks is square
-
-            # support stiffness is reduced by 75% order of magnitude
-            trans_order = order_of_mag(model.settings.translation_stiffness) * 0.75
-            rota_order = order_of_mag(model.settings.rotation_stiffness) * 0.75
-
-            weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
-            weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order
-            weak_spring_arr[3::3] = model.settings.rotation_stiffness * 10**-rota_order
-
-            # apply small stiffness to diagonals for numerical stability
-            Ks[di] += weak_spring_arr
-
-            X = np.linalg.solve(Ks, Fs)
-
-        raise nplaerr
+    except np.linalg.LinAlgError:
+        if not model.settings.weak_springs:
+            raise np.linalg.LinAlgError("solver error, try turning on",
+                                        "weak springs")
+        raise
 
     # with redirect_stdout(sys.__stdout__):
     #     print(X)
@@ -306,12 +305,13 @@ def static(model):
         njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
         for i, loadcase in enumerate(model.loadcases):
-            # load combs are combined later
+
             if isinstance(loadcase, LoadCase):
 
                 with units.Units(user_units="code_english"):
-                    # Note: Units are changed to code_english for the moments
+                    # Note: units are changed to code_english for the moments
                     # to have units of inch*lbf per code requirement
+                    # code equations are units specific, i.e. imperial or si
 
                     fori = loadcase.reactions.results[niqi:niqj, 0]
                     forj = loadcase.reactions.results[njqi:njqj, 0]
@@ -325,15 +325,19 @@ def static(model):
                     stori = element.code.stor(element, fori)
                     storj = element.code.stor(element, forj)
 
+                    # pressure stress is same at both nodes
                     slp = element.code.slp(element, loadcase)
 
                     slbi = element.code.slb(element, fori)
                     slbj = element.code.slb(element, forj)
 
+                    # total code stress
                     sli = element.code.sl(element, loadcase, fori)
                     slj = element.code.sl(element, loadcase, forj)
 
-                    sif = element.code.sifi(element)
+                    # fitting and nodal sifs, sum together or take max?
+                    sifi = element.code.sifi(element)
+                    sifo = element.code.sifo(element)
 
                     sallowi = element.code.sallow(element, loadcase, fori)
                     sallowj = element.code.sallow(element, loadcase, forj)
@@ -345,40 +349,50 @@ def static(model):
                         sratioi = 0
                         sratioj = 0
 
-                    # header
                     # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
                     # take the worst code stress at node
                     if sratioi > S[idxi, -1, i]:
                         S[idxi, :10, i] = (shoop, saxi, stori, slp, slbi, sli,
-                                           sif, sif, sallowi, sratioi)
+                                           sifi, sifo, sallowi, sratioi)
 
                     if sratioj > S[idxj, -1, i]:
                         S[idxj, :10, i] = (shoop, saxj, storj, slp, slbj, slj,
-                                           sif, sif, sallowj, sratioj)
+                                           sifi, sifo, sallowj, sratioj)
 
                     # with redirect_stdout(sys.__stdout__):
                     #     print(S)
 
                     # TODO : Implement Ma, Mb and Mc calculation loads
-                    # for each loadcase when Ma is for sustained, Mb is
+                    # for each loadcase where Ma is for sustained, Mb is
                     # for occasional and Mc is for expansion type loads
                     # This applies to code stress calculations only
 
-    tqdm.info("*** Code checking complete.\n")
+            elif isinstance(loadcase, LoadComb) and loadcase.method=="algebraic":
+                # load combs are combined at runtime except below for special
+                # case where combination is algebraic stresses are combined
+                # based on combined element forces
+                pass
 
-    tqdm.info("*** Writing code check results data.")
+    tqdm.info("*** Code checking complete.")
+
+    tqdm.info("*** Writing code checking results data.")
     for i, loadcase in enumerate(model.loadcases):
-        # load combs are combined later
+
         if isinstance(loadcase, LoadCase):
             # X[:, i], R[:, i] and Fi[:, i] return row vectors
             loadcase.stresses.results = S[:, :, i]
+
+        elif isinstance(loadcase, LoadCase):
+            # load combs are combined at runtime except below
+            # for special case where combination is algebraic
+            pass
 
     tqdm.info("*** Analysis complete!\n")
 
 
 def modal(model):
     """Run a modal analysis of the system extracting frequencies and mode
-    shapes.
+    shapes. Solving the eigenvalue problem.
 
     All nonlinearity is neglected for this type of analysis. In other words,
     all support types are considered double acting and friction is not

@@ -1,32 +1,62 @@
-{% extends "base" %}
-Multiple Load Cases
-
-
-
-
-
-
-LOAD CASE DEFINITIONS
-
-
-
-{% for loadcase in results.loadcases %}
-    {{ loadcase.name }} ({{ loadcase.stype }}) {{ loadcase.cases }}
-{% endfor %}
-
-
-
-
+{% extends "multiple_case_report" %}
 
 {% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "%-10s" | format(" ") }}{{ "----- %-s (%s) -----" | format("TRANSLATIONS", units.length) | center(30) }}     {{ "------- %-s (%s) -------" | format("ROTATIONS", units.rotation) | center(30) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("DX") }}{{ "%10s" | format("DY") }}{{ "%10s" | format("DZ") }}     {{ "%10s" | format("RX") }}{{ "%10s" | format("RY") }}{{ "%10s" | format("RZ") }}
 {% endblock %}
-
-
 
 {% block body %}
+{%- for i, point in enumerate(loadcases[0].points) -%}
+
+{%- set DX = 0 -%}
+{%- set DY = 0 -%}
+{%- set DZ = 0 -%}
+{%- set RX = 0 -%}
+{%- set RY = 0 -%}
+{%- set RZ = 0 -%}
+
+{%- for loadcase in loadcases -%}
+
+{%- set results = loadcase.movements.results[i*6:i*6+6] -%}
+{%- set dx = results[0][0] -%}
+{%- set dy = results[1][0] -%}
+{%- set dz = results[2][0] -%}
+{%- set rx = results[3][0] -%}
+{%- set ry = results[4][0] -%}
+{%- set rz = results[5][0] -%}
+
+{%- if abs(dx) > abs(DX) -%}
+    {%- set DX = dx -%}
+{% endif -%}
+{%- if abs(dy) > abs(DY) -%}
+    {%- set DY = dy -%}
+{% endif -%}
+{%- if abs(dz) > abs(DZ) -%}
+    {%- set DZ = dz -%}
+{% endif -%}
+{%- if abs(rx) > abs(RX) -%}
+    {%- set RX = rx -%}
+{% endif -%}
+{%- if abs(ry) > abs(RY) -%}
+    {%- set RY = ry -%}
+{% endif -%}
+{%- if abs(rz) > abs(RZ) -%}
+    {%- set RZ = rz -%}
+{% endif %}
+{% if loop.first -%}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.3f" | format(dx) }}{{ "% 10.3f" | format(dy) }}{{ "% 10.3f" | format(dz) }}     {{ "% 10.4f" | format(rx) }}{{ "% 10.4f" | format(ry) }}{{ "% 10.4f" | format(rz) }}
+{%- elif loop.last -%}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.3f" | format(dx) }}{{ "% 10.3f" | format(dy) }}{{ "% 10.3f" | format(dz) }}     {{ "% 10.4f" | format(rx) }}{{ "% 10.4f" | format(ry) }}{{ "% 10.4f" | format(rz) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.3f" | format(DX) }}{{ "% 10.3f" | format(DY) }}{{ "% 10.3f" | format(DZ) }}     {{ "% 10.4f" | format(RX) }}{{ "% 10.4f" | format(RY) }}{{ "% 10.4f" | format(RZ) }}
+{%- else -%}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.3f" | format(dx) }}{{ "% 10.3f" | format(dy) }}{{ "% 10.3f" | format(dz) }}     {{ "% 10.4f" | format(rx) }}{{ "% 10.4f" | format(ry) }}{{ "% 10.4f" | format(rz) }}
+{%- endif -%}
+{% endfor %}
+{% endfor -%}
+
 {% endblock %}
-
-
 
 {% block footer %}
 {% endblock %}

@@ -1,24 +1,16 @@
 {% extends "base_report" %}
-Multiple Load Cases
 
+{% block header %}
 
-
-
+MULTIPLE LOAD CASES
 
 
 LOAD CASE DEFINITIONS
+{% for loadcase in loadcases %}
+{{ loadcase.name | upper }} ({{ loadcase.stype | upper }}) {{ loadcase.label | upper }}
+{%- endfor %}
 
 
-
-{% for loadcase in results.loadcases %}
-    {{ loadcase.name }} ({{ loadcase.stype }}) {{ loadcase.cases }}
-{% endfor %}
-
-
-
-
-
-{% block header %}
 {% endblock %}
 
 

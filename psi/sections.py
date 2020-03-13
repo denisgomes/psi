@@ -144,7 +144,7 @@ class Pipe(Section):
             diameters are the same.
 
         thk : float
-            Pipe wall thickness, ie. the nominal.thickness.
+            Pipe wall thickness, ie. the nominal thickness.
 
         corro :  float
             Corrosion allowance (CA).
@@ -338,7 +338,7 @@ class Pipe(Section):
 
 
 @units.define(d="length", tw="length", bf="length", tf="length")
-class WideFlange(Section):
+class Beam(Section):
 
     @classmethod
     def from_file(cls, name, size="W4x13", fname=None,
@@ -360,7 +360,7 @@ class WideFlange(Section):
                         return cls(name, d, tw, bf, tf)
 
     def __init__(self, name, d, tw, bf, tf):
-        super(WideFlange, self).__init__(name)
+        super(Beam, self).__init__(name)
         self.d = d      # depth
         self.tw = tw    # web thickness
         self.bf = bf    # flange width
@@ -406,7 +406,7 @@ class SectionContainer(EntityContainer, ActiveEntityContainerMixin):
     def __init__(self):
         super(SectionContainer, self).__init__()
         self.Pipe = Pipe
-        self.WideFlange = WideFlange
+        self.Beam = Beam
 
     def apply(self, inst, elements=None):
         """Apply a section to elements.

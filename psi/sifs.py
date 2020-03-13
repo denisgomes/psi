@@ -24,68 +24,41 @@ D. Per code, the calculated SIFs must always be greater than or eqaul to 1.0.
 SIFs provided are valid for a D/t ratio of less than 100. Beyond this limit,
 the pipe behaves like large duct piping and must be modeling using shell
 elements.
+
+Multiple SIFs defined for a particular element for example a reducing tee is
+not properly defined by any code. Should the reducer, tee or both SIFs be used
+to determine the final stress results?
 """
 
 from __future__ import division
 
-
-class Fitting(object):
-    """A piping component such as a reducer or an elbow.
-
-    The same sif is applied to the end points of the element. Note that the B31
-    codes do not specify how to handle a situation where a point has multiple
-    sifs defined.
-
-    The fitting sif is baked into the respective element and has a flexibility
-    factor.
-    """
-
-    def __init__(self, element):
-        self.element = element
-
-    def kfac(self):
-        """Flexibility factor of fitting"""
-        return 1.0
-
-    def sif(self):
-        """In and out-of-plane stress intensification factor"""
-        sifi = sifo = 1.0
-
-        return (sifi, sifo)
+from psi.entity import Entity, EntityContainer
+from psi.codes import B311
 
 
-class Reducer(Fitting):
-    """For concentric reducers"""
-
-    def __init__(self, element):
-        super(Reducer, self).__init__(element)
-
-    def sif(self):
-        assert self.element.type == "Bend", "element must be a bend"
-
-        code = self.element.code
-        section = self.element.section
-
-        if isinstance(code, "B311"):
-            pass
-
-
-class Bend(Fitting):
-
-    def __init__(self, element):
-        super(Bend, self).__init__(element)
-
-    def sif(self):
-        if isinstance(self.element.code, "B311"):
-            pass
-
-
-class Point(object):
+class SIF(Entity):
     """A tee type intersection or a welding connection"""
 
     def __init__(self, element, point):
+        super(SIF, self).__init__()
         self.element = element
         self.point = point
+
+    @property
+    def parent(self):
+        """Returns the SIFContainer instance."""
+        return self.app.sifs
+
+    def apply(self, elements=None):
+        """Apply the sif to the elements.
+
+        Parameters
+        ----------
+        elements : list
+            A list of elements. If elements is None, sif is applied to the
+            active elements.
+        """
+        self.parent.apply([self], elements)
 
     def is_intersection(self):
         """A tee type intersection"""
@@ -97,12 +70,18 @@ class Point(object):
 
     def sif(self):
         """In and out-of-plane stress intensification factor"""
-        sifi = sifo = 1.0
+        raise NotImplementedError("implement")
 
-        return (sifi, sifo)
+    def sifi(self):
+        """In plane SIF"""
+        raise NotImplementedError("implement")
+
+    def sifo(self):
+        """Out of plane SIF"""
+        raise NotImplementedError("implement")
 
 
-class Intersection(Point):
+class Intersection(SIF):
     """A tee type intersection"""
 
     def __init__(self, element, point):
@@ -111,7 +90,7 @@ class Intersection(Point):
         assert self.intersection(), "invalid intersection point"
 
 
-class Connection(Point):
+class Connection(SIF):
     """A joint between two pipe spools"""
 
     def __init__(self, element, point):
@@ -148,7 +127,7 @@ class Welding(Intersection):
         tc : float
             Crotch thickness
         """
-        if code == "B31.1":
+        if isinstance(code, B311) and code.year == "1967":
             # per mandatory appendix D
             r = (do-tn) / 2
 
@@ -189,8 +168,7 @@ class Unreinforced(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if code == "B31.1":
-
+        if isinstance(code, B311) and code.year == "1967":
             r = (do-tn) / 2
 
             h = tn / r
@@ -229,8 +207,7 @@ class Reinforced(Intersection):
         tr : float
             Pad thickness
         """
-        if code == "B31.1":
-
+        if isinstance(code, B311) and code.year == "1967":
             r = (do-tn) / 2
 
             if tr > 1.5*tn:
@@ -269,8 +246,7 @@ class Weldolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if code == "B31.1":
-
+        if isinstance(code, B311) and code.year == "1967":
             r = (do-tn) / 2
 
             h = 3.3*tn / r
@@ -317,8 +293,7 @@ class Sockolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if code == "B31.1":
-
+        if isinstance(code, B311) and code.year == "1967":
             r = (do-tn) / 2
 
             h = 3.3*tn / r
@@ -363,8 +338,7 @@ class Sweepolet(Intersection):
         tc : float
             Crotch thickness
         """
-        if code == "B31.1":
-
+        if isinstance(code, B311) and code.year == "1967":
             r = (do-tn) / 2
 
             if rx >= dob/8 and tc >= 1.5*tn:
@@ -391,13 +365,14 @@ class ButtWeld(Connection):
         super(Welding, self).__init__(element, point)
 
     def sif(self, code):
-        if code == "B31.1":
+        if isinstance(code, B311) and code.year == "1967":
             return 1.0
 
 
-class SIFContainer(object):
+class SIFContainer(EntityContainer):
 
     def __init__(self):
+        super(SIFContainer, self).__init__()
         self.Welding = Welding
         self.Unreinforced = Unreinforced
         self.Reinforced = Reinforced
@@ -406,3 +381,29 @@ class SIFContainer(object):
         self.Sweepolet = Sweepolet
         self.Weldolet = Weldolet
         self.ButtWeld = ButtWeld
+
+    def apply(self, sifs=[], elements=None):
+        """Apply sifs to elements.
+
+        A reference for each sif is assigned to each element.
+
+        .. note::
+            One pipe element can be assigned multiple sifs.
+
+        Parameters
+        ----------
+        sifs : list
+            A list of sifs
+
+        elements : list
+            A list of elements. If elements is None, sifs are applied to all
+            active elements.
+        """
+        if elements is None:
+            elements = []
+
+            for element in self.app.elements.active_objects:
+                elements.append(element)
+
+        for element in elements:
+            element.sifs.update(sifs)

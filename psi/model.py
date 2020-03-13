@@ -110,7 +110,7 @@ class Model(Entity, ActiveEntityMixin):
     @property
     def sections(self):
         """Get the list of sections"""
-        return self._sections.value()
+        return self._sections.values()
 
     @property
     def materials(self):

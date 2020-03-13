@@ -113,7 +113,7 @@ class App(object):
                 # sections
                 "sections": self.sections,
                 "Pipe": self.sections.Pipe,
-                "WideFlange": self.sections.WideFlange,
+                "Beam": self.sections.Beam,
 
                 # materials
                 "materials": self.materials,

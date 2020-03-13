@@ -116,7 +116,7 @@ class Code(Entity, ActiveEntityMixin):
             try:
                 tload = thermals[0]
             except IndexError:
-                # thermal load not defined
+                # thermal load not defined - defaults to ambient
                 tload = None
 
             return tload
@@ -126,7 +126,8 @@ class Code(Entity, ActiveEntityMixin):
         particular operating case.
         """
         with units.Units(user_units="code_english"):
-            # pressure load specified for loadcase and opercase sorted by maximum
+            # pressure load specified for loadcase and opercase sorted by
+            # maximum
             pressures = []
             for loadtype, opercase in loadcase.loads:
                 for load in element.loads:
@@ -136,13 +137,13 @@ class Code(Entity, ActiveEntityMixin):
             pressures.sort(key=lambda x: x.pres, reverse=True)
 
             # if length of pressures is greater than one, print warning message
-            # saying multiple pressure loads exist for the same operating case for
-            # the element, then proceed to take the max worst pressure
+            # saying multiple pressure loads exist for the same operating case
+            # for the element, then proceed to take the max worst pressure
 
             try:
                 pload = pressures[0]
             except IndexError:
-                # pressure load not defined
+                # pressure load not defined - defaults to 0
                 pload = None
 
             return pload
@@ -159,25 +160,45 @@ class B311(Code):
     type and opercase.
     """
 
-    def __init__(self, name, year='1967'):
+    def __init__(self, name, year="1967"):
         super(B311, self).__init__(name)
         self.year = year
         self.k = 1.15    # usage factor
         self.f = 0.90    # fatigue reduction factor
 
     def sifi(self, element):
-        """In plane stress intensification factor"""
+        """In plane stress intensification factor for fittings"""
         if isinstance(element, Run):
+            return 1.0
+        elif isinstance(element, Bend):
+            raise NotImplementedError("implement")
+        elif isinstance(element, Reducer):
+            raise NotImplementedError("implement")
+        else:
+            # must be 1 at a minimum
             return 1.0
 
     def sifo(self, element):
-        """Out of plane stress intensification factor"""
+        """Out of plane stress intensification factor for fittings"""
         if isinstance(element, Run):
+            return 1.0
+        elif isinstance(element, Bend):
+            raise NotImplementedError("implement")
+        elif isinstance(element, Reducer):
+            raise NotImplementedError("implement")
+        else:
+            # must be 1 at a minimum
             return 1.0
 
     def kfac(self, element):
-        """Code flexibility factor provided for components"""
+        """Code flexibility factor provided for fittings"""
         if isinstance(element, Run):
+            return 1.0
+        elif isinstance(element, Bend):
+            raise NotImplementedError("implement")
+        elif isinstance(element, Reducer):
+            raise NotImplementedError("implement")
+        else:
             return 1.0
 
     def shoop(self, element, loadcase):
@@ -289,7 +310,7 @@ class B311(Code):
             if loadcase.stype == "sus":
                 return sh
             elif loadcase.stype == "occ":
-                # # k factor is 1.15 for events lasting 8hrs or less and 1.20
+                # k factor is 1.15 for events lasting 8hrs or less and 1.20
                 # for 1hr or less per code para. 102.3.3, use 1.15 to be
                 # conservative
                 return self.k * sh

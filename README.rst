@@ -18,11 +18,11 @@ Some of the features of PSI are:
   cross-sections
 * Access to a variety of different support types such as Anchors, GlobalX,
   GlobalY, and GlobalZ including non-linear support capability
-* Assign loads such as Weight, Pressure, Thermal, Wind and Seismic among others
-* Linear combinations of loads and combinations of loads
+* Assign loads such as Weight, Pressure, Thermal, Wind and Seismic
+* Linear combinations of loads and combinations of load cases
 * Stress evaluation based on B31.1 power piping code
 * Linear static analysis
-* Movements, support reactions and internal force results
+* Movements, support reactions, internal forces and code stress results
 * And more...
 
 

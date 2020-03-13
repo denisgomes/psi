@@ -565,7 +565,7 @@ class LoadContainer(EntityContainer):
 
         elements : list
             A list of elements. If elements is None, loads are applied to all
-            elements.
+            active elements.
         """
         if elements is None:
             elements = []

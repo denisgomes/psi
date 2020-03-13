@@ -53,7 +53,7 @@ class Movements(Report):
     """Nodal displacement results."""
 
     def __init__(self, name, loadcases):
-        """Create a movements report instance.
+        """Create a movement report instance.
 
         Parameters
         ----------
@@ -88,6 +88,8 @@ class Movements(Report):
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
+                                       enumerate=enumerate,
+                                       abs=abs,
                                        ))
 
 
@@ -131,6 +133,7 @@ class Reactions(Report):
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
+                                       enumerate=enumerate,
                                        ))
 
 
@@ -174,6 +177,7 @@ class Forces(Report):
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
+                                       enumerate=enumerate,
                                        ))
 
 
@@ -217,6 +221,7 @@ class Stresses(Report):
                                        units=Quantity.user_units,
                                        loadcases=self.loadcases,
                                        zip=zip,     # pass zip
+                                       enumerate=enumerate,
                                        ))
 
 
