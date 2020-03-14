@@ -19,8 +19,8 @@
 from datetime import datetime
 import sys
 from contextlib import redirect_stdout
-from tqdm import tqdm
 
+from tqdm import tqdm
 from jinja2 import Environment, FileSystemLoader
 
 from psi import TEMPLATE_DIRECTORY
