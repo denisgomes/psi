@@ -17,7 +17,6 @@
 """Implementation of different piping codes"""
 
 import math
-import sys
 
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
@@ -106,9 +105,10 @@ class Code(Entity, ActiveEntityMixin):
         """
         with units.Units(user_units="code_english"):
             thermals = []
-            for loadtype, opercase in loadcase.loads:
+            for loadtype, opercase in zip(loadcase.loadtypes,
+                                          loadcase.opercases):
                 for load in element.loads:
-                    if isinstance(load, Thermal) and load.opercase==opercase:
+                    if isinstance(load, Thermal) and load.opercase == opercase:
                         thermals.append(load)
 
             thermals.sort(key=lambda x: x.temp, reverse=True)
@@ -129,9 +129,10 @@ class Code(Entity, ActiveEntityMixin):
             # pressure load specified for loadcase and opercase sorted by
             # maximum
             pressures = []
-            for loadtype, opercase in loadcase.loads:
+            for loadtype, opercase in zip(loadcase.loadtypes,
+                                          loadcase.opercases):
                 for load in element.loads:
-                    if isinstance(load, Pressure) and load.opercase==opercase:
+                    if isinstance(load, Pressure) and load.opercase == opercase:
                         pressures.append(load)
 
             pressures.sort(key=lambda x: x.pres, reverse=True)

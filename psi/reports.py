@@ -19,6 +19,7 @@
 from datetime import datetime
 import sys
 from contextlib import redirect_stdout
+from tqdm import tqdm
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -78,19 +79,19 @@ class Movements(Report):
         time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
-            print(self.template.render(version=version,
-                                       date=date,
-                                       time=time,
-                                       jobname=jobname,
-                                       licensed_to="Community",
-                                       report_type=self.__class__.__name__,
-                                       report_desc="Displacement Report",
-                                       units=Quantity.user_units,
-                                       loadcases=self.loadcases,
-                                       zip=zip,     # pass zip
-                                       enumerate=enumerate,
-                                       abs=abs,
-                                       ))
+            tqdm.write(self.template.render(version=version,
+                                        date=date,
+                                        time=time,
+                                        jobname=jobname,
+                                        licensed_to="Community",
+                                        report_type=self.__class__.__name__,
+                                        report_desc="Displacement Report",
+                                        units=Quantity.user_units,
+                                        loadcases=self.loadcases,
+                                        zip=zip,     # pass zip
+                                        enumerate=enumerate,
+                                        abs=abs,
+                                        ))
 
 
 class Reactions(Report):
@@ -122,19 +123,19 @@ class Reactions(Report):
         time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
-            print(self.template.render(version=version,
-                                       date=date,
-                                       time=time,
-                                       jobname=jobname,
-                                       licensed_to="Community",
-                                       report_type=self.__class__.__name__,
-                                       report_desc="Reactions Report",
-                                       units=Quantity.user_units,
-                                       loadcases=self.loadcases,
-                                       zip=zip,     # pass zip
-                                       enumerate=enumerate,
-                                       abs=abs,
-                                       ))
+            tqdm.write(self.template.render(version=version,
+                                        date=date,
+                                        time=time,
+                                        jobname=jobname,
+                                        licensed_to="Community",
+                                        report_type=self.__class__.__name__,
+                                        report_desc="Reactions Report",
+                                        units=Quantity.user_units,
+                                        loadcases=self.loadcases,
+                                        zip=zip,     # pass zip
+                                        enumerate=enumerate,
+                                        abs=abs,
+                                        ))
 
 
 class Forces(Report):
@@ -167,19 +168,19 @@ class Forces(Report):
         time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
-            print(self.template.render(version=version,
-                                       date=date,
-                                       time=time,
-                                       jobname=jobname,
-                                       licensed_to="Community",
-                                       report_type=self.__class__.__name__,
-                                       report_desc="Forces Report",
-                                       units=Quantity.user_units,
-                                       loadcases=self.loadcases,
-                                       zip=zip,     # pass zip
-                                       enumerate=enumerate,
-                                       abs=abs,
-                                       ))
+            tqdm.write(self.template.render(version=version,
+                                        date=date,
+                                        time=time,
+                                        jobname=jobname,
+                                        licensed_to="Community",
+                                        report_type=self.__class__.__name__,
+                                        report_desc="Forces Report",
+                                        units=Quantity.user_units,
+                                        loadcases=self.loadcases,
+                                        zip=zip,     # pass zip
+                                        enumerate=enumerate,
+                                        abs=abs,
+                                        ))
 
 
 class Stresses(Report):
@@ -212,19 +213,19 @@ class Stresses(Report):
         time = datetime.strftime(datetime.now(), "%I:%M %p")
 
         with redirect_stdout(sys.__stdout__):
-            print(self.template.render(version=version,
-                                       date=date,
-                                       time=time,
-                                       jobname=jobname,
-                                       licensed_to="Community",
-                                       report_type=self.__class__.__name__,
-                                       report_desc="Stresses Report",
-                                       units=Quantity.user_units,
-                                       loadcases=self.loadcases,
-                                       zip=zip,     # pass zip
-                                       enumerate=enumerate,
-                                       abs=abs,
-                                       ))
+            tqdm.write(self.template.render(version=version,
+                                        date=date,
+                                        time=time,
+                                        jobname=jobname,
+                                        licensed_to="Community",
+                                        report_type=self.__class__.__name__,
+                                        report_desc="Stresses Report",
+                                        units=Quantity.user_units,
+                                        loadcases=self.loadcases,
+                                        zip=zip,     # pass zip
+                                        enumerate=enumerate,
+                                        abs=abs,
+                                        ))
 
 
 class ReportContainer(EntityContainer, ActiveEntityContainerMixin):

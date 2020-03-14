@@ -2,7 +2,7 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-10s" | format(" ") }}{{ "--------- %-s (%s) ---------" | format("Forces", units.force) | center(30) }}     {{ "------ %-s (%s) ------" | format("Moments", units.moment_output) | center(30) }}
+{{ "%-10s" | format(" ") }}{{ "--------- %-s (%s) ---------" | format("FORCES", units.force) | center(30) }}     {{ "------ %-s (%s) ------" | format("MOMENTS", units.moment_output) | center(30) }}
 
 {{ "%-10s" | format("NODE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}     {{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
 {% endblock -%}

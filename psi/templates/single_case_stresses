@@ -2,9 +2,9 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-8s" | format(" ") }}{{ "-------------------------- %-s (%s) --------------------------" | format("Stresses", units.stress) | center(70) }}
+{{ "%-8s" | format(" ") }}{{ "-------------------------- %-s (%s) --------------------------" | format("STRESSES", units.stress) | center(70) }}
 
-{{ "%-8s" | format("NODE") }}{{ "%10s" | format("Hoop") }}{{ "%10s" | format("Axial") }}{{ "%10s" | format("Torsion") }}{{ "%10s" | format("Pressure") }}{{ "%10s" | format("Bending") }}{{ "%10s" | format("Code") }}{{ "%10s" | format("Allow") }}{{ "%10s" | format("SIFi") }}{{ "%10s" | format("SIFo") }}{{ "%10s" | format("Ratio") }}
+{{ "%-8s" | format("NODE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}{{ "%10s" | format("ALLOW") }}{{ "%10s" | format("SIFi") }}{{ "%10s" | format("SIFo") }}{{ "%10s" | format("RATIO") }}
 {% endblock -%}
 
 {%- block body -%}

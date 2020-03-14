@@ -23,13 +23,83 @@ from contextlib import redirect_stdout
 
 import numpy as np
 
-from psi.loadcase import LoadCase
+from psi.loadcase import LoadCase, LoadComb
 from psi import units
 
 
 def order_of_mag(n):
     """Return the order of magnitude of a number n"""
     return math.floor(math.log10(n))
+
+
+def calculate_element_code_stresses(points, loadcase, element, S, lcasenum):
+    ndof = 6
+
+    idxi = points.index(element.from_point)
+    idxj = points.index(element.to_point)
+
+    # node and corresponding dof (start, finish)
+    niqi, niqj = idxi*ndof, idxi*ndof + ndof
+    njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+    with units.Units(user_units="code_english"):
+        # Note: units are changed to code_english for the moments
+        # to have units of inch*lbf per code requirement
+        # code equations are units specific, i.e. imperial or si
+
+        fori = loadcase.forces.results[niqi:niqj, 0]
+        forj = loadcase.forces.results[njqi:njqj, 0]
+
+        # code stresses per element node i and j for each loadcase
+        shoop = element.code.shoop(element, loadcase)
+
+        saxi = element.code.sax(element, loadcase, fori)
+        saxj = element.code.sax(element, loadcase, forj)
+
+        stori = element.code.stor(element, fori)
+        storj = element.code.stor(element, forj)
+
+        # pressure stress is same at both nodes
+        slp = element.code.slp(element, loadcase)
+
+        slbi = element.code.slb(element, fori)
+        slbj = element.code.slb(element, forj)
+
+        # total code stress
+        sli = element.code.sl(element, loadcase, fori)
+        slj = element.code.sl(element, loadcase, forj)
+
+        # fitting and nodal sifs, sum together or take max?
+        sifi = element.code.sifi(element)
+        sifo = element.code.sifo(element)
+
+        sallowi = element.code.sallow(element, loadcase, fori)
+        sallowj = element.code.sallow(element, loadcase, forj)
+
+        try:
+            sratioi = sli / sallowi  # code ratio at node i
+            sratioj = slj / sallowj  # code ratio at node j
+        except ZeroDivisionError:
+            sratioi = 0
+            sratioj = 0
+
+        # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
+        # take the worst code stress at node
+        if sratioi > S[idxi, -1, lcasenum]:
+            S[idxi, :10, lcasenum] = (shoop, saxi, stori, slp, slbi, sli,
+                                      sifi, sifo, sallowi, sratioi)
+
+        if sratioj > S[idxj, -1, lcasenum]:
+            S[idxj, :10, lcasenum] = (shoop, saxj, storj, slp, slbj, slj,
+                                      sifi, sifo, sallowj, sratioj)
+
+        # with redirect_stdout(sys.__stdout__):
+        #     print(S)
+
+        # TODO : Implement Ma, Mb and Mc calculation loads
+        # for each loadcase where Ma is for sustained, Mb is
+        # for occasional and Mc is for expansion type loads
+        # This applies to code stress calculations only
 
 
 def static(model):
@@ -172,10 +242,10 @@ def static(model):
             if isinstance(loadcase, LoadCase):
                 feg = np.zeros((en*ndof, 1), dtype=np.float64)
 
-                for loadtype, opercase in loadcase.loads:
+                for loadtype, opercase in zip(loadcase.loadtypes,
+                                              loadcase.opercases):
 
                     for load in element.loads:
-
                         if (isinstance(load, loadtype) and
                                 load.opercase == opercase):
                             feg += load.fglobal(element)
@@ -297,77 +367,13 @@ def static(model):
     S = np.zeros((nn, 10, lc), dtype=np.float64)
 
     for element in model.elements:
-        idxi = points.index(element.from_point)
-        idxj = points.index(element.to_point)
-
-        # node and corresponding dof (start, finish)
-        niqi, niqj = idxi*ndof, idxi*ndof + ndof
-        njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
         for i, loadcase in enumerate(model.loadcases):
-
             if isinstance(loadcase, LoadCase):
+                calculate_element_code_stresses(points, loadcase, element, S, i)
 
-                with units.Units(user_units="code_english"):
-                    # Note: units are changed to code_english for the moments
-                    # to have units of inch*lbf per code requirement
-                    # code equations are units specific, i.e. imperial or si
-
-                    fori = loadcase.reactions.results[niqi:niqj, 0]
-                    forj = loadcase.reactions.results[njqi:njqj, 0]
-
-                    # code stresses per element node i and j for each loadcase
-                    shoop = element.code.shoop(element, loadcase)
-
-                    saxi = element.code.sax(element, loadcase, fori)
-                    saxj = element.code.sax(element, loadcase, forj)
-
-                    stori = element.code.stor(element, fori)
-                    storj = element.code.stor(element, forj)
-
-                    # pressure stress is same at both nodes
-                    slp = element.code.slp(element, loadcase)
-
-                    slbi = element.code.slb(element, fori)
-                    slbj = element.code.slb(element, forj)
-
-                    # total code stress
-                    sli = element.code.sl(element, loadcase, fori)
-                    slj = element.code.sl(element, loadcase, forj)
-
-                    # fitting and nodal sifs, sum together or take max?
-                    sifi = element.code.sifi(element)
-                    sifo = element.code.sifo(element)
-
-                    sallowi = element.code.sallow(element, loadcase, fori)
-                    sallowj = element.code.sallow(element, loadcase, forj)
-
-                    try:
-                        sratioi = sli / sallowi  # code ratio at node i
-                        sratioj = slj / sallowj  # code ratio at node j
-                    except ZeroDivisionError:
-                        sratioi = 0
-                        sratioj = 0
-
-                    # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
-                    # take the worst code stress at node
-                    if sratioi > S[idxi, -1, i]:
-                        S[idxi, :10, i] = (shoop, saxi, stori, slp, slbi, sli,
-                                           sifi, sifo, sallowi, sratioi)
-
-                    if sratioj > S[idxj, -1, i]:
-                        S[idxj, :10, i] = (shoop, saxj, storj, slp, slbj, slj,
-                                           sifi, sifo, sallowj, sratioj)
-
-                    # with redirect_stdout(sys.__stdout__):
-                    #     print(S)
-
-                    # TODO : Implement Ma, Mb and Mc calculation loads
-                    # for each loadcase where Ma is for sustained, Mb is
-                    # for occasional and Mc is for expansion type loads
-                    # This applies to code stress calculations only
-
-            elif isinstance(loadcase, LoadComb) and loadcase.method=="algebraic":
+        for i, loadcase in enumerate(model.loadcases):
+            if isinstance(loadcase, LoadComb) and loadcase.method == "algebraic":
                 # load combs are combined at runtime except below for special
                 # case where combination is algebraic stresses are combined
                 # based on combined element forces
@@ -382,12 +388,12 @@ def static(model):
             # X[:, i], R[:, i] and Fi[:, i] return row vectors
             loadcase.stresses.results = S[:, :, i]
 
-        elif isinstance(loadcase, LoadCase):
+        elif isinstance(loadcase, LoadComb) and loadcase.method == "algebraic":
             # load combs are combined at runtime except below
             # for special case where combination is algebraic
             pass
 
-    tqdm.info("*** Analysis complete!\n")
+    tqdm.info("*** Analysis complete!\n\n\n")
 
 
 def modal(model):

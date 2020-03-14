@@ -512,7 +512,11 @@ class BaseCase(Entity):
 
     def __init__(self, name, stype="sus"):
         super(BaseCase, self).__init__(name)
-        self.stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
+        self._stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
+
+    @property
+    def stype(self):
+        return self._stype
 
     @property
     def points(self):
@@ -534,16 +538,26 @@ class LoadCase(BaseCase):
 
     def __init__(self, name, stype="sus", loadtypes=[], opercases=[]):
         super(LoadCase, self).__init__(name, stype)
-        self.loads = OrderedSet()
+        self._loads = OrderedSet()
+        self._loadtypes = loadtypes
+        self._opercases = opercases
 
         for load in zip(loadtypes, opercases):
-            self.loads.add(load)
+            self._loads.add(load)
 
         # results objects
         self._movements = Movements(self.app)
         self._reactions = Reactions(self.app)
         self._forces = Forces(self.app)
         self._stresses = Stresses(self.app)
+
+    @property
+    def loadtypes(self):
+        return tuple(self._loadtypes)
+
+    @property
+    def opercases(self):
+        return tuple(self._opercases)
 
     @property
     def movements(self):
@@ -569,7 +583,7 @@ class LoadCase(BaseCase):
     def label(self):
         """Return the loadcase label used in the reports."""
         lbl = []
-        for loadtype, opercase in self.loads:
+        for loadtype, opercase in zip(self._loadtypes, self._opercases):
             lbl.append("%s[%s]" % (loadtype.label, opercase))
 
         return " + ".join(lbl)
@@ -630,98 +644,113 @@ class LoadComb(BaseCase):
                the number of factors must match the number of loadcases.
         """
         super(LoadComb, self).__init__(name, stype)
-        self.method = method
-        self.loadcases = OrderedSet()
-        self.factors = factors
+        self._method = method
+        self._loadcases = OrderedSet()
+        self._factors = factors
 
         for loadcase in loadcases:
             if isinstance(loadcase, LoadCase):
-                self.loadcases.add(loadcase)
+                self._loadcases.add(loadcase)
+
+        # results objects
+        self._movements = Movements(self.app)
+        self._reactions = Reactions(self.app)
+        self._forces = Forces(self.app)
+        self._stresses = Stresses(self.app)
+
+    @property
+    def method(self):
+        return self._method
+
+    @property
+    def loadcases(self):
+        return tuple(self._loadcases)
+
+    @property
+    def factors(self):
+        return tuple(self._factors)
 
     @property
     def movements(self):
         """Return the combined nodal displacement array."""
-        movements = Movements(self.app)
-        movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
+        self._movements.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+        for factor, loadcase in zip_longest(self._factors, self._loadcases,
                                             fillvalue=1):
-            if self.method in ("algebraic", "scalar"):
-                movements.results += (factor * loadcase.movements.results)
-            elif self.method == "srss":
+            if self._method in ("algebraic", "scalar"):
+                self._movements.results += (factor * loadcase.movements.results)
+            elif self._method == "srss":
                 # note: sign of factor has no effect, always positive
-                movements.results += (factor * loadcase.movements.results)**2
-            elif self.method == "abs":
-                movements.results += (factor * np.abs(loadcase.movements.results))
-            elif self.method == "signmax":
+                self._movements.results += (factor * loadcase.movements.results)**2
+            elif self._method == "abs":
+                self._movements.results += (factor * np.abs(loadcase.movements.results))
+            elif self._method == "signmax":
                 # overwrite every time through the loop
-                movements.results = np.maximum(movements.results,
-                                               loadcase.movements.results)
-            elif self.method == "signmin":
-                movements.results = np.minimum(movements.results,
-                                               loadcase.movements.results)
+                self._movements.results = np.maximum(self._movements.results,
+                                                     loadcase.movements.results)
+            elif self._method == "signmin":
+                self._movements.results = np.minimum(self._movements.results,
+                                                     loadcase.movements.results)
 
-        if self.method == "srss":
+        if self._method == "srss":
             # this should be done once
-            movements.results = np.sqrt(movements.results)
+            self._movements.results = np.sqrt(self._movements.results)
 
-        return movements
+        return self._movements
 
     @property
     def reactions(self):
         """Return the combined nodal reaction array."""
-        reactions = Reactions(self.app)
-        reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
+        self._reactions.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+        for factor, loadcase in zip_longest(self._factors, self._loadcases,
                                             fillvalue=1):
-            if self.method in ("algebraic", "scalar"):
-                reactions.results += (factor * loadcase.reactions.results)
-            elif self.method == "srss":
+            if self._method in ("algebraic", "scalar"):
+                self._reactions.results += (factor * loadcase.reactions.results)
+            elif self._method == "srss":
                 # note: sign of factor has no effect, always positive
-                reactions.results += (factor * loadcase.reactions.results)**2
-            elif self.method == "abs":
-                reactions.results += (factor * np.abs(loadcase.reactions.results))
-            elif self.method == "signmax":
+                self._reactions.results += (factor * loadcase.reactions.results)**2
+            elif self._method == "abs":
+                self._reactions.results += (factor * np.abs(loadcase.reactions.results))
+            elif self._method == "signmax":
                 # overwrite every time through the loop
-                reactions.results = np.maximum(reactions.results,
-                                               loadcase.movements.results)
-            elif self.method == "signmin":
-                reactions.results = np.minimum(reactions.results,
-                                               loadcase.movements.results)
+                self._reactions.results = np.maximum(self._reactions.results,
+                                                     loadcase.movements.results)
+            elif self._method == "signmin":
+                self._reactions.results = np.minimum(self._reactions.results,
+                                                     loadcase.movements.results)
 
-        if self.method == "srss":
-            reactions.results = np.sqrt(reactions.results)
+        if self._method == "srss":
+            self._reactions.results = np.sqrt(self._reactions.results)
 
-        return reactions
+        return self._reactions
 
     @property
     def forces(self):
         """Return the combined nodal forces array."""
-        forces = Forces(self.app)
-        forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
+        self._forces.results = np.zeros(len(self.points) * 6, dtype=np.float64)
 
-        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+        for factor, loadcase in zip_longest(self._factors, self._loadcases,
                                             fillvalue=1):
-            if self.method in ("algebraic", "scalar"):
-                forces.results += (factor * loadcase.forces.results)
-            elif self.method == "srss":
+            if self._method in ("algebraic", "scalar"):
+                self._forces.results += (factor * loadcase.forces.results)
+            elif self._method == "srss":
                 # note: sign of factor has no effect, always positive
-                forces.results += (factor * loadcase.forces.results)**2
-            elif self.method == "abs":
-                forces.results += (factor * np.abs(loadcase.forces.results))
-            elif self.method == "signmax":
+                self._forces.results += (factor * loadcase.forces.results)**2
+            elif self._method == "abs":
+                self._forces.results += (factor * np.abs(loadcase.forces.results))
+            elif self._method == "signmax":
                 # overwrite every time through the loop
-                forces.results = np.maximum(forces.results,
-                                            loadcase.movements.results)
-            elif self.method == "signmin":
-                forces.results = np.minimum(forces.results,
-                                            loadcase.movements.results)
+                self._forces.results = np.maximum(self._forces.results,
+                                                  loadcase.movements.results)
+            elif self._method == "signmin":
+                self._forces.results = np.minimum(self._forces.results,
+                                                  loadcase.movements.results)
 
-        if self.method == "srss":
-            forces.results = np.sqrt(forces.results)
+        if self._method == "srss":
+            self._forces.results = np.sqrt(self._forces.results)
 
-        return forces
+        return self._forces
 
     @property
     def stresses(self):
@@ -731,49 +760,53 @@ class LoadComb(BaseCase):
            element code.
 
         The individual loadcases that make up the load combination can each
-        have a different allowable stress associated with each. The following
-        logic is used to determine the allowable stress to use.
-
-
-        TODO: Verify combination methods below
+        have a different allowable stress associated with each. The allowable
+        is determined by the stress type attribute.
         """
-        stresses = Stresses(self.app)
-        stresses.results = np.zeros((len(self.points), 10), dtype=np.float64)
+        self._stresses.results = np.zeros((len(self.points), 10), dtype=np.float64)
 
         # copy sifi, sifo, and sallow as they are unchanged between loadcases
         # stresses.results[:, 6:8] =
 
         # the combined sallow must be calculated somehow?
 
-        for factor, loadcase in zip_longest(self.factors, self.loadcases,
+        for factor, loadcase in zip_longest(self._factors, self._loadcases,
                                             fillvalue=1):
-            if self.method == "algebraic":
+            if self._method == "algebraic":
                 # add internal forces algebraically first then calculate code
-                # stress
-                raise NotImplementedError("implement")
-            elif self.method == "scaler":
-                stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])
-            elif self.method == "srss":
+                # stress, this is done by the solver in solver.py
+                return self._stresses
+            elif self._method == "scaler":
+                self._stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])
+            elif self._method == "srss":
                 # note: sign of factor has no effect, always positive
-                stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])**2
-            elif self.method == "abs":
-                stresses.results[:, :6] += (factor * np.abs(loadcase.stresses.results[:, :6]))
-            elif self.method == "signmax":
+                self._stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])**2
+            elif self._method == "abs":
+                self._stresses.results[:, :6] += (factor * np.abs(loadcase.stresses.results[:, :6]))
+            elif self._method == "signmax":
                 # overwrite every time through the loop
-                stresses.results[:, :6] = np.maximum(stresses.results[:, :6],
-                                              loadcase.stresses.results[:, :6])
-            elif self.method == "signmin":
-                stresses.results[:, :6] = np.minimum(stresses.results[:, :6],
-                                              loadcase.stresses.results[:, :6])
+                self._stresses.results[:, :6] = np.maximum(self._stresses.results[:, :6],
+                                                           loadcase.stresses.results[:, :6])
+            elif self._method == "signmin":
+                self._stresses.results[:, :6] = np.minimum(self._stresses.results[:, :6],
+                                                           loadcase.stresses.results[:, :6])
 
-        # final IR calculated based on combined stress how should the
-        # allowables be combined?
-        stresses.results[:, -1] = stresses.results[:, 5] / stresses.results[:, -2]
+        # final IR calculated based on combined stress and the allowable stress
+        self._stresses.results[:, -1] = self._stresses.results[:, 5] / self._stresses.results[:, -2]
 
-        if self.method == "srss":
-            stresses.results[:, :6] = np.sqrt(stresses.results[:, :6])
+        if self._method == "srss":
+            self._stresses.results[:, :6] = np.sqrt(self._stresses.results[:, :6])
 
-        return stresses
+        return self._stresses
+
+    @property
+    def label(self):
+        """Return the loadcomb label used in the reports."""
+        lbl = []
+        for loadcase in self._loadcases:
+            lbl.append("%s" % loadcase.name)
+
+        return " + ".join(lbl)
 
 
 class LoadCaseContainer(EntityContainer):
