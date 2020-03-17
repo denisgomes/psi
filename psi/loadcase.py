@@ -760,16 +760,21 @@ class LoadComb(BaseCase):
            element code.
 
         The individual loadcases that make up the load combination can each
-        have a different allowable stress associated with each. The allowable
-        is determined by the stress type attribute.
+        have a different allowable stress. The allowable is determined by the
+        stress type attribute of the load combination.  The following logic is
+        applied to determine the allow:
+
+            1. All loadcases with the same stress type as that of the load
+            combination is considered and the one with the smallest allowable
+            is used as the combined allowable stress.
+
+            2. If the loadcases are not of the same stress type as the load
+            combination, again the smallest allowable of the all the loadcases
+            is taken.
         """
         self._stresses.results = np.zeros((len(self.points), 10), dtype=np.float64)
 
-        # copy sifi, sifo, and sallow as they are unchanged between loadcases
-        # stresses.results[:, 6:8] =
-
-        # the combined sallow must be calculated somehow?
-
+        # copy sifi, sifo, as they are unchanged between loadcases
         for factor, loadcase in zip_longest(self._factors, self._loadcases,
                                             fillvalue=1):
             if self._method == "algebraic":

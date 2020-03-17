@@ -31,7 +31,7 @@ l2 = LoadCase('l2', 'sus', [Weight, Pressure], [1, 1])
 l3 = LoadComb('l3', 'sus', 'srss', [l1, l2], [1, 1])
 
 # code
-b311 = B311('B311')
+b311 = B311('B31.1')
 b311.apply([run20])
 
 # run the analysis

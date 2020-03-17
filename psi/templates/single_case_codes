@@ -1,0 +1,16 @@
+{% extends "single_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-8s" | format(" ") }}{{ "-------------------------- %-s (%s) --------------------------" | format("STRESSES", units.stress) | center(70) }}
+
+{{ "%-8s" | format("NODE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}{{ "%10s" | format("ALLOW") }}{{ "%10s" | format("SIFi") }}{{ "%10s" | format("SIFo") }}{{ "%10s" | format("RATIO") }}
+{% endblock -%}
+
+{%- block body -%}
+{%- for loadcase in loadcases -%}
+{%- for point, stress in zip(loadcase.points, loadcase.stresses.results) %}
+{{ "%-8s" | format(point.name) }}{{ "% 10.1f" | format(stress[0]) }}{{ "% 10.1f" | format(stress[1]) }}{{ "% 10.1f" | format(stress[2]) }}{{ "% 10.1f" | format(stress[3]) }}{{ "% 10.1f" | format(stress[4]) }}{{ "% 10.1f" | format(stress[5]) }}{{ "% 10.1f" | format(stress[8]) }}{{ "% 10.2f" | format(stress[6]) }}{{ "% 10.2f" | format(stress[7]) }}{{ "% 10.2f" | format(stress[9]) }}
+{%- endfor -%}
+{%- endfor %}
+{% endblock %}

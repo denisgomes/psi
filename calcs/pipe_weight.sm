@@ -1,0 +1,928 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?application progid="SMath Studio Desktop" version="0.99.6671.38791"?>
+<regions xmlns="http://smath.info/schemas/worksheet/1.0">
+  <settings dpi="96">
+    <identity>
+      <id>10450a1b-c187-42bf-ae04-0028c86373bf</id>
+      <revision>285</revision>
+    </identity>
+    <calculation>
+      <precision>4</precision>
+      <exponentialThreshold>5</exponentialThreshold>
+      <trailingZeros>false</trailingZeros>
+      <significantDigitsMode>false</significantDigitsMode>
+      <roundingMode>0</roundingMode>
+      <fractions>decimal</fractions>
+    </calculation>
+    <pageModel active="true" viewMode="0" printGrid="True" printAreas="True" simpleEqualsOnly="false" printBackgroundImages="true">
+      <paper id="1" orientation="Portrait" width="850" height="1100" />
+      <margins left="39" right="39" top="39" bottom="39" />
+      <header alignment="Center" color="#a9a9a9">&amp;[DATE] &amp;[TIME] - &amp;[FILENAME]</header>
+      <footer alignment="Center" color="#a9a9a9">&amp;[PAGENUM] / &amp;[COUNT]</footer>
+      <backgrounds />
+    </pageModel>
+    <dependencies>
+      <assembly name="SMath Studio Desktop" version="0.99.6671.38791" guid="a37cba83-b69c-4c71-9992-55ff666763bd" />
+      <assembly name="Math Region" version="0.99.6671.38791" guid="02f1ab51-215b-466e-a74d-5d8b1cf85e8d" />
+      <assembly name="Text Region" version="1.10.6671.38794" guid="485d28c5-349a-48b6-93be-12a35a1c1e39" />
+    </dependencies>
+  </settings>
+  <region id="0" top="0" color="#000000" bgColor="#ffffff">
+    <area collapsed="true">
+      <title lang="eng">
+        <p>Straight Pipe (Caesar II Verified)</p>
+      </title>
+    </area>
+    <region id="1" left="0" top="18" width="160" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>General Parameters</p>
+      </text>
+    </region>
+    <region id="2" left="0" top="45" width="178" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">g</e>
+          <e type="operand">32.2</e>
+          <e type="operand" style="unit">ft</e>
+          <e type="operand" style="unit">s</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+          <e type="operand" style="unit">s</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">386.4</e>
+        </result>
+      </math>
+    </region>
+    <region id="3" left="0" top="108" width="135" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Pipe properties</p>
+      </text>
+    </region>
+    <region id="4" left="414" top="117" width="200" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of carbon steel</p>
+      </text>
+    </region>
+    <region id="5" left="414" top="144" width="134" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.P</e>
+          <e type="operand">0.28300</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="6" left="0" top="153" width="104" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">D.O</e>
+          <e type="operand">12.75</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="7" left="126" top="153" width="104" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">t.n</e>
+          <e type="operand">0.375</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="8" left="261" top="153" width="114" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">L</e>
+          <e type="operand">28.2743</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="9" left="0" top="207" width="200" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of water at 70F</p>
+      </text>
+    </region>
+    <region id="10" left="0" top="234" width="126" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.F</e>
+          <e type="operand">0.0361</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="11" left="0" top="297" width="250" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of insulation (eslin)</p>
+      </text>
+    </region>
+    <region id="12" left="342" top="297" width="176" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Insulation thickness</p>
+      </text>
+    </region>
+    <region id="13" left="0" top="324" width="134" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.I</e>
+          <e type="operand">0.00723</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="14" left="342" top="333" width="85" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">t.ins</e>
+          <e type="operand">1</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="15" top="396" color="#000000" bgColor="#ffffff">
+      <area collapsed="false">
+        <title lang="eng">
+          <p>Intermediate Quantities</p>
+        </title>
+      </area>
+      <region id="16" left="0" top="423" width="158" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">D.I</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operand">t.n</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">-</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">12</e>
+          </result>
+        </math>
+      </region>
+      <region id="17" left="0" top="450" width="232" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.P</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operand">D.I</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">-</e>
+            <e type="bracket">(</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">14.579</e>
+          </result>
+        </math>
+      </region>
+      <region id="18" left="252" top="450" width="200" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.F</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.I</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">113.0973</e>
+          </result>
+        </math>
+      </region>
+      <region id="19" left="0" top="495" width="309" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.I</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operand">t.ins</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">+</e>
+            <e type="bracket">(</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">-</e>
+            <e type="bracket">(</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">43.1969</e>
+          </result>
+        </math>
+      </region>
+      <region id="20" left="0" top="558" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.P</e>
+            <e type="operand">ρ.P</e>
+            <e type="operand">A.P</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">116.6553</e>
+          </result>
+        </math>
+      </region>
+      <region id="21" left="252" top="558" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.F</e>
+            <e type="operand">ρ.F</e>
+            <e type="operand">A.F</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">115.4387</e>
+          </result>
+        </math>
+      </region>
+      <region id="22" left="486" top="558" width="194" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.I</e>
+            <e type="operand">ρ.I</e>
+            <e type="operand">A.I</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">8.8304</e>
+          </result>
+        </math>
+      </region>
+      <region id="23" left="0" top="603" width="186" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">w.P</e>
+            <e type="operand">m.P</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">116.7494</e>
+          </result>
+        </math>
+      </region>
+      <region id="24" left="252" top="603" width="186" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">w.F</e>
+            <e type="operand">m.F</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">115.5318</e>
+          </result>
+        </math>
+      </region>
+      <region id="25" left="486" top="603" width="170" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">W.I</e>
+            <e type="operand">m.I</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">8.8376</e>
+          </result>
+        </math>
+      </region>
+      <region id="26" top="648" color="#000000" bgColor="#ffffff">
+        <area terminator="true" />
+      </region>
+    </region>
+    <region id="27" left="0" top="675" width="186" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">M</e>
+          <e type="operand">m.P</e>
+          <e type="operand">m.F</e>
+          <e type="operator" args="2">+</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">lbm</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">232.094</e>
+        </result>
+      </math>
+    </region>
+    <region id="28" left="270" top="675" width="225" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Total mass including fluid</p>
+      </text>
+    </region>
+    <region id="29" left="0" top="711" width="226" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">W</e>
+          <e type="operand">w.P</e>
+          <e type="operand">w.F</e>
+          <e type="operator" args="2">+</e>
+          <e type="operand">W.I</e>
+          <e type="operator" args="2">+</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">lbf</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">241.1188</e>
+        </result>
+      </math>
+    </region>
+    <region id="30" left="270" top="711" width="364" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Total weight including fluid and insulation</p>
+      </text>
+    </region>
+    <region id="31" top="747" color="#000000" bgColor="#ffffff">
+      <area terminator="true" />
+    </region>
+  </region>
+  <region id="32" top="774" color="#000000" bgColor="#ffffff">
+    <area collapsed="false">
+      <title lang="eng">
+        <p>90 Pipe Bend (Caesar II Verified)</p>
+      </title>
+    </area>
+    <region id="33" left="0" top="792" width="160" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>General Parameters</p>
+      </text>
+    </region>
+    <region id="34" left="0" top="819" width="178" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">g</e>
+          <e type="operand">32.2</e>
+          <e type="operand" style="unit">ft</e>
+          <e type="operand" style="unit">s</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+          <e type="operand" style="unit">s</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">386.4</e>
+        </result>
+      </math>
+    </region>
+    <region id="35" left="0" top="882" width="135" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Pipe properties</p>
+      </text>
+    </region>
+    <region id="36" left="441" top="891" width="200" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of carbon steel</p>
+      </text>
+    </region>
+    <region id="37" left="441" top="918" width="134" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.P</e>
+          <e type="operand">0.28300</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="38" left="0" top="927" width="104" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">D.O</e>
+          <e type="operand">12.75</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="39" left="126" top="927" width="104" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">t.n</e>
+          <e type="operand">0.375</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="40" left="0" top="963" width="80" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">D.N</e>
+          <e type="operand">12</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="41" left="90" top="963" width="201" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p># nominal pipe diameter</p>
+      </text>
+    </region>
+    <region id="42" left="0" top="990" width="138" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">R</e>
+          <e type="operand">1.5</e>
+          <e type="operand">D.N</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">18</e>
+        </result>
+      </math>
+    </region>
+    <region id="43" left="162" top="990" width="290" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p># bend radius, radius of curvature</p>
+      </text>
+    </region>
+    <region id="44" left="0" top="1035" width="176" height="41" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">L</e>
+          <e type="operand">2</e>
+          <e type="operand">π</e>
+          <e type="operator" args="2">*</e>
+          <e type="operand">R</e>
+          <e type="operator" args="2">*</e>
+          <e type="operand">4</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">28.2743</e>
+        </result>
+      </math>
+    </region>
+    <region id="45" left="216" top="1044" width="397" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p># circumference divided by 4 for quarter circle</p>
+      </text>
+    </region>
+    <region id="46" left="0" top="1089" width="200" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of water at 70F</p>
+      </text>
+    </region>
+    <region id="47" left="0" top="1116" width="126" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.F</e>
+          <e type="operand">0.0361</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="48" left="0" top="1179" width="250" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Density of insulation (eslin)</p>
+      </text>
+    </region>
+    <region id="49" left="342" top="1179" width="176" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Insulation thickness</p>
+      </text>
+    </region>
+    <region id="50" left="0" top="1206" width="134" height="50" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">ρ.I</e>
+          <e type="operand">0.00723</e>
+          <e type="operand" style="unit">lbm</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="51" left="342" top="1215" width="85" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">t.ins</e>
+          <e type="operand">1</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region id="52" top="1314" color="#000000" bgColor="#ffffff">
+      <area collapsed="false">
+        <title lang="eng">
+          <p>Intermediate</p>
+        </title>
+      </area>
+      <region id="53" left="9" top="1332" width="158" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">D.I</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operand">t.n</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">-</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">12</e>
+          </result>
+        </math>
+      </region>
+      <region id="54" left="9" top="1359" width="232" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.P</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operand">D.I</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">-</e>
+            <e type="bracket">(</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">14.579</e>
+          </result>
+        </math>
+      </region>
+      <region id="55" left="261" top="1359" width="200" height="42" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.F</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.I</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">113.0973</e>
+          </result>
+        </math>
+      </region>
+      <region id="56" left="9" top="1404" width="309" height="44" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">A.I</e>
+            <e type="operand">π</e>
+            <e type="operand">4</e>
+            <e type="operator" args="2">/</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operand">t.ins</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">+</e>
+            <e type="bracket">(</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operand">D.O</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+            <e type="operator" args="2">-</e>
+            <e type="bracket">(</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">in</e>
+            <e type="operand">2</e>
+            <e type="operator" args="2">^</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">43.1969</e>
+          </result>
+        </math>
+      </region>
+      <region id="57" left="9" top="1458" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.P</e>
+            <e type="operand">ρ.P</e>
+            <e type="operand">A.P</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">116.6555</e>
+          </result>
+        </math>
+      </region>
+      <region id="58" left="261" top="1458" width="210" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.F</e>
+            <e type="operand">ρ.F</e>
+            <e type="operand">A.F</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">115.4388</e>
+          </result>
+        </math>
+      </region>
+      <region id="59" left="495" top="1458" width="194" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">m.I</e>
+            <e type="operand">ρ.I</e>
+            <e type="operand">A.I</e>
+            <e type="operator" args="2">*</e>
+            <e type="operand">L</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbm</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">8.8305</e>
+          </result>
+        </math>
+      </region>
+      <region id="60" left="9" top="1503" width="186" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">w.P</e>
+            <e type="operand">m.P</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">116.7496</e>
+          </result>
+        </math>
+      </region>
+      <region id="61" left="261" top="1503" width="178" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">w.F</e>
+            <e type="operand">m.F</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">115.532</e>
+          </result>
+        </math>
+      </region>
+      <region id="62" left="495" top="1503" width="170" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+        <math>
+          <input>
+            <e type="operand">W.I</e>
+            <e type="operand">m.I</e>
+            <e type="operand">g</e>
+            <e type="operator" args="2">*</e>
+            <e type="operator" args="2">:</e>
+          </input>
+          <contract>
+            <e type="operand" style="unit">lbf</e>
+          </contract>
+          <result action="numeric">
+            <e type="operand">8.8376</e>
+          </result>
+        </math>
+      </region>
+      <region id="63" top="1539" color="#000000" bgColor="#ffffff">
+        <area terminator="true" />
+      </region>
+    </region>
+    <region id="64" left="0" top="1557" width="194" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">M</e>
+          <e type="operand">m.P</e>
+          <e type="operand">m.F</e>
+          <e type="operator" args="2">+</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">lbm</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">232.0943</e>
+        </result>
+      </math>
+    </region>
+    <region id="65" left="270" top="1557" width="225" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Total mass including fluid</p>
+      </text>
+    </region>
+    <region id="66" left="0" top="1593" width="226" height="30" color="#000000" bgColor="#ffff80" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">W</e>
+          <e type="operand">w.P</e>
+          <e type="operand">w.F</e>
+          <e type="operator" args="2">+</e>
+          <e type="operand">W.I</e>
+          <e type="operator" args="2">+</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">lbf</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">241.1191</e>
+        </result>
+      </math>
+    </region>
+    <region id="67" left="270" top="1593" width="364" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+      <text lang="eng">
+        <p>Total weight including fluid and insulation</p>
+      </text>
+    </region>
+    <region id="68" top="1638" color="#000000" bgColor="#ffffff">
+      <area terminator="true" />
+    </region>
+  </region>
+  <region id="69" top="2385" color="#000000" bgColor="#ffffff">
+    <area terminator="true" />
+  </region>
+</regions>

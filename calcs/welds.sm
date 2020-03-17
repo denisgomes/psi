@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?application progid="SMath Studio Desktop" version="0.99.6671.38791"?>
+<regions xmlns="http://smath.info/schemas/worksheet/1.0">
+  <settings dpi="96">
+    <identity>
+      <id>9dc2ffc0-0b3c-4206-a919-b90a60835b03</id>
+      <revision>298</revision>
+    </identity>
+    <calculation>
+      <precision>4</precision>
+      <exponentialThreshold>5</exponentialThreshold>
+      <trailingZeros>false</trailingZeros>
+      <significantDigitsMode>false</significantDigitsMode>
+      <roundingMode>0</roundingMode>
+      <fractions>decimal</fractions>
+    </calculation>
+    <pageModel active="false" viewMode="2" printGrid="False" printAreas="True" simpleEqualsOnly="false" printBackgroundImages="true">
+      <paper id="17" orientation="Portrait" width="1100" height="1700" />
+      <margins left="39" right="39" top="39" bottom="39" />
+      <header alignment="Center" color="#a9a9a9">&amp;[DATE] &amp;[TIME] - &amp;[FILENAME]</header>
+      <footer alignment="Center" color="#a9a9a9">&amp;[PAGENUM] / &amp;[COUNT]</footer>
+      <backgrounds />
+    </pageModel>
+    <dependencies>
+      <assembly name="SMath Studio Desktop" version="0.99.6671.38791" guid="a37cba83-b69c-4c71-9992-55ff666763bd" />
+      <assembly name="Math Region" version="0.99.6671.38791" guid="02f1ab51-215b-466e-a74d-5d8b1cf85e8d" />
+      <assembly name="Text Region" version="1.10.6671.38794" guid="485d28c5-349a-48b6-93be-12a35a1c1e39" />
+    </dependencies>
+  </settings>
+  <region id="0" left="0" top="0" width="299" height="24" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Weld Analysis of Investigated Point</p>
+    </text>
+  </region>
+  <region id="1" left="0" top="54" width="363" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Z is the axial direction of the weld group.</p>
+    </text>
+  </region>
+  <region id="2" left="0" top="72" width="404" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>X is the horizontal direction of the weld group.</p>
+    </text>
+  </region>
+  <region id="3" left="0" top="90" width="388" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Y is the vertical direction of the weld group.</p>
+    </text>
+  </region>
+  <region id="4" left="0" top="315" width="188" height="24" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Loading on weld group </p>
+    </text>
+  </region>
+  <region id="5" left="0" top="369" width="96" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">F.x</e>
+        <e type="operand">100</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="6" left="117" top="369" width="96" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">F.y</e>
+        <e type="operand">200</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="7" left="234" top="369" width="96" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">F.z</e>
+        <e type="operand">300</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="8" left="0" top="396" width="110" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">T</e>
+        <e type="operand">200</e>
+        <e type="operand" style="unit">ft</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="9" left="117" top="396" width="116" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">M.y</e>
+        <e type="operand">200</e>
+        <e type="operand" style="unit">ft</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="10" left="234" top="396" width="116" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">M.z</e>
+        <e type="operand">200</e>
+        <e type="operand" style="unit">ft</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand" style="unit">lbf</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="11" left="0" top="459" width="135" height="24" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Weld Properties</p>
+    </text>
+  </region>
+  <region id="12" left="0" top="513" width="90" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">a</e>
+        <e type="operand">0.25</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="13" left="144" top="513" width="224" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># weld size, length of toe</p>
+    </text>
+  </region>
+  <region id="14" left="0" top="540" width="66" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">L</e>
+        <e type="operand">8</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="15" left="144" top="540" width="191" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># total length of weld</p>
+    </text>
+  </region>
+  <region id="16" left="0" top="567" width="114" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">σ.allow</e>
+        <e type="operand">60</e>
+        <e type="operand" style="unit">ksi</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="17" left="144" top="567" width="160" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># tensile strength</p>
+    </text>
+  </region>
+  <region id="18" left="0" top="630" width="98" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">I.z</e>
+        <e type="operand">3.0</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operand">4</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="19" left="135" top="630" width="98" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">I.y</e>
+        <e type="operand">3.0</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operand">4</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="20" left="270" top="630" width="98" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">I.p</e>
+        <e type="operand">3.0</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operand">4</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="21" left="0" top="675" width="82" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">y</e>
+        <e type="operand">1.5</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="22" left="144" top="675" width="66" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">z</e>
+        <e type="operand">1</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="23" left="279" top="675" width="586" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># distance of investigated weld point from centroid (used for bending)</p>
+    </text>
+  </region>
+  <region id="24" left="0" top="711" width="88" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">r.x</e>
+        <e type="operand">0.5</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="25" left="144" top="711" width="88" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">r.y</e>
+        <e type="operand">0.5</e>
+        <e type="operand" style="unit">in</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+    </math>
+  </region>
+  <region id="26" left="279" top="711" width="586" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># distance of investigated weld point from centroid (used for torsion)</p>
+    </text>
+  </region>
+  <region id="27" left="0" top="783" width="168" height="24" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Intermediate Values</p>
+    </text>
+  </region>
+  <region id="28" left="0" top="819" width="255" height="39" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">A.w</e>
+        <e type="operand">a</e>
+        <e type="operand">45</e>
+        <e type="operand" style="unit">deg</e>
+        <e type="operator" args="2">*</e>
+        <e type="function" args="1">cos</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">L</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <contract>
+        <e type="operand" style="unit">in</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+      </contract>
+      <result action="numeric">
+        <e type="operand">1.4142</e>
+      </result>
+    </math>
+  </region>
+  <region id="29" left="297" top="828" width="151" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># total weld area</p>
+    </text>
+  </region>
+  <region id="30" left="0" top="900" width="127" height="24" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p>Results Values</p>
+    </text>
+  </region>
+  <region id="31" left="0" top="954" width="320" height="53" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">σ.normal</e>
+        <e type="operand">F.x</e>
+        <e type="operand">A.w</e>
+        <e type="operator" args="2">/</e>
+        <e type="operand">M.z</e>
+        <e type="operand">y</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">I.z</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">+</e>
+        <e type="operand">M.y</e>
+        <e type="operand">z</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">I.y</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">+</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <contract>
+        <e type="operand" style="unit">psi</e>
+      </contract>
+      <result action="numeric">
+        <e type="operand">2070.7107</e>
+      </result>
+    </math>
+  </region>
+  <region id="32" left="414" top="963" width="445" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># total normal stress due to normal force and bending</p>
+    </text>
+  </region>
+  <region id="33" left="0" top="1008" width="392" height="66" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">τ.shear</e>
+        <e type="operand">T</e>
+        <e type="operand">r.y</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">I.p</e>
+        <e type="operator" args="2">/</e>
+        <e type="operand">F.z</e>
+        <e type="operand">A.w</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">+</e>
+        <e type="bracket">(</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+        <e type="operand">T</e>
+        <e type="operand">r.x</e>
+        <e type="operator" args="2">*</e>
+        <e type="operand">I.p</e>
+        <e type="operator" args="2">/</e>
+        <e type="operand">F.y</e>
+        <e type="operand">A.w</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">+</e>
+        <e type="bracket">(</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">+</e>
+        <e type="function" args="1">sqrt</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <contract>
+        <e type="operand" style="unit">psi</e>
+      </contract>
+      <result action="numeric">
+        <e type="operand">817.2164</e>
+      </result>
+    </math>
+  </region>
+  <region id="34" left="414" top="1017" width="575" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># total shear stress due to transverse shear force + torsional moment</p>
+    </text>
+  </region>
+  <region id="35" left="414" top="1044" width="356" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <text lang="eng">
+      <p># the horizontal shear (VQ/It) is not used</p>
+    </text>
+  </region>
+  <region id="36" left="0" top="1107" width="310" height="41" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">σ</e>
+        <e type="operand">σ.normal</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+        <e type="operand">3</e>
+        <e type="operand">τ.shear</e>
+        <e type="operand">2</e>
+        <e type="operator" args="2">^</e>
+        <e type="operator" args="2">*</e>
+        <e type="operator" args="2">+</e>
+        <e type="function" args="1">sqrt</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <contract>
+        <e type="operand" style="unit">psi</e>
+      </contract>
+      <result action="numeric">
+        <e type="operand">2508.2605</e>
+      </result>
+    </math>
+  </region>
+  <region id="37" left="0" top="1170" width="168" height="47" color="#000000" bgColor="#ffffff" fontSize="10">
+    <math>
+      <input>
+        <e type="operand">IR</e>
+        <e type="operand">σ</e>
+        <e type="operand">σ.allow</e>
+        <e type="operator" args="2">/</e>
+        <e type="operator" args="2">:</e>
+      </input>
+      <result action="numeric">
+        <e type="operand">0.0418</e>
+      </result>
+    </math>
+  </region>
+</regions>

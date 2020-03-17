@@ -80,18 +80,18 @@ class Movements(Report):
 
         with redirect_stdout(sys.__stdout__):
             tqdm.write(self.template.render(version=version,
-                                        date=date,
-                                        time=time,
-                                        jobname=jobname,
-                                        licensed_to="Community",
-                                        report_type=self.__class__.__name__,
-                                        report_desc="Displacement Report",
-                                        units=Quantity.user_units,
-                                        loadcases=self.loadcases,
-                                        zip=zip,     # pass zip
-                                        enumerate=enumerate,
-                                        abs=abs,
-                                        ))
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type=self.__class__.__name__,
+                                            report_desc="Point Displacement Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
 
 
 class Reactions(Report):
@@ -124,18 +124,18 @@ class Reactions(Report):
 
         with redirect_stdout(sys.__stdout__):
             tqdm.write(self.template.render(version=version,
-                                        date=date,
-                                        time=time,
-                                        jobname=jobname,
-                                        licensed_to="Community",
-                                        report_type=self.__class__.__name__,
-                                        report_desc="Reactions Report",
-                                        units=Quantity.user_units,
-                                        loadcases=self.loadcases,
-                                        zip=zip,     # pass zip
-                                        enumerate=enumerate,
-                                        abs=abs,
-                                        ))
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type=self.__class__.__name__,
+                                            report_desc="Support Reactions Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
 
 
 class Forces(Report):
@@ -169,22 +169,22 @@ class Forces(Report):
 
         with redirect_stdout(sys.__stdout__):
             tqdm.write(self.template.render(version=version,
-                                        date=date,
-                                        time=time,
-                                        jobname=jobname,
-                                        licensed_to="Community",
-                                        report_type=self.__class__.__name__,
-                                        report_desc="Forces Report",
-                                        units=Quantity.user_units,
-                                        loadcases=self.loadcases,
-                                        zip=zip,     # pass zip
-                                        enumerate=enumerate,
-                                        abs=abs,
-                                        ))
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type=self.__class__.__name__,
+                                            report_desc="Element Forces Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
 
 
 class Stresses(Report):
-    """Code stress output results"""
+    """Stress output results"""
 
     def __init__(self, name, loadcases):
         """Create a forces report instance.
@@ -214,18 +214,63 @@ class Stresses(Report):
 
         with redirect_stdout(sys.__stdout__):
             tqdm.write(self.template.render(version=version,
-                                        date=date,
-                                        time=time,
-                                        jobname=jobname,
-                                        licensed_to="Community",
-                                        report_type=self.__class__.__name__,
-                                        report_desc="Stresses Report",
-                                        units=Quantity.user_units,
-                                        loadcases=self.loadcases,
-                                        zip=zip,     # pass zip
-                                        enumerate=enumerate,
-                                        abs=abs,
-                                        ))
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type=self.__class__.__name__,
+                                            report_desc="Element Stresses Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
+
+
+class Codes(Report):
+    """Code compliance output results"""
+
+    def __init__(self, name, loadcases):
+        """Create a forces report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
+        super(Codes, self).__init__(name, loadcases)
+
+        if len(loadcases) == 1:
+            self.template = self.env.get_template("single_case_codes")
+        else:
+            self.template = self.env.get_template("multiple_case_codes")
+
+    def to_screen(self):
+        """Print code compliance report results to screen."""
+        # version = options["core.version"]
+        version = self.app.models.active_object.settings.version
+        date = datetime.now().date()
+        jobname = self.app.models.active_object.jobname
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
+
+        with redirect_stdout(sys.__stdout__):
+            tqdm.write(self.template.render(version=version,
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type=self.__class__.__name__,
+                                            report_desc="Codes Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
 
 
 class ReportContainer(EntityContainer, ActiveEntityContainerMixin):
@@ -236,3 +281,4 @@ class ReportContainer(EntityContainer, ActiveEntityContainerMixin):
         self.Reactions = Reactions
         self.Forces = Forces
         self.Stresses = Stresses
+        self.Codes = Codes

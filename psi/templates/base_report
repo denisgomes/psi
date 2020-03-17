@@ -1,7 +1,7 @@
-PSI {{ version }}, Date: {{ date }} Time: {{ time }}
-Job Name: {{ jobname }}
-Licensed To: {{ licensed_to }}
-{{ report_type }} : {{ report_desc }}
+PSI {{ version }}, DATE: {{ date }} TIME: {{ time }}
+JOB NAME: {{ jobname }}
+LICENSED TO: {{ licensed_to }}
+{{ report_type | upper }} : {{ report_desc }}
 
 {%- block header %}{% endblock -%}
 {%- block body %}{% endblock -%}

@@ -2,9 +2,9 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-10s" | format(" ") }}{{ "%-10s" | format(" ") }}{{ "------------------------- %-s (%s) -----------------------------" | format("STRESSES", units.stress) | center(70) }}
+{{ "%-10s" | format(" ") }}{{ "%-10s" | format(" ") }}{{ "-------------------- %-s (%s) ------------------------" | format("STRESSES", units.stress) | center(60) }}
 
-{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}{{ "%10s" | format("ALLOW") }}{{ "%10s" | format("SIFi") }}{{ "%10s" | format("SIFo") }}{{ "%10s" | format("RATIO") }}
+{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}
 {% endblock %}
 
 {% block body %}
@@ -16,10 +16,6 @@
 {%- set PRESSURE = 0 -%}
 {%- set BENDING = 0 -%}
 {%- set CODE = 0 -%}
-{%- set ALLOW = 0 -%}
-{%- set SIFi = 0 -%}
-{%- set SIFo = 0 -%}
-{%- set RATIO = 0 -%}
 
 {%- for loadcase in loadcases -%}
 
@@ -30,10 +26,6 @@
 {%- set pressure = results[3] -%}
 {%- set bending = results[4] -%}
 {%- set code = results[5] -%}
-{%- set allow = results[8] -%}
-{%- set sifi = results[6] -%}
-{%- set sifo = results[7] -%}
-{%- set ratio = results[9] -%}
 
 {%- if abs(hoop) > abs(HOOP) -%}
     {%- set HOOP = hoop -%}
@@ -53,25 +45,13 @@
 {%- if abs(code) > abs(CODE) -%}
     {%- set CODE = code -%}
 {% endif %}
-{%- if abs(allow) > abs(ALLOW) -%}
-    {%- set ALLOW = allow -%}
-{% endif %}
-{%- if abs(sifi) > abs(SIFi) -%}
-    {%- set SIFi = sifi -%}
-{% endif %}
-{%- if abs(sifo) > abs(SIFo) -%}
-    {%- set SIFo = sifo -%}
-{% endif %}
-{%- if abs(ratio) > abs(RATIO) -%}
-    {%- set RATIO = ratio -%}
-{% endif %}
 {% if loop.first -%}
-{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}
 {%- elif loop.last -%}
-{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(HOOP) }}{{ "% 10.1f" | format(AXIAL) }}{{ "% 10.1f" | format(TORSION) }}{{ "% 10.1f" | format(PRESSURE) }}{{ "% 10.1f" | format(BENDING) }}{{ "% 10.1f" | format(CODE) }}{{ "% 10.1f" | format(ALLOW) }}{{ "% 10.2f" | format(SIFi) }}{{ "% 10.2f" | format(SIFo) }}{{ "% 10.2f" | format(RATIO) }}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(HOOP) }}{{ "% 10.1f" | format(AXIAL) }}{{ "% 10.1f" | format(TORSION) }}{{ "% 10.1f" | format(PRESSURE) }}{{ "% 10.1f" | format(BENDING) }}{{ "% 10.1f" | format(CODE) }}
 {%- else -%}
-{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}
 {%- endif -%}
 {% endfor %}
 {% endfor -%}
