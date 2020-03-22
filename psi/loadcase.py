@@ -438,13 +438,17 @@ class Sax(Stress):
     pass
 
 
-@units.define(result="stress")
+@units.define(results="stress")
 class Sallow:
     """Element code stress at a node"""
     pass
 
 
 class Stresses:
+    """A table of nodal stresses.
+
+    Each row of the table corresponds to a different node.
+    """
 
     def __init__(self, app):
         self._app = app
@@ -458,6 +462,7 @@ class Stresses:
         self._sifo = None
         self._sallow = Sallow()
         self._sratio = None
+        self._scode = None
 
     def __getitem__(self, item):
         """Get nodal results."""
@@ -486,26 +491,32 @@ class Stresses:
         sl = self._sl.results
         sifi = self._sifi
         sifo = self._sifo
-        sallow = self._sallow.result
+        sallow = self._sallow.results
         sratio = self._sratio
+        scodes = self._scodes
 
-        data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio)
-        values = np.array(list(data), dtype=np.float64)
+        data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio,
+                   scodes)
+
+        values = list(data)
 
         return values
 
     @results.setter
     def results(self, data):
-        self._shoop.results = data[:, 0]
-        self._sax.results = data[:, 1]
-        self._stor.results = data[:, 2]
-        self._slp.results = data[:, 3]
-        self._slb.results = data[:, 4]
-        self._sl.results = data[:, 5]
-        self._sifi = data[:, 6]
-        self._sifo = data[:, 7]
-        self._sallow.result = data[:, 8]
-        self._sratio = data[:, 9]
+        results, codes = data
+
+        self._shoop.results = results[:, 0]
+        self._sax.results = results[:, 1]
+        self._stor.results = results[:, 2]
+        self._slp.results = results[:, 3]
+        self._slb.results = results[:, 4]
+        self._sl.results = results[:, 5]
+        self._sifi = results[:, 6]
+        self._sifo = results[:, 7]
+        self._sallow.results = results[:, 8]
+        self._sratio = results[:, 9]
+        self._scodes = codes
 
 
 class BaseCase(Entity):
@@ -590,7 +601,7 @@ class LoadCase(BaseCase):
 
 
 class LoadComb(BaseCase):
-    """Combine loadcases using different combination methods.
+    """Combine primary loadcases using different combination methods.
 
     .. note::
         Combinations pull stored data from loadcases on the fly and do the
@@ -757,12 +768,12 @@ class LoadComb(BaseCase):
         """Return the combined nodal stresses array.
 
         .. note:: Stresses are calculated based on the stress type and the
-           element code.
+            element code.
 
         The individual loadcases that make up the load combination can each
         have a different allowable stress. The allowable is determined by the
         stress type attribute of the load combination.  The following logic is
-        applied to determine the allow:
+        applied to determine the allowable:
 
             1. All loadcases with the same stress type as that of the load
             combination is considered and the one with the smallest allowable

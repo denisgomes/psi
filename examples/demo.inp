@@ -53,3 +53,6 @@ str1.to_screen()
 
 # disp2 = Movements('r5', [l3])
 # disp2.to_screen()
+
+cod1 = Codes('r6', [l1, l2])
+cod1.to_screen()

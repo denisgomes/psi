@@ -274,7 +274,10 @@ class B311(Code):
         return sx
 
     def sl(self, element, loadcase, forces):
-        """Total longitudinal stress due to pressure and bending+torsion"""
+        """Total longitudinal stress due to pressure and bending+torsion. This
+        combination of stresses is also known as the code stress for most
+        codes.
+        """
         with units.Units(user_units="code_english"):
             slp = self.slp(element, loadcase)
             slb = self.slb(element, forces)
@@ -292,7 +295,7 @@ class B311(Code):
         """Allowable stress for sustained, occasional and expansion loadcases.
 
         Liberal stress can be excluded for the expansion case by user defined
-        option otherwise enabled by default per code.
+        option otherwise enabled by default depending on the code.
         """
         with units.Units(user_units="code_english"):
             material = element.material
@@ -316,7 +319,7 @@ class B311(Code):
                 # conservative
                 return self.k * sh
             elif loadcase.stype == "exp":
-                liberal_stress = 0  # default
+                liberal_stress = 0  # default per code
                 if self.app.models.active_object.settings.liberal_stress:
                     liberal_stress = sh - self.sl(element, loadcase, forces)
 

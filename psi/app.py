@@ -171,6 +171,7 @@ class App(object):
                 "Reactions": self.reports.Reactions,
                 "Forces": self.reports.Forces,
                 "Stresses": self.reports.Stresses,
+                "Codes": self.reports.Codes,
                 }
 
     @property

@@ -69,7 +69,7 @@ def calculate_element_code_stresses(points, loadcase, element, S, lcasenum):
         sli = element.code.sl(element, loadcase, fori)
         slj = element.code.sl(element, loadcase, forj)
 
-        # fitting and nodal sifs, sum together or take max?
+        # fitting and nodal sifs, sum together, take max or average?
         sifi = element.code.sifi(element)
         sifo = element.code.sifo(element)
 
@@ -294,7 +294,7 @@ def static(model):
         X = np.linalg.solve(Ks, Fs)
     except np.linalg.LinAlgError:
         if not model.settings.weak_springs:
-            raise np.linalg.LinAlgError("solver error, try turning on",
+            raise np.linalg.LinAlgError("Solver error, try turning on",
                                         "weak springs")
         raise
 
@@ -365,12 +365,14 @@ def static(model):
     tqdm.info("*** Element code checking.")
 
     S = np.zeros((nn, 10, lc), dtype=np.float64)
+    C = []  # code listing per element node
 
     for element in model.elements:
 
         for i, loadcase in enumerate(model.loadcases):
             if isinstance(loadcase, LoadCase):
                 calculate_element_code_stresses(points, loadcase, element, S, i)
+                C.extend(2 * [element.code.name])
 
         for i, loadcase in enumerate(model.loadcases):
             if isinstance(loadcase, LoadComb) and loadcase.method == "algebraic":
@@ -386,7 +388,7 @@ def static(model):
 
         if isinstance(loadcase, LoadCase):
             # X[:, i], R[:, i] and Fi[:, i] return row vectors
-            loadcase.stresses.results = S[:, :, i]
+            loadcase.stresses.results = (S[:, :, i], C)
 
         elif isinstance(loadcase, LoadComb) and loadcase.method == "algebraic":
             # load combs are combined at runtime except below
