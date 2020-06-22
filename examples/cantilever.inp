@@ -53,7 +53,7 @@ mdl.analyze()
 reac = Reactions('R1', [L1])
 reac.to_screen()
 
-disp = Movements('R2', [L2])
+disp = Movements('R2', [L1])
 disp.to_screen()
 
 forc = Forces('R3', [L3])

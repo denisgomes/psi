@@ -14,7 +14,116 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Static, modal and dynamic solvers."""
+"""Static, modal and dynamic solvers.
+
+Static
+======
+Go through all loadcases, solve each one and then combine them to generate the
+final results.
+
+For each element calculate the element stiffness matrix and assemble the system
+stiffness matrix using the nodal degree of freedom. The DOFs of a node is based
+on the position/index of the point in the points list
+
+The loads defined for each element primary/primitive loadcase is combined into
+a single load vector. The load vector for each element loadcase is then
+assembled into a global load matrix. Multiple global load vectors are solved
+for at once using gaussian elimination.
+
+Note that to simplify the FEA solution, all elements are simple beams,
+including bends and reducers which are approximated by multiple beams chained
+together.
+
+General Procedure
+-----------------
+1. Define NDOF indices for element nodes.
+
+2. For each element
+    a. Construct the local stiffness matrix.
+    b. Construct local force vector, one for each primitive loadcase.
+    c. Transform local stiffness and force matrix.
+    d. Add global element stiffness matrix and the global element force vectors
+       to the global system stiffness and forces matrix, respectively.
+
+3. Apply the boundary conditions using the penalty method.
+
+4. Solve the global system using guassian elimination techniques.
+
+   AX=B
+
+   Where A is the global system matrix.
+
+   B is the matrix of force vectors, one for each primitive loadcase, and
+   X is the matrix of solutions vectors for each primitive loadcase.
+
+5. Use the calculated displacements for each primitive loadcase to calculate
+   the element force and moments.
+
+6. Use the results from step 5 to calculate nodal reactions and element forces.
+   Finally use the element forces to calculate code stresses.
+
+Reducers and Bends
+------------------
+Both reducers and bends are topologically curves and therefore approximations.
+The midpoint of a bend is created as a side effect of defining the bend when
+it is created. All the other vertices and inaccessible from a nodal standpoint.
+In other words, the user does not have control of the other underlying vertices
+because only the vertex that corresponds to the midnode is referenced by the
+midpoint.
+
+The static solver preprocesses all reducers and bends such that a point is made
+for each underlying vertex at runtime. Once the solution is generated all the
+temporary points are deleted along with the nodal data corresponding to each
+point. For the case of a bend, the solution for the midpoint and end points are
+kept. For the reducer, the results for the end points are kept only similar to
+all the other element.
+
+Tee Flexibility
+---------------
+...
+
+Skewed Supports
+---------------
+...
+
+Spring Algorithm
+----------------
+...
+
+Master Slave (CNode)
+--------------------
+...
+
+Non-linear supports
+-------------------
+For each loadcase, for each nonlinear support, per each solve:
+
+Initially a non-linear (+Y) support is converted to a linear full Y support. If
+the solution shows a (-Y) load on the support, the support is modeled correctly
+and "active" for the loadcase. If not, the program marks it as "inactive" and
+gets rid of the support altogether and tracks the displacement at that point.
+If the point shows a (+Y) deflection, this support is modeled correclty for
+this loadcase. Else, the stiffness matrix is reset to a full Y. If any of the
+nonlinear assumption proves incorrect reanalyze with the updated stiffness and
+force vector (if required). Continue the process checking all the "active"
+supports for loads and all the "inactive" supports for displacement. When all
+"active" supports have a (-Y) and the "inactive" suports show a positive up
+displacement. A status change flag variable is used to indicate a support that
+that initially shows a (-Y) load but then starts to show an uplift.
+
+Friction
+--------
+...
+
+Loading sequence and non-linear supports
+----------------------------------------
+Non-linear supports use an iterative approach to determine the final support
+loads and pipe configuration. The sequence in which loads are applied matters
+as superposition is not valid for non-linear analysis. Each load is applied
+and the displacements extracted. These movements are then used for the next
+step, ie. the model mesh is modified to incorporate the new point locations.
+As a result the system stiffness matrix is updated each iteration.
+"""
 
 import math
 import sys
@@ -32,7 +141,8 @@ def order_of_mag(n):
     return math.floor(math.log10(n))
 
 
-def calculate_element_code_stresses(points, loadcase, element, S, lcasenum):
+def element_codecheck(points, loadcase, element, S, lcasenum):
+    """Perform element code checking based on the assigned code."""
     ndof = 6
 
     idxi = points.index(element.from_point)
@@ -103,72 +213,8 @@ def calculate_element_code_stresses(points, loadcase, element, S, lcasenum):
 
 
 def static(model):
-    """Run a static analysis of the system.
+    """Run a static analysis of the system."""
 
-    Go through all loadcases, solve each one and then combine them to generate
-    the final results.
-
-    For each element calculate the element stiffness matrix and assemble the
-    system stiffness matrix using the nodal degree of freedom matrix.
-
-    The loads defined for each element loadcase is combined into a single load
-    vector. The load vector for each element loadcase is then assembled into a
-    global load vector. Multiple global load vectors are solved for at once
-    using gaussian elimination.
-
-    Note that to simplify the FEA solution, all elements are essentially beams,
-    including bends and reducers which are approximations made by chaining
-    multiple beams together.
-
-    1. Create NDOF matrix.
-
-    2. For each element
-        a. Construct the local stiffness matrix.
-        b. Construct local force matrix, one for each load case.
-        c. Transform local stiffness and force matrix.
-        d. Add global element stiffness matrix and the global element force
-           vector to the global system stiffness and force vectors,
-           respectively.
-
-    3. Apply the boundary conditions using the penalty method.
-
-    4. Solve the global system using guassian elimination techniques.
-
-        AX=B
-
-        Where A is the global system matrix.
-        B is the matrix of force vectors, one for each loadcase, and
-        X is the matrix of solutions vectors for each loadcase.
-
-    5. Use the calculated displacements to calculate the element force and
-       moments.
-
-    6. Use the results from step 5 to calculate code stresses.
-
-    Non-linear supports
-
-    For each non-linear support and each loadcase:
-
-    Initially a non-linear (+Y) support is converted to a linear full Y
-    support.
-
-    If the solution shows a (-Y) load on the support, the support is modeled
-    correctly. If not, the program gets rid of the support altogether and
-    tracks the displacement at that point.
-
-    If the point shows a (+Y) deflection, this support is modeled correclty for
-    this loadcase. Else, the stiffness matrix is reset to a full Y.
-
-    Loading sequence and non-linear supports.
-
-    Non-linear supports use an iterative approach to determine the final
-    support loads and pipe configuration. The sequence in which loads are
-    applied matters as superposition is not valid for non-linear analysis.
-    Each load is applied and the displacements extracted. These movements are
-    then used for the next step, ie. the model mesh is modified to incorporate
-    the new point locations. As a result the system stiffness matrix is updated
-    each iteration.
-    """
     tqdm = logging.getLogger("tqdm")
     tqdm.info("*** Preprocessing, initializing analysis...")
 
@@ -294,9 +340,11 @@ def static(model):
         X = np.linalg.solve(Ks, Fs)
     except np.linalg.LinAlgError:
         if not model.settings.weak_springs:
-            raise np.linalg.LinAlgError("Solver error, try turning on",
-                                        "weak springs")
-        raise
+            raise np.linalg.LinAlgError("solver error, try turning on",
+                                        "weak springs.")
+        else:
+            raise np.linagl.LinAlgError("solver error, make sure the model",
+                                        "has no error.")
 
     # with redirect_stdout(sys.__stdout__):
     #     print(X)
@@ -365,13 +413,13 @@ def static(model):
     tqdm.info("*** Element code checking.")
 
     S = np.zeros((nn, 10, lc), dtype=np.float64)
-    C = []  # code listing per element node
+    C = []  # code per element node
 
     for element in model.elements:
 
         for i, loadcase in enumerate(model.loadcases):
             if isinstance(loadcase, LoadCase):
-                calculate_element_code_stresses(points, loadcase, element, S, i)
+                element_codecheck(points, loadcase, element, S, i)
                 C.extend(2 * [element.code.name])
 
         for i, loadcase in enumerate(model.loadcases):

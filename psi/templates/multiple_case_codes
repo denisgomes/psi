@@ -44,10 +44,10 @@
 {% if loop.first -%}
 {{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}{{ "%10s" | format(code) }}
 {%- elif loop.last -%}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}{{ "%10s" | format(code) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(STRESS) }}{{ "% 10.1f" | format(ALLOW) }}{{ "% 10.2f" | format(SIFi) }}{{ "% 10.2f" | format(SIFo) }}{{ "% 10.2f" | format(RATIO) }}
 {%- else -%}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}{{ "%10s" | format(code) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
 {%- endif -%}
 {% endfor %}
 {% endfor -%}

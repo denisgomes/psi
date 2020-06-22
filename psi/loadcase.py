@@ -497,8 +497,7 @@ class Stresses:
 
         data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio,
                    scodes)
-
-        values = list(data)
+        values = list(data)     # mixed datatype
 
         return values
 
@@ -516,6 +515,7 @@ class Stresses:
         self._sifo = results[:, 7]
         self._sallow.results = results[:, 8]
         self._sratio = results[:, 9]
+
         self._scodes = codes
 
 
@@ -539,9 +539,24 @@ class BaseCase(Entity):
 
 
 class LoadCase(BaseCase):
-    """A set of primary load cases consisting of different types of loads.
+    """A set of primary load cases consisting of different types of loads and
+    the operating case the load belongs to.
+
+    Example
+    -------
+    Create a deadweight loadcase.
+
+    .. code-block:: python
+
+        >>> w1 = Weight('w1', 1)
+        >>> p1 = Pressure('p1', 1)
+        ...
+        >>> lc1 = LoadCase('lc1', 'sus', [Weight, Pressure], [1, 1])
 
     .. note::
+        The weight and pressure load have been defined for operating case 1.
+
+    .. attention::
         The loads for a given case must be unique. In other words, the same
         load cannot be specified twice. An equality check is performed based
         on the load type, name and operating case it belongs to.
@@ -771,9 +786,9 @@ class LoadComb(BaseCase):
             element code.
 
         The individual loadcases that make up the load combination can each
-        have a different allowable stress. The allowable is determined by the
-        stress type attribute of the load combination.  The following logic is
-        applied to determine the allowable:
+        have a different allowable stress. The allowable for the combination is
+        determined by the stress type attribute of the load combination.  The
+        following logic is applied to determine the allowable:
 
             1. All loadcases with the same stress type as that of the load
             combination is considered and the one with the smallest allowable

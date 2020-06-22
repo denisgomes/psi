@@ -1,0 +1,188 @@
+PSI Design and Analysis
+Version: 0.0.1 
+Design Codes: All Codes
+
+Input File: demo.inp 
+
+*** Preprocessing, initializing analysis...
+*** Switching to base units.
+*** Assembling system stiffness and force matrices.
+*** Solving system equations for displacements.
+*** Post processing elements...
+*** Calculating support reactions and internal forces.
+*** Writing loadcase results data.
+*** Element code checking.
+*** Code checking complete.
+*** Writing code checking results data.
+*** Analysis complete!
+
+
+
+PSI 0.0.1, DATE: 2020-06-20 TIME: 08:26 AM
+JOB NAME: None
+LICENSED TO: PSI Community
+MOVEMENTS : Displacement Report
+
+
+MULTIPLE LOAD CASES
+
+
+LOAD CASE DEFINITIONS
+
+L1 (SUS) W[1] + P[1]
+L2 (SUS) W[1] + P[1]
+L3 (SUS) L1 + L2
+
+
+
+                          TRANSLATIONS (cm)              ROTATIONS (deg)        
+
+NODE      LOAD CASE         DX        DY        DZ        RX        RY        RZ
+
+10         l1 (sus)      0.000    -0.000     0.000    0.0000    0.0000   -0.0000
+           l2 (sus)      0.000    -0.000     0.000    0.0000    0.0000   -0.0000
+           l3 (sus)      0.000     0.000     0.000    0.0000    0.0000    0.0000
+                MAX      0.000     0.000     0.000    0.0000    0.0000    0.0000
+
+20         l1 (sus)      0.000    -0.047     0.000    0.0000   -0.0000   -0.0002
+           l2 (sus)      0.000    -0.047     0.000    0.0000   -0.0000   -0.0002
+           l3 (sus)      0.000     0.066     0.000    0.0000    0.0000    0.0003
+                MAX      0.000     0.066     0.000    0.0000    0.0000    0.0003
+
+
+
+
+
+PSI 0.0.1, DATE: 2020-06-20 TIME: 08:26 AM
+JOB NAME: None
+LICENSED TO: PSI Community
+FORCES : Element Forces Report
+
+
+MULTIPLE LOAD CASES
+
+
+LOAD CASE DEFINITIONS
+
+L1 (SUS) W[1] + P[1]
+L2 (SUS) W[1] + P[1]
+L3 (SUS) L1 + L2
+
+
+
+                              FORCES (N)                  MOMENTS (N*m)         
+
+NODE      LOAD CASE         FX        FY        FZ        MX        MY        MZ
+
+10         l1 (sus)        0.0     899.4       0.0       0.0       0.0    2284.6
+           l2 (sus)        0.0     899.4       0.0       0.0       0.0    2284.6
+           l3 (sus)        0.0    1272.0       0.0       0.0       0.0    3230.9
+                MAX        0.0    1272.0       0.0       0.0       0.0    3230.9
+
+20         l1 (sus)        0.0    -899.4       0.0       0.0       0.0     456.9
+           l2 (sus)        0.0    -899.4       0.0       0.0       0.0     456.9
+           l3 (sus)        0.0    1272.0       0.0       0.0       0.0     646.2
+                MAX        0.0    1272.0       0.0       0.0       0.0     646.2
+
+
+
+
+
+PSI 0.0.1, DATE: 2020-06-20 TIME: 08:26 AM
+JOB NAME: None
+LICENSED TO: PSI Community
+REACTIONS : Support Reactions Report
+
+
+MULTIPLE LOAD CASES
+
+
+LOAD CASE DEFINITIONS
+
+L1 (SUS) W[1] + P[1]
+L2 (SUS) W[1] + P[1]
+L3 (SUS) L1 + L2
+
+
+
+                              FORCES (N)                  MOMENTS (N*m)         
+
+NODE      LOAD CASE         FX        FY        FZ        MX        MY        MZ
+
+10         l1 (sus)        0.0    1798.9       0.0       0.0       0.0    2741.5
+           l2 (sus)        0.0    1798.9       0.0       0.0       0.0    2741.5
+           l3 (sus)        0.0    2544.0       0.0       0.0       0.0    3877.1
+                MAX        0.0    2544.0       0.0       0.0       0.0    3877.1
+
+20         l1 (sus)        0.0       0.0       0.0       0.0       0.0       0.0
+           l2 (sus)        0.0       0.0       0.0       0.0       0.0       0.0
+           l3 (sus)        0.0       0.0       0.0       0.0       0.0       0.0
+                MAX        0.0       0.0       0.0       0.0       0.0       0.0
+
+
+
+
+
+PSI 0.0.1, DATE: 2020-06-20 TIME: 08:26 AM
+JOB NAME: None
+LICENSED TO: PSI Community
+STRESSES : Element Stresses Report
+
+
+MULTIPLE LOAD CASES
+
+
+LOAD CASE DEFINITIONS
+
+L1 (SUS) W[1] + P[1]
+L2 (SUS) W[1] + P[1]
+
+
+
+                    --------------- STRESSES (kPa) -------------------
+
+NODE      LOAD CASE       HOOP     AXIAL   TORSION  PRESSURE   BENDING      CODE
+
+10         l1 (sus)    22827.9       0.0       0.0   11413.9    4662.0     B31.1
+           l2 (sus)    22827.9       0.0       0.0   11413.9    4662.0
+                MAX    22827.9       0.0       0.0   11413.9    4662.0          
+
+20         l1 (sus)    22827.9       0.0       0.0   11413.9     932.4     B31.1
+           l2 (sus)    22827.9       0.0       0.0   11413.9     932.4
+                MAX    22827.9       0.0       0.0   11413.9     932.4          
+
+
+
+
+
+PSI 0.0.1, DATE: 2020-06-20 TIME: 08:26 AM
+JOB NAME: None
+LICENSED TO: PSI Community
+CODES : Codes Report
+
+
+MULTIPLE LOAD CASES
+
+
+LOAD CASE DEFINITIONS
+
+L1 (SUS) W[1] + P[1]
+L2 (SUS) W[1] + P[1]
+
+
+
+NODE      LOAD CASE     STRESS     ALLOW      SIFi      SIFo     RATIO      CODE
+                           kPa       kPa
+
+10         l1 (sus)    16076.0  206842.7      1.00      1.00      0.08     B31.1
+           l2 (sus)    16076.0  206842.7      1.00      1.00      0.08
+                MAX    16076.0  206842.7      1.00      1.00      0.08
+
+20         l1 (sus)    12346.3  206842.7      1.00      1.00      0.06     B31.1
+           l2 (sus)    12346.3  206842.7      1.00      1.00      0.06
+                MAX    12346.3  206842.7      1.00      1.00      0.06
+
+
+
+
+

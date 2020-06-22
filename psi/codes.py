@@ -99,7 +99,7 @@ class Code(Entity, ActiveEntityMixin):
         """Element thermal stress allowable"""
         raise NotImplementedError("implement")
 
-    def get_max_tload(self, element, loadcase):
+    def toper(self, element, loadcase):
         """Convenience function to get the largest element temperature load for
         a particular operating case.
         """
@@ -121,7 +121,13 @@ class Code(Entity, ActiveEntityMixin):
 
             return tload
 
-    def get_max_pload(self, element, loadcase):
+    def tmax(self, element, loadcases):
+        """Convenience function to get the largest element temperature across
+        all operating cases.
+        """
+        raise NotImplementedError("implement")
+
+    def poper(self, element, loadcase):
         """Convenience function to get the largest element pressure load for a
         particular operating case.
         """
@@ -148,6 +154,12 @@ class Code(Entity, ActiveEntityMixin):
                 pload = None
 
             return pload
+
+    def pmax(self, element, loadcases):
+        """Convenience function to get the largest element pressure across
+        all operating cases.
+        """
+        raise NotImplementedError("implement")
 
 
 class B311(Code):
@@ -221,7 +233,7 @@ class B311(Code):
             do = section.od
             di = section.id_
 
-            pload = self.get_max_pload(element, loadcase)
+            pload = self.poper(element, loadcase)
 
             try:
                 # exact formulation
@@ -299,7 +311,7 @@ class B311(Code):
         """
         with units.Units(user_units="code_english"):
             material = element.material
-            tload = self.get_max_tload(element, loadcase)
+            tload = self.toper(element, loadcase)
 
             try:
                 temp = tload.temp

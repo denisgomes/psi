@@ -647,6 +647,9 @@ class Bend(Run):
         self.radius = radius    # also calls build
         self.tol = tol
 
+    def runs(self):
+        pass
+
     def build(self, point):
         model = self.app.models.active_object
 
@@ -760,10 +763,10 @@ class Reducer(Run):
     The new section is activated automatically. A reducer is approximated by
     multiple runs with decreasing diameters.
 
-    A reducer element is approximated using multiple run element. The number
+    A reducer element is approximated using multiple run elements. The number
     of elements is a user defined parameter. The diameter of each element is
     stepped down from the larger to smaller pipe diameter. Similar to a bend,
-    a reducer is also approximated using a curve, but in this case straight
+    a reducer is also approximated using a curve, but in this case a straight
     curve. The straight curve can be easily subdivided by calling the euler
     operations on the curve.
 
@@ -775,9 +778,13 @@ class Reducer(Run):
                  section=None, material=None, insulation=None, code=None):
         super(Reducer, self).__init__(point, dx, dy, dz, from_point, section,
                                       material, insulation, code)
-        section2.activate()     # automatic
-        self.section2 = section2
-        self._runs = []          # internal runs created at runtime
+        section2.activate()         # automatic
+        self.section2 = section2    # to section
+        self._runs = []             # internal runs created at runtime
+
+    def runs(self):
+        """List of approximating run elements generated on demand"""
+        pass
 
     def build(self, point):
         """Similar to a bend a reducer consists of one curve which consists of
@@ -788,7 +795,10 @@ class Reducer(Run):
         raise NotImplementedError("implement")
 
     def mass(self):
-        """Mass of a reducer"""
+        """Mass of a reducer.
+
+        Combined mass of all the internal run elements
+        """
         d1o = self.section.od
         d1i = self.section.od - 2*self.section.thke
         d2o = self.section2.od
@@ -799,7 +809,10 @@ class Reducer(Run):
         return self.material.rho.value * vol
 
     def fluid_mass(self, fluden):
-        """Fluid mass within the reducer"""
+        """Fluid mass within the reducer.
+
+        Combined fluid mass of all the internal run elements
+        """
         d1i = self.section.od - 2*self.section.thke
         d2i = self.section2.od - 2*self.section2.thke
 
@@ -808,7 +821,10 @@ class Reducer(Run):
         return fluden * fluvol
 
     def insulation_mass(self):
-        """A conical shaped insulation profile is considered"""
+        """A conical shaped insulation profile is considered.
+
+        Combined insulation mass of all the internal run elements
+        """
         s, s2 = self.section, self.section2
 
         (s, s2) = ((s, s2) if (2*self.insulation.thk+s.od) >
@@ -827,20 +843,24 @@ class Reducer(Run):
         return s.inden*vi
 
     def klocal(self, temp, sfac=1.0):
-        # poluate the run list with temporary elements first
+        """The list of internal run elements are condensed to give a local
+        12x12 stiffness matrix. The degrees of freedom are reduced using the
+        formulation from Bathe, pg 718.
+
+        Kaa_bar = Kaa - Kac*Kcc^-1*Kca  # condensed stiffness matrix
+        Ra_bar = Ra - Kac*Kcc^-1*Rc     # condensed load vector
+
+        See the static condensation pdf in the reference folder for the
+        rest of the equations.
+
+        The procedure involves rearranging the internal degrees of freedom to
+        the top and to the left and then applying the equations above to
+        compute the condensed 12x12 matrix.
+
+        The force vector should also be condensed accordingly given the runs.
+        """
         for run in self.runs:
             yield run.klocal(temp, sfac)
-
-    def kglobal(self, temp, sfac=1.0):
-        """Yield the global reducer stiffness matrix for each element.
-
-        The bend consists of multiple approximating elements and so the global
-        matrix for the reducer is the assembly of all the elements which make
-        up the reducer.
-        """
-        # poluate the run list with temporary elements first
-        for run in self.runs:
-            yield run.kglobal(temp, sfac)
 
 
 @units.define(weight="force")
@@ -885,6 +905,11 @@ class Valve(Rigid):
     cladding weight is multiplied by 1.75 to account for additional material.
     """
 
+    def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
+                 section=None, material=None, insulation=None, code=None):
+        super(Valve, self).__init__(point, dx, dy, dz, weight, from_point,
+                                    section, material, insulation, code)
+
     @classmethod
     def from_file(cls, point, dx, dy=0, dz=0, rating=150, valve_type="gate",
                   flange_type="weldneck", from_point=None, section=None,
@@ -899,14 +924,14 @@ class Valve(Rigid):
     def cladding_mass(self):
         raise 1.75 * super(Valve, self).cladding_mass()
 
-    def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
-                 section=None, material=None, insulation=None, code=None):
-        super(Valve, self).__init__(point, dx, dy, dz, weight, from_point,
-                                    section, material, insulation, code)
-
 
 class Flange(Rigid):
     """A flanged piping connections"""
+
+    def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
+                 section=None, material=None, insulation=None, code=None):
+        super(Flange, self).__init__(point, dx, dy, dz, weight, from_point,
+                                     section, material, insulation, code)
 
     @classmethod
     def from_file(cls, point, dx, dy=0, dz=0, rating=150,
@@ -921,11 +946,6 @@ class Flange(Rigid):
 
     def cladding_mass(self):
         raise 1.75 * super(Flange, self).cladding_mass()
-
-    def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
-                 section=None, material=None, insulation=None, code=None):
-        super(Flange, self).__init__(point, dx, dy, dz, weight, from_point,
-                                     section, material, insulation, code)
 
 
 class ElementContainer(EntityContainer):

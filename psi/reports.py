@@ -85,7 +85,7 @@ class Movements(Report):
                                             jobname=jobname,
                                             licensed_to="PSI Community",
                                             report_type=self.__class__.__name__,
-                                            report_desc="Point Displacement Report",
+                                            report_desc="Displacement Report",
                                             units=Quantity.user_units,
                                             loadcases=self.loadcases,
                                             zip=zip,     # pass zip

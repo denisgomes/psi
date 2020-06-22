@@ -2,9 +2,9 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-10s" | format(" ") }}{{ "%-10s" | format(" ") }}{{ "----- %-s (%s) -----" | format("FORCES", units.force) | center(30) }}     {{ "------- %-s (%s) -------" | format("MOMENTS", units.moment_output) | center(30) }}
+{{ "%-10s" | format("") }}{{ "%-10s" | format("") }}{{ "%-s (%s)" | format("FORCES", units.force) | center(30) }}{{ "%-s (%s)" | format("MOMENTS", units.moment_output) | center(30) }}
 
-{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}     {{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
+{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}{{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
 {% endblock %}
 
 {% block body %}
@@ -46,12 +46,12 @@
     {%- set MZ = mz -%}
 {% endif %}
 {% if loop.first -%}
-{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}     {{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- elif loop.last -%}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}     {{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(FX) }}{{ "% 10.1f" | format(FY) }}{{ "% 10.1f" | format(FZ) }}     {{ "% 10.1f" | format(MX) }}{{ "% 10.1f" | format(MY) }}{{ "% 10.1f" | format(MZ) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(FX) }}{{ "% 10.1f" | format(FY) }}{{ "% 10.1f" | format(FZ) }}{{ "% 10.1f" | format(MX) }}{{ "% 10.1f" | format(MY) }}{{ "% 10.1f" | format(MZ) }}
 {%- else -%}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}     {{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- endif -%}
 {% endfor %}
 {% endfor -%}

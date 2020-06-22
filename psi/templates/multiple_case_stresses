@@ -45,10 +45,10 @@
 {% if loop.first %}
 {{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "%10s" | format(code) }}
 {%- elif loop.last %}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "%10s" | format(code) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(HOOP) }}{{ "% 10.1f" | format(AXIAL) }}{{ "% 10.1f" | format(TORSION) }}{{ "% 10.1f" | format(PRESSURE) }}{{ "% 10.1f" | format(BENDING) }}{{ "%10s" | format(CODE) }}
 {%- else -%}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "%10s" | format(code) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}
 {%- endif -%}
 {% endfor %}
 {% endfor -%}

@@ -39,20 +39,17 @@ mdl.analyze()
 # mdl.settings.units = 'si'
 
 # postprocess
-# disp = Movements('r1', [l1, l2])
-# disp.to_screen()
+disp = Movements('r1', [l1, l2, l3])
+disp.to_screen()
 
-forc = Forces('r2', [l1])
+forc = Forces('r2', [l1, l2, l3])
 forc.to_screen()
 
-reac = Reactions('r3', [l1])
+reac = Reactions('r3', [l1, l2, l3])
 reac.to_screen()
 
 str1 = Stresses('r4', [l1, l2])
 str1.to_screen()
-
-# disp2 = Movements('r5', [l3])
-# disp2.to_screen()
 
 cod1 = Codes('r6', [l1, l2])
 cod1.to_screen()
