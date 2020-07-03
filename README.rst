@@ -127,7 +127,7 @@ Support
 
 The Community Edition of PSI is open source and can be used free of charge. If
 the software adds value to your life i.e. you use it to do commercial work for
-example, considered donating to support PSI's ongoing development. Also please
+example, consider donating to support PSI's ongoing development. Also please
 read the documentation_ about the feature rich Enterprise Edition.
 
 

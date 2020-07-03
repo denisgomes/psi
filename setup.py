@@ -18,7 +18,7 @@ setup(
 
     author_email="denis.mp.gomes@gmail.com",
 
-    license="BSD",
+    license="GPL",
 
     # advertise program attributes
     classifiers=[
@@ -26,7 +26,7 @@ setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: OSI Approved",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: GPL License",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
@@ -44,7 +44,7 @@ setup(
         ]),
 
     # install from pypi, requirements.txt is for developers only
-    install_requires=["numpy", "pint", "tqdm", "jinja2 >= 2.0"],
+    install_requires=["scipy", "pint", "tqdm", "jinja2 >= 2.0"],
 
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",

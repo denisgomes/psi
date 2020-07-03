@@ -76,7 +76,7 @@ Where:
 .. math::
     :label: amoi
 
-    I = (\pi/32)(d_o^4 - d_i^4)
+    I = (\pi/64)(d_o^4 - d_i^4)
 
 
 Results

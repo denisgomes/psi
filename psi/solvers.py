@@ -84,7 +84,7 @@ Tee Flexibility
 
 Skewed Supports
 ---------------
-...
+Constraint equations.
 
 Spring Algorithm
 ----------------
@@ -92,7 +92,7 @@ Spring Algorithm
 
 Master Slave (CNode)
 --------------------
-...
+Constraint equations.
 
 Non-linear supports
 -------------------
@@ -125,12 +125,14 @@ step, ie. the model mesh is modified to incorporate the new point locations.
 As a result the system stiffness matrix is updated each iteration.
 """
 
+from collections import defaultdict
 import math
 import sys
 import logging
 from contextlib import redirect_stdout
 
 import numpy as np
+from scipy.sparse import linalg as splinalg
 
 from psi.loadcase import LoadCase, LoadComb
 from psi import units
@@ -446,12 +448,134 @@ def static(model):
     tqdm.info("*** Analysis complete!\n\n\n")
 
 
-def modal(model):
+def modal(model, nmodes=6):
     """Run a modal analysis of the system extracting frequencies and mode
     shapes. Solving the eigenvalue problem.
 
     All nonlinearity is neglected for this type of analysis. In other words,
     all support types are considered double acting and friction is not
     considered.
+
+    The global mass and stiffness matrix are first calculated. Then all the
+    rows and columns corresponding to a support location and direction are
+    removed (i.e. effectively fixed). This is true for supports with gaps and
+    even for springs. Finally, the dynamical matrix is calculated and the
+    eigenvalue solution is solved.
+
+    From 'Theory of Matrix Structural Analysis' by J.S. Przemienieski.
+
+    Default internal units: m, kg, sec
+
+    The minimum number of modes to extract must be 6 due to the limit of the
+    the scipy.linagl.eigsh algorithm.
     """
-    pass
+
+    assert nmodes >= 6, "number of modes must be greater than 6"
+
+    tqdm = logging.getLogger("tqdm")
+    tqdm.info("*** Preprocessing, initializing analysis...")
+    model.app.units.disable()
+    tqdm.info("*** Switching to base units.")
+
+    # do stuff here
+    tqdm.info("*** Assembling system mass and stiffness matrices.")
+
+    ndof = 6    # nodal degrees of freedom
+    en = 2      # number of nodes per element
+    nn = len(model.points)
+    lc = len(model.loadcases)
+
+    # similar to nodal dof matrix
+    points = list(model.points)
+
+    # global system stiffness matrix
+    Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
+    Ms = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
+
+    for element in model.elements:
+        idxi = points.index(element.from_point)
+        idxj = points.index(element.to_point)
+
+        # node and corresponding dof (start, finish), used to define the
+        # elements of the system stiffness and force matrices
+        niqi, niqj = idxi*ndof, idxi*ndof + ndof
+        njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+        meg = element.mglobal()
+        keg = element.kglobal(294.2611)     # room temp
+
+        # assemble global mass matrix, quadrant 1 to 4
+        Ms[niqi:niqj, niqi:niqj] += meg[:6, :6]         # 2nd
+        Ms[niqi:niqj, njqi:njqj] += meg[:6, 6:12]       # 1st
+        Ms[njqi:njqj, niqi:niqj] += meg[6:12, :6]       # 3rd
+        Ms[njqi:njqj, njqi:njqj] += meg[6:12, 6:12]     # 4th
+
+        # assemble global stiffness matrix, quadrant 1 to 4
+        Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 2nd
+        Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 1st
+        Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
+        Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
+
+        # modify diagonal elements, penalty method, by adding large
+        # stiffnesses to the diagonals where a support is located
+        di = np.diag_indices(6)     # diagonal indices for 6x6 matrix
+        for support in element.supports:
+            ksup = support.kglobal(element)
+
+            # bump all support stiffness and mass to infinity
+            ksup[np.where(ksup > 0)] = np.inf
+
+            Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]     # 2nd
+            Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]   # 4th
+
+            Ms[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]     # 2nd
+            Ms[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]   # 4th
+
+    tqdm.info("*** Reducing system mass and stiffness matrices.")
+    # reduce assembled stiffness and mass matrices
+    Krows, Kcols = np.where(Ks == np.inf)
+    Mrows, Mcols = np.where(Ms == np.inf)
+
+    # delete rows and columns
+    Kr = np.delete(np.delete(Ks, Krows, 0), Kcols, 1)
+    Mr = np.delete(np.delete(Ms, Mrows, 0), Mcols, 1)
+
+    """Dynamical matrix
+
+    D = np.linalg.inv(Ks) @ Ms
+    eigvals, eigvecs = np.linalg.eig(D)
+
+    inveigval - array of inverse eigenvalues (1 / omega)
+    eigvecmat - matrix of eigenvectors where the column [:, i] corresponds
+    to eigenvalue [i]
+
+    Where the eigenvalues equals 1 there is a support at that nodal degree of
+    freedom and the eigenvector is zero where using the penalty approach.
+
+    The eigenvalue array polulates right to left, opposite of how a list
+    populates using append.
+    """
+    tqdm.info("*** Calculating dynamical matrix.")
+    D = np.linalg.inv(Kr) @ Mr
+
+    tqdm.info("*** Solving for eigenvalues and eigenvectors.")
+    # inveigvals, eigvecmat = splinalg.eigsh(Mr, 12, M=Kr)
+    inveigvals, eigvecmat = splinalg.eigs(D, nmodes)
+
+    # divide by 2*pi to get the circular freq.
+    eigvals = np.sqrt(1/inveigvals.real) / (2*np.pi)
+
+    # sort eigvals and corresponding vectors smallest -> largest
+    idx = eigvals.argsort()[::1]
+    eigvals = eigvals[idx]
+    eigvecmat = eigvecmat[:, idx]
+
+    # with redirect_stdout(sys.__stdout__):
+    #     print(eigvals)
+
+    # switch back to user units - analysis is complete
+    model.app.units.enable()
+
+    tqdm.info("*** Analysis complete!\n\n\n")
+
+    return eigvals, eigvecmat

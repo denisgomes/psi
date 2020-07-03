@@ -1,4 +1,4 @@
 Jinja2==2.10.3
-numpy==1.17.3
+scipy==1.5.0
 Pint==0.9
 tqdm==4.36.1

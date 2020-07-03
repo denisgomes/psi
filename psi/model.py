@@ -19,14 +19,13 @@ from __future__ import division
 from collections import OrderedDict
 import gzip
 import pickle
-import copy
 
 # from psi.settings import options
 from psi.settings import Configuration
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
-from psi.solvers import static
+from psi.solvers import static, modal
 
 
 # TODO: Raise exception if model is not active on attribute access
@@ -322,6 +321,8 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
         """Run the analysis"""
         if mode == 1:
             static(inst)
+        elif mode == 2:
+            modal(inst)
 
     def check(self, inst):
         """Check the model input parameters before analyzing"""

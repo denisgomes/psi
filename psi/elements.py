@@ -360,11 +360,6 @@ class Run(Piping):
         # create run geometry
         self.geometry = edge
 
-        # build bend element
-        element = elements.objects.get(from_point, None)
-        if element and isinstance(element, Bend):
-            element.build(from_point)
-
     @property
     def dx(self):
         """Get and set the vertex x-coordinate of the 'to' point."""
@@ -535,6 +530,9 @@ class Run(Piping):
         bending directions. The stiffness is divided by the flexibility factor,
         effectively making the element more flexible in the transverse bending
         directions. The torsional stiffness is not altered.
+
+        Stiffness matrix from 'Theory of Matrix Structural Analysis'
+        by J.S. Przemieniecki.
         """
         kmat = np.zeros((12, 12), dtype=np.float64)
 
@@ -610,6 +608,63 @@ class Run(Piping):
 
         return T.transpose() @ self.klocal(temp, sfac) @ T
 
+    def mlocal(self):
+        """Local mass matrix of run element including both the linear and
+        rotatory inertias. It also includes the coupling betweeen the degrees
+        of freedom not accounted for with the lumped mass approach, which
+        has be shown to less accurate.
+
+        From 'Theory of Matrix Structural Analysis' by J.S. Przemieniecki.
+        """
+        mmat = np.zeros((12, 12), dtype=np.float64)
+
+        L = self.geometry.length
+        rho = self.material.rho.value
+        A = self.section.area
+
+        J = self.section.ixx
+        Iy = self.section.iyy
+        Iz = self.section.izz
+
+        # remove rotational inertia
+        J = 0
+        Iy = 0
+        Iz = 0
+
+        mmat[0, 0] = mmat[6, 6] = 1/3
+        mmat[1, 1] = mmat[7, 7] = 13/35 + 6*Iz/(5*A*L**2)
+        mmat[2, 2] = mmat[8, 8] = 13/35 + 6*Iy/(5*A*L**2)
+        mmat[3, 3] = mmat[9, 9] = J/(3*A)
+        mmat[4, 4] = mmat[10, 10] = L**2/105 + 2*Iy/(15*A)
+        mmat[5, 5] = mmat[11, 11] = L**2/105 + 2*Iz/(15*A)
+
+        mmat[4, 2] = -(11*L)/210 - Iy/(10*A*L)
+        mmat[7, 5] = 13*L/420 - Iz/(10*A*L)
+        mmat[10, 8] = (11*L)/210 + Iy/(10*A*L)
+
+        mmat[5, 1] = (11*L)/210 + Iz/(10*A*L)
+        mmat[8, 4] = -13*L/420 + Iy/(10*A*L)
+        mmat[11, 7] = -(11*L)/210 - Iz/(10*A*L)
+
+        mmat[7, 1] = 9/70 - 6*Iz/(5*A*L**2)
+        mmat[8, 2] = 9/70 - 6*Iy/(5*A*L**2)
+        mmat[9, 3] = J/(6*A)
+        mmat[10, 4] = -L**2/140 - Iy/(30*A)
+        mmat[11, 5] = -L**2/140 - Iz/(30*A)
+
+        mmat[10, 2] = 13*L/420 - Iy/(10*A*L)
+
+        mmat[11, 1] = -13*L/420 + Iz/(10*A*L)
+
+        return (rho*A*L) * mmat
+
+    def mglobal(self):
+        """Global mass matrix of run"""
+
+        T = self.T()    # build T once and reuse
+
+        return T.transpose() @ self.mlocal() @ T
+
 
 @units.define(_radius="length")
 class Bend(Run):
@@ -643,14 +698,18 @@ class Bend(Run):
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
-        self._runs = []          # internal runs - created at runtime
+        self._runs = []         # internal runs - created at runtime
         self.radius = radius    # also calls build
         self.tol = tol
 
+    @property
     def runs(self):
-        pass
+        return self._runs
 
     def build(self, point):
+        """This build should happen during solver pre-processor step to create
+        the approximating run elements and populating the runs list.
+        """
         model = self.app.models.active_object
 
         if model.geometry.vertices.get(point, None) is None:
@@ -782,9 +841,10 @@ class Reducer(Run):
         self.section2 = section2    # to section
         self._runs = []             # internal runs created at runtime
 
+    @property
     def runs(self):
         """List of approximating run elements generated on demand"""
-        pass
+        return self._runs
 
     def build(self, point):
         """Similar to a bend a reducer consists of one curve which consists of
