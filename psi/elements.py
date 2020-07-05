@@ -99,6 +99,7 @@ import sys
 
 import numpy as np
 import numpy.linalg as la
+from numpy.testing import assert_array_almost_equal
 
 from psi.entity import Entity, EntityContainer
 from psi import units
@@ -495,10 +496,15 @@ class Run(Piping):
         to_vert = np.array(self.geometry.v2.co)
         local_x = to_vert - from_vert
 
-        # check to see if local_x is parallel to global vertical
-        if (1 - np.dot(local_x, local_y)) < 0.01:
-            # yes parallel, vertical straight element, set to global x
+        try:
+            # check to see if local_x is parallel to global vertical
+            assert_array_almost_equal(local_x / la.norm(local_x),
+                                      local_y / la.norm(local_y),
+                                      decimal=5)
+            # redefine local_y if local_x is parallel to global y
             local_y = np.array([1., 0., 0.], dtype=np.float64)
+        except AssertionError:
+            pass
 
         local_z = np.cross(local_x, local_y)
 

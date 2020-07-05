@@ -125,11 +125,12 @@ step, ie. the model mesh is modified to incorporate the new point locations.
 As a result the system stiffness matrix is updated each iteration.
 """
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 import math
 import sys
 import logging
 from contextlib import redirect_stdout
+from functools import partial
 
 import numpy as np
 from scipy.sparse import linalg as splinalg
@@ -448,7 +449,7 @@ def static(model):
     tqdm.info("*** Analysis complete!\n\n\n")
 
 
-def modal(model, nmodes=6):
+def modal(model, nmodes=3):
     """Run a modal analysis of the system extracting frequencies and mode
     shapes. Solving the eigenvalue problem.
 
@@ -466,11 +467,22 @@ def modal(model, nmodes=6):
 
     Default internal units: m, kg, sec
 
-    The minimum number of modes to extract must be 6 due to the limit of the
-    the scipy.linagl.eigsh algorithm.
-    """
+    Dynamical matrix
 
-    assert nmodes >= 6, "number of modes must be greater than 6"
+    D = np.linalg.inv(Ks) @ Ms
+    eigvals, eigvecs = np.linalg.eig(D)
+
+    inveigval - array of inverse eigenvalues (1 / omega)
+    eigvecmat - matrix of eigenvectors where the column [:, i] corresponds
+    to eigenvalue [i]
+
+    Where the eigenvalues equals 1 there is a support at that nodal degree of
+    freedom and the eigenvector is zero when using the penalty approach.
+
+    The eigenvalue array polulates right to left, opposite of how a list
+    populates using append.
+    """
+    assert nmodes >= 3, "number of modes must be greater than 3"
 
     tqdm = logging.getLogger("tqdm")
     tqdm.info("*** Preprocessing, initializing analysis...")
@@ -491,6 +503,9 @@ def modal(model, nmodes=6):
     # global system stiffness matrix
     Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
     Ms = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
+
+    zeros = partial(np.zeros, (12, 1))
+    fixed_dof = defaultdict(zeros)
 
     for element in model.elements:
         idxi = points.index(element.from_point)
@@ -522,8 +537,9 @@ def modal(model, nmodes=6):
         for support in element.supports:
             ksup = support.kglobal(element)
 
-            # bump all support stiffness and mass to infinity
-            ksup[np.where(ksup > 0)] = np.inf
+            # bump all support stiffness and nodal mass to infinity
+            # ksup[np.where(ksup > 0)] = np.inf
+            fixed_dof[support.point] += ksup
 
             Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]     # 2nd
             Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]   # 4th
@@ -533,45 +549,45 @@ def modal(model, nmodes=6):
 
     tqdm.info("*** Reducing system mass and stiffness matrices.")
     # reduce assembled stiffness and mass matrices
-    Krows, Kcols = np.where(Ks == np.inf)
-    Mrows, Mcols = np.where(Ms == np.inf)
+    # Krows, Kcols = np.where(Ks == np.inf)
+    # Mrows, Mcols = np.where(Ms == np.inf)
+
+    # with redirect_stdout(sys.__stdout__):
+    #     print(Krows, Kcols)
 
     # delete rows and columns
-    Kr = np.delete(np.delete(Ks, Krows, 0), Kcols, 1)
-    Mr = np.delete(np.delete(Ms, Mrows, 0), Mcols, 1)
+    # Kr = np.delete(np.delete(Ks, Krows, 0), Kcols, 1)
+    # Mr = np.delete(np.delete(Ms, Mrows, 0), Mcols, 1)
 
-    """Dynamical matrix
-
-    D = np.linalg.inv(Ks) @ Ms
-    eigvals, eigvecs = np.linalg.eig(D)
-
-    inveigval - array of inverse eigenvalues (1 / omega)
-    eigvecmat - matrix of eigenvectors where the column [:, i] corresponds
-    to eigenvalue [i]
-
-    Where the eigenvalues equals 1 there is a support at that nodal degree of
-    freedom and the eigenvector is zero where using the penalty approach.
-
-    The eigenvalue array polulates right to left, opposite of how a list
-    populates using append.
-    """
     tqdm.info("*** Calculating dynamical matrix.")
-    D = np.linalg.inv(Kr) @ Mr
+    D = np.linalg.inv(Ks) @ Ms
+
+    # total fixed dofs with large k
+    total_fixed_dofs = 0
+    for kmat in fixed_dof.values():
+        zrow, _ = np.where(kmat == 0)
+        total_fixed_dofs += len(zrow)
 
     tqdm.info("*** Solving for eigenvalues and eigenvectors.")
     # inveigvals, eigvecmat = splinalg.eigsh(Mr, 12, M=Kr)
-    inveigvals, eigvecmat = splinalg.eigs(D, nmodes)
+    inveigvals, eigvecmat = splinalg.eigs(D, nmodes+total_fixed_dofs)
 
     # divide by 2*pi to get the circular freq.
     eigvals = np.sqrt(1/inveigvals.real) / (2*np.pi)
+    eigvecmat = np.real(eigvecmat)  # take real part
 
     # sort eigvals and corresponding vectors smallest -> largest
     idx = eigvals.argsort()[::1]
     eigvals = eigvals[idx]
     eigvecmat = eigvecmat[:, idx]
 
-    # with redirect_stdout(sys.__stdout__):
-    #     print(eigvals)
+    # remove the trivial results in the front
+    eigvals = eigvals[total_fixed_dofs:]
+    eigvectmat = eigvecmat[:, total_fixed_dofs:]
+
+    with redirect_stdout(sys.__stdout__):
+        print(eigvals[0])
+        print(eigvecmat[:, 0])
 
     # switch back to user units - analysis is complete
     model.app.units.enable()
