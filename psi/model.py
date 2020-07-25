@@ -233,7 +233,7 @@ class Model(Entity, ActiveEntityMixin):
         """Save the model using the given filename"""
         self.parent.save_as(self, fname)
 
-    def analyze(self, mode=1):
+    def analyze(self, mode="static"):
         """Run the analysis"""
         self.parent.analyze(self, mode)
 
@@ -317,11 +317,11 @@ class ModelContainer(EntityContainer, ActiveEntityContainerMixin):
             fp.write(pickle.dumps((inst.name, inst), 1))
         return inst
 
-    def analyze(self, inst, mode=1):
+    def analyze(self, inst, mode="static"):
         """Run the analysis"""
-        if mode == 1:
+        if mode == "static":
             static(inst)
-        elif mode == 2:
+        elif mode == "modal":
             modal(inst)
 
     def check(self, inst):

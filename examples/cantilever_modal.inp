@@ -11,7 +11,8 @@ mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
 
 # geometry
 pt10 = Point(10)
-run20 = Run(20, L)
+run20 = Run(20, L/2)
+run30 = Run(30, L/2)
 
 # supports
 anc1 = Anchor('A1', 10)
@@ -19,7 +20,7 @@ anc1.apply([run20])
 
 # code flexibility
 b311 = B311('B311')
-b311.apply([run20])
+b311.apply([run20, run30])
 
 # modal analysis
-mdl.analyze(mode=2)
+mdl.analyze(mode='modal')

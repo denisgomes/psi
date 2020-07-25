@@ -42,21 +42,19 @@ L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 b311 = B311('B311')
 b311.apply([run20])
 
-
 # loadcases.defaults()
 mdl.analyze()
 # mdl.units = 'si'
-
 
 # L1 = loadcases('L1')
 # L2 = loadcases('L2')
 
 # reports
-disp = Movements('R1', [L1])
-disp.to_screen()
+# disp = Movements('R1', [L1])
+# disp.to_screen()
 
-reac = Reactions('R2', [L2])
-reac.to_screen()
+# reac = Reactions('R2', [L2])
+# reac.to_screen()
 
-code = Stresses('R3', [L3])
+code = Stresses('R3', [L2])
 code.to_screen()

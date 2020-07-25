@@ -463,6 +463,17 @@ def modal(model, nmodes=3):
     even for springs. Finally, the dynamical matrix is calculated and the
     eigenvalue solution is solved.
 
+    For each mode the following table is stored:
+
+    Mode #, Mode (Freq), Mode(Period), Participation Factor (X, Y, Z),
+    Mass Participation (X, Y, Z)
+
+    Total captured modal mass (X, Y, Z)
+    Total system pass
+
+    The participation factors is directly from the eigvector.
+    The mass participation is calculated by multiplying by system Mass matrix.
+
     From 'Theory of Matrix Structural Analysis' by J.S. Przemienieski.
 
     Default internal units: m, kg, sec
@@ -481,6 +492,10 @@ def modal(model, nmodes=3):
 
     The eigenvalue array polulates right to left, opposite of how a list
     populates using append.
+
+
+    AutoPIPE uses lumped mass, does not consider rotational inertia except
+    for nodes with eccentric weights, and considers shear stiffness.
     """
     assert nmodes >= 3, "number of modes must be greater than 3"
 
@@ -537,7 +552,7 @@ def modal(model, nmodes=3):
         for support in element.supports:
             ksup = support.kglobal(element)
 
-            # bump all support stiffness and nodal mass to infinity
+            # bump up all support stiffness and nodal mass
             # ksup[np.where(ksup > 0)] = np.inf
             fixed_dof[support.point] += ksup
 
@@ -562,10 +577,10 @@ def modal(model, nmodes=3):
     tqdm.info("*** Calculating dynamical matrix.")
     D = np.linalg.inv(Ks) @ Ms
 
-    # total fixed dofs with large k
+    # total fixed dofs
     total_fixed_dofs = 0
     for kmat in fixed_dof.values():
-        zrow, _ = np.where(kmat == 0)
+        zrow, _ = np.where(kmat != 0)
         total_fixed_dofs += len(zrow)
 
     tqdm.info("*** Solving for eigenvalues and eigenvectors.")
@@ -586,11 +601,14 @@ def modal(model, nmodes=3):
     eigvectmat = eigvecmat[:, total_fixed_dofs:]
 
     with redirect_stdout(sys.__stdout__):
-        print(eigvals[0])
+        # print(total_fixed_dofs)
+        print(eigvals)
         print(eigvecmat[:, 0])
 
     # switch back to user units - analysis is complete
     model.app.units.enable()
+
+    # create output table
 
     tqdm.info("*** Analysis complete!\n\n\n")
 

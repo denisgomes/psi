@@ -47,11 +47,11 @@ class Code(Entity, ActiveEntityMixin):
         """Element stress intensification factor.
 
         The code stress SIF is a fatigue factor developed by Markl and team in
-        the 1950s. These factors were empiracally determined by subject piping
-        to alternating loads and determining the effect it had over a number of
-        cycles.
+        the 1950s. These factors were empiracally determined by subjecting
+        piping to alternating loads and determining the effect it had over a
+        number of cycles.
 
-        By defination a SIF is the peak stress over the average stress of a
+        By definition a SIF is the peak stress over the average stress of a
         piping component. It is a multiplier on nominal stress for typical bend
         and intersection components so that the effect of geometry and welding
         can be considered in beam analysis.
@@ -92,11 +92,14 @@ class Code(Entity, ActiveEntityMixin):
         raise NotImplementedError("implement")
 
     def sax(self, element, loadcase):
-        """Element axial stress due to structural loading"""
+        """Element axial stress due to structural loading.
+
+        F/A type stress.
+        """
         raise NotImplementedError("implement")
 
     def sallow(self, element, loadcase):
-        """Element thermal stress allowable"""
+        """Element stress allowable based on the stress type of loadcase."""
         raise NotImplementedError("implement")
 
     def toper(self, element, loadcase):
@@ -179,38 +182,61 @@ class B311(Code):
         self.k = 1.15    # usage factor
         self.f = 0.90    # fatigue reduction factor
 
+    def h(self, element):
+        """Flexibility characterisitic for fittings per the code"""
+        if isinstance(element, Bend):
+            # Per Appendix D of 1967 code
+            R1 = element.radius                 # bend radius
+            T = element.section.thk             # nominal thk
+            r2 = (element.section.od - T) / 2   # mean radius
+            h = (T*R1) / r2**2  # flexibility characteristic
+
+            # stiffening effect due to flanged ends, note 3
+            if element.flange == 0:
+                c = 1
+            elif element.flange == 1:
+                c = h**(1/6)
+            elif element.flange == 2:
+                c = h**(1/3)
+
+            h = c*h  # corrected h
+
+            return h
+
     def sifi(self, element):
         """In plane stress intensification factor for fittings"""
         if isinstance(element, Run):
             return 1.0
+
         elif isinstance(element, Bend):
-            raise NotImplementedError("implement")
+            h = self.h(element)
+            sif = 0.9 / h**(2/3)
+
+            return 1.0 if sif < 1 else sif
+
         elif isinstance(element, Reducer):
-            raise NotImplementedError("implement")
+            return 1.0
+
         else:
             # must be 1 at a minimum
             return 1.0
 
-    def sifo(self, element):
-        """Out of plane stress intensification factor for fittings"""
-        if isinstance(element, Run):
-            return 1.0
-        elif isinstance(element, Bend):
-            raise NotImplementedError("implement")
-        elif isinstance(element, Reducer):
-            raise NotImplementedError("implement")
-        else:
-            # must be 1 at a minimum
-            return 1.0
+    sifo = sifi     # out of plane - same value
 
     def kfac(self, element):
         """Code flexibility factor provided for fittings"""
         if isinstance(element, Run):
             return 1.0
+
         elif isinstance(element, Bend):
-            raise NotImplementedError("implement")
+            h = self.h(element)
+            k = 1.65 / h
+
+            return 1.0 if k < 1 else k
+
         elif isinstance(element, Reducer):
-            raise NotImplementedError("implement")
+            return 1.0
+
         else:
             return 1.0
 

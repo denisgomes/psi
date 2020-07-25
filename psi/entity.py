@@ -194,8 +194,9 @@ class EntityContainer(object):
         """Return true if the object exists"""
         return obj in self._objects.values()
 
-    def __getitem__(self, name):
-        return self.__call__(name)
+    def __getitem__(self, key):
+        # return self.__call__(name)
+        return list(self._objects.values())[key]
 
     def __repr__(self):
         return str(self.list())

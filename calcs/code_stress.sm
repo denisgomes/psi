@@ -1,20 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<?application progid="SMath Studio Desktop" version="0.99.6671.38791"?>
+<?application progid="SMath Studio Desktop" version="0.99.6622.8829"?>
 <regions xmlns="http://smath.info/schemas/worksheet/1.0">
   <settings dpi="96">
     <identity>
       <id>7786c8fe-eeec-4164-8564-002c2f8b5bb2</id>
-      <revision>718</revision>
+      <revision>719</revision>
     </identity>
     <calculation>
       <precision>4</precision>
       <exponentialThreshold>5</exponentialThreshold>
-      <trailingZeros>false</trailingZeros>
-      <significantDigitsMode>false</significantDigitsMode>
-      <roundingMode>0</roundingMode>
       <fractions>decimal</fractions>
     </calculation>
-    <pageModel active="true" viewMode="0" printGrid="False" printAreas="True" simpleEqualsOnly="false" printBackgroundImages="true">
+    <pageModel active="true" viewMode="0" printGrid="false" printAreas="true" simpleEqualsOnly="false" printBackgroundImages="true">
       <paper id="1" orientation="Portrait" width="850" height="1100" />
       <margins left="39" right="39" top="39" bottom="39" />
       <header alignment="Center" color="#a9a9a9">&amp;[DATE] &amp;[TIME] - &amp;[FILENAME]</header>
@@ -22,18 +19,18 @@
       <backgrounds />
     </pageModel>
     <dependencies>
-      <assembly name="SMath Studio Desktop" version="0.99.6671.38791" guid="a37cba83-b69c-4c71-9992-55ff666763bd" />
-      <assembly name="Math Region" version="0.99.6671.38791" guid="02f1ab51-215b-466e-a74d-5d8b1cf85e8d" />
-      <assembly name="Special Functions" version="1.11.6671.38793" guid="2814e667-4e12-48b1-8d51-194e480eabc5" />
-      <assembly name="Text Region" version="1.10.6671.38794" guid="485d28c5-349a-48b6-93be-12a35a1c1e39" />
+      <assembly name="SMath Studio Desktop" version="0.99.6622.8829" guid="a37cba83-b69c-4c71-9992-55ff666763bd" />
+      <assembly name="Math Region" version="0.99.6622.8829" guid="02f1ab51-215b-466e-a74d-5d8b1cf85e8d" />
+      <assembly name="Special Functions" version="1.11.6622.8831" guid="2814e667-4e12-48b1-8d51-194e480eabc5" />
+      <assembly name="Text Region" version="1.10.6622.8831" guid="485d28c5-349a-48b6-93be-12a35a1c1e39" />
     </dependencies>
   </settings>
-  <region id="0" left="18" top="0" width="249" height="28" color="#000000" bgColor="#ffff80" fontSize="12">
+  <region id="0" left="18" top="0" width="248" height="26" color="#000000" bgColor="#ffff80" fontSize="12">
     <text lang="eng">
       <p>B31.1 2014 Code Stresses</p>
     </text>
   </region>
-  <region id="1" left="18" top="36" width="88" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="1" left="18" top="36" width="89" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">D.O</e>
@@ -44,7 +41,7 @@
       </input>
     </math>
   </region>
-  <region id="2" left="18" top="63" width="112" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="2" left="18" top="63" width="113" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">t.n</e>
@@ -55,12 +52,12 @@
       </input>
     </math>
   </region>
-  <region id="3" left="144" top="63" width="209" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="3" left="144" top="63" width="200" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p># Nominal wall thickness</p>
     </text>
   </region>
-  <region id="4" left="18" top="99" width="182" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="4" left="18" top="99" width="185" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">D.I</e>
@@ -79,7 +76,7 @@
       </result>
     </math>
   </region>
-  <region id="5" left="18" top="126" width="218" height="56" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="5" left="18" top="126" width="220" height="56" color="#000000" bgColor="#ffffff" fontSize="10">
     <math>
       <input>
         <e type="operand">I</e>
@@ -127,7 +124,7 @@
       </result>
     </math>
   </region>
-  <region id="7" left="198" top="189" width="193" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+  <region id="7" left="198" top="189" width="184" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
     <text lang="eng">
       <p># Pipe section modulus</p>
     </text>
@@ -138,7 +135,7 @@
         <p>Sustained Stress</p>
       </title>
     </area>
-    <region id="9" left="18" top="270" width="143" height="24" color="#000000" bgColor="#ffff80" fontSize="10">
+    <region id="9" left="18" top="270" width="136" height="23" color="#000000" bgColor="#ffff80" fontSize="10">
       <text lang="eng">
         <p>Sustained Stress</p>
       </text>
@@ -154,7 +151,7 @@
         </input>
       </math>
     </region>
-    <region id="11" left="18" top="333" width="112" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="11" left="18" top="333" width="113" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.h</e>
@@ -165,7 +162,7 @@
         </input>
       </math>
     </region>
-    <region id="12" left="171" top="333" width="209" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="12" left="171" top="333" width="200" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Hot material allowable</p>
       </text>
@@ -179,12 +176,12 @@
         </input>
       </math>
     </region>
-    <region id="14" left="171" top="378" width="262" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="14" left="171" top="378" width="256" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># SIF per Mandatory Appendix D </p>
       </text>
     </region>
-    <region id="15" left="18" top="405" width="122" height="72" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="15" left="18" top="405" width="118" height="71" color="#000000" bgColor="#ffffff" fontSize="10">
       <math optimize="2">
         <input>
           <e type="operand">i</e>
@@ -204,12 +201,12 @@
         </input>
       </math>
     </region>
-    <region id="16" left="171" top="405" width="511" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="16" left="171" top="405" width="496" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Per code, the product 0.75i must be greater than 1 or equal</p>
       </text>
     </region>
-    <region id="17" left="171" top="432" width="185" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="17" left="171" top="432" width="176" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># per section 104.8.1</p>
       </text>
@@ -224,12 +221,12 @@
         </result>
       </math>
     </region>
-    <region id="19" left="18" top="513" width="192" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="19" left="18" top="513" width="184" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Local element forces</p>
       </text>
     </region>
-    <region id="20" left="18" top="531" width="116" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="20" left="18" top="531" width="117" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.X</e>
@@ -242,7 +239,7 @@
         </input>
       </math>
     </region>
-    <region id="21" left="162" top="531" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="21" left="162" top="531" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Y</e>
@@ -255,7 +252,7 @@
         </input>
       </math>
     </region>
-    <region id="22" left="306" top="531" width="116" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="22" left="306" top="531" width="117" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Z</e>
@@ -268,7 +265,7 @@
         </input>
       </math>
     </region>
-    <region id="23" left="18" top="612" width="296" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="23" left="18" top="612" width="300" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.A</e>
@@ -297,7 +294,7 @@
         </result>
       </math>
     </region>
-    <region id="24" left="18" top="666" width="228" height="71" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="24" left="18" top="666" width="232" height="71" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.LP</e>
@@ -324,12 +321,12 @@
         </result>
       </math>
     </region>
-    <region id="25" left="261" top="693" width="349" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="25" left="261" top="693" width="336" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Exact equation per code section 102.3.2</p>
       </text>
     </region>
-    <region id="26" left="18" top="738" width="186" height="47" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="26" left="18" top="738" width="189" height="47" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.LB</e>
@@ -348,7 +345,7 @@
         </result>
       </math>
     </region>
-    <region id="27" left="18" top="828" width="218" height="30" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="27" left="18" top="828" width="224" height="30" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.LS</e>
@@ -365,12 +362,12 @@
         </result>
       </math>
     </region>
-    <region id="28" left="261" top="828" width="365" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="28" left="261" top="828" width="352" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Longitudinal sustained stress per 104.8.1</p>
       </text>
     </region>
-    <region id="29" left="18" top="864" width="148" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="29" left="18" top="864" width="150" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">IR</e>
@@ -384,7 +381,7 @@
         </result>
       </math>
     </region>
-    <region id="30" left="261" top="882" width="233" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="30" left="261" top="882" width="224" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Greater than 1 is failure</p>
       </text>
@@ -399,17 +396,17 @@
         <p>Occasional Stress</p>
       </title>
     </area>
-    <region id="33" left="18" top="981" width="151" height="24" color="#000000" bgColor="#ffff80" fontSize="10">
+    <region id="33" left="18" top="981" width="144" height="23" color="#000000" bgColor="#ffff80" fontSize="10">
       <text lang="eng">
         <p>Occasional Stress</p>
       </text>
     </region>
-    <region id="34" left="18" top="1026" width="192" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="34" left="18" top="1026" width="184" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Local element forces</p>
       </text>
     </region>
-    <region id="35" left="18" top="1044" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="35" left="18" top="1044" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.X</e>
@@ -422,7 +419,7 @@
         </input>
       </math>
     </region>
-    <region id="36" left="162" top="1044" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="36" left="162" top="1044" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Y</e>
@@ -435,7 +432,7 @@
         </input>
       </math>
     </region>
-    <region id="37" left="306" top="1044" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="37" left="306" top="1044" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Z</e>
@@ -457,12 +454,12 @@
         </input>
       </math>
     </region>
-    <region id="39" left="171" top="1080" width="262" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="39" left="171" top="1080" width="256" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># SIF per Mandatory Appendix D </p>
       </text>
     </region>
-    <region id="40" left="18" top="1107" width="122" height="72" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="40" left="18" top="1107" width="118" height="71" color="#000000" bgColor="#ffffff" fontSize="10">
       <math optimize="2">
         <input>
           <e type="operand">i</e>
@@ -482,7 +479,7 @@
         </input>
       </math>
     </region>
-    <region id="41" left="171" top="1107" width="396" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="41" left="171" top="1107" width="384" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Per code, SIF must be greater than 1 or equal</p>
       </text>
@@ -497,12 +494,12 @@
         </result>
       </math>
     </region>
-    <region id="43" left="18" top="1215" width="560" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="43" left="18" top="1215" width="544" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># k is 1.15 for event lasting 8hrs or less and 1.20 for 1hr or less</p>
       </text>
     </region>
-    <region id="44" left="18" top="1233" width="371" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="44" left="18" top="1233" width="360" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Caesar II defaults to the lower 1.15 value</p>
       </text>
@@ -516,7 +513,7 @@
         </input>
       </math>
     </region>
-    <region id="46" left="18" top="1296" width="296" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="46" left="18" top="1296" width="300" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.B</e>
@@ -545,7 +542,7 @@
         </result>
       </math>
     </region>
-    <region id="47" left="18" top="1350" width="168" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="47" left="18" top="1350" width="171" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.ho</e>
@@ -562,7 +559,7 @@
         </result>
       </math>
     </region>
-    <region id="48" left="18" top="1395" width="240" height="47" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="48" left="18" top="1395" width="245" height="47" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.LO</e>
@@ -583,12 +580,12 @@
         </result>
       </math>
     </region>
-    <region id="49" left="288" top="1413" width="373" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="49" left="288" top="1413" width="360" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Longitudinal occasional stress per 104.8.2</p>
       </text>
     </region>
-    <region id="50" left="18" top="1449" width="148" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="50" left="18" top="1449" width="150" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">IR</e>
@@ -612,17 +609,17 @@
         <p>Displacement Range Stress</p>
       </title>
     </area>
-    <region id="53" left="18" top="1548" width="340" height="24" color="#000000" bgColor="#ffff80" fontSize="10">
+    <region id="53" left="18" top="1548" width="328" height="23" color="#000000" bgColor="#ffff80" fontSize="10">
       <text lang="eng">
         <p>Displacement Load Range Stress (Thermal)</p>
       </text>
     </region>
-    <region id="54" left="18" top="1584" width="192" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="54" left="18" top="1584" width="184" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Local element forces</p>
       </text>
     </region>
-    <region id="55" left="18" top="1602" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="55" left="18" top="1602" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.X</e>
@@ -635,7 +632,7 @@
         </input>
       </math>
     </region>
-    <region id="56" left="162" top="1602" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="56" left="162" top="1602" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Y</e>
@@ -648,7 +645,7 @@
         </input>
       </math>
     </region>
-    <region id="57" left="306" top="1602" width="124" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="57" left="306" top="1602" width="125" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.Z</e>
@@ -670,12 +667,12 @@
         </input>
       </math>
     </region>
-    <region id="59" left="171" top="1638" width="262" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="59" left="171" top="1638" width="256" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># SIF per Mandatory Appendix D </p>
       </text>
     </region>
-    <region id="60" left="18" top="1665" width="82" height="72" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="60" left="18" top="1665" width="78" height="71" color="#000000" bgColor="#ffffff" fontSize="10">
       <math optimize="2">
         <input>
           <e type="operand">i</e>
@@ -691,7 +688,7 @@
         </input>
       </math>
     </region>
-    <region id="61" left="171" top="1665" width="396" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="61" left="171" top="1665" width="384" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Per code, SIF must be greater than 1 or equal</p>
       </text>
@@ -705,7 +702,7 @@
         </input>
       </math>
     </region>
-    <region id="63" left="171" top="1764" width="273" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="63" left="171" top="1764" width="264" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Total number of loading cycles</p>
       </text>
@@ -726,7 +723,7 @@
         </result>
       </math>
     </region>
-    <region id="65" left="18" top="1845" width="108" height="120" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="65" left="18" top="1845" width="104" height="118" color="#000000" bgColor="#ffffff" fontSize="10">
       <math optimize="2">
         <input>
           <e type="operand">f</e>
@@ -759,12 +756,12 @@
         </result>
       </math>
     </region>
-    <region id="67" left="171" top="1980" width="511" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="67" left="171" top="1980" width="496" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># f=0.15 minimum value based on 10^8 total cycles per 102.3.2</p>
       </text>
     </region>
-    <region id="68" left="18" top="2007" width="112" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="68" left="18" top="2007" width="113" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.C</e>
@@ -775,12 +772,12 @@
         </input>
       </math>
     </region>
-    <region id="69" left="171" top="2007" width="274" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="69" left="171" top="2007" width="264" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Material cold allowable at 70F</p>
       </text>
     </region>
-    <region id="70" left="18" top="2079" width="304" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="70" left="18" top="2079" width="308" height="43" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">M.C</e>
@@ -809,7 +806,7 @@
         </result>
       </math>
     </region>
-    <region id="71" left="18" top="2142" width="250" height="94" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="71" left="18" top="2142" width="255" height="93" color="#000000" bgColor="#ffffff" fontSize="10">
       <math optimize="2">
         <input>
           <e type="operand">S.h</e>
@@ -845,12 +842,12 @@
         </input>
       </math>
     </region>
-    <region id="72" left="279" top="2169" width="398" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="72" left="279" top="2169" width="384" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Per code section 102.3.2, left over sustained</p>
       </text>
     </region>
-    <region id="73" left="18" top="2241" width="150" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="73" left="18" top="2241" width="151" height="30" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.A</e>
@@ -863,7 +860,7 @@
         </result>
       </math>
     </region>
-    <region id="74" left="18" top="2286" width="188" height="47" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="74" left="18" top="2286" width="190" height="47" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">S.E</e>
@@ -882,12 +879,12 @@
         </result>
       </math>
     </region>
-    <region id="75" left="279" top="2295" width="390" height="24" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="75" left="279" top="2295" width="376" height="23" color="#000000" bgColor="#ffffff" fontSize="10">
       <text lang="eng">
         <p># Longitudinal displacement stress per 104.8.3</p>
       </text>
     </region>
-    <region id="76" left="18" top="2340" width="142" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
+    <region id="76" left="18" top="2340" width="143" height="53" border="true" color="#000000" bgColor="#ffffff" fontSize="10">
       <math>
         <input>
           <e type="operand">IR</e>

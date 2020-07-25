@@ -6,3 +6,5 @@ psi.egg-info
 .tox
 docs/_build/
 www/_build/
+*.err
+*.out

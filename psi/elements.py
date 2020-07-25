@@ -278,7 +278,7 @@ class Piping(Element):
         return inst
 
     def convert(self, element_type, **kwargs):
-        """Convert from one type of element to another"""
+        """Convert from Run type element to another and vice versa."""
         raise NotImplementedError("abstract method")
 
     def mass(self):
@@ -371,7 +371,7 @@ class Run(Piping):
         xold = self._dx
         self._dx = value    # set x
 
-        # TODO: Note that geometry cooridnates are managed
+        # TODO: Note that geometry coordinates are managed
         e = self.geometry
         v1, v2 = e.v1, e.v2
         r1 = Vector3(*v1.co)
@@ -633,9 +633,9 @@ class Run(Piping):
         Iz = self.section.izz
 
         # remove rotational inertia
-        J = 0
-        Iy = 0
-        Iz = 0
+        # J = 0
+        # Iy = 0
+        # Iz = 0
 
         mmat[0, 0] = mmat[6, 6] = 1/3
         mmat[1, 1] = mmat[7, 7] = 13/35 + 6*Iz/(5*A*L**2)
@@ -698,14 +698,15 @@ class Bend(Run):
     affected overall.
     """
 
-    def __init__(self, point, dx, dy=0, dz=0, radius="long", tol=0.01,
-                 from_point=None, section=None, material=None,
+    def __init__(self, point, dx, dy=0, dz=0, radius="long", flange=0,
+                 tol=0.01, from_point=None, section=None, material=None,
                  insulation=None, code=None):
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
         self._runs = []         # internal runs - created at runtime
         self.radius = radius    # also calls build
+        self.flange = flange    # 0=None, 1=single side, 2=both sides
         self.tol = tol
 
     @property
