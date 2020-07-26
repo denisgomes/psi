@@ -19,7 +19,7 @@ ipython==7.9.0
 ipython-genutils==0.2.0
 ipywidgets==7.5.1
 jedi==0.15.1
-Jinja2==2.10.3
+Jinja2==2.11.2
 json5==0.8.5
 jsonschema==3.1.1
 jupyter-client==5.3.4
@@ -42,7 +42,7 @@ nbconvert==5.6.1
 nbformat==4.4.0
 nbsphinx==0.5.0
 notebook==6.0.2
-scipy==1.5.0
+scipy==1.4.1
 packaging==19.2
 pandocfilters==1.4.2
 parso==0.5.1
