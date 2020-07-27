@@ -109,6 +109,7 @@ class App(object):
                 "Flange": self.elements.Flange,
                 "Rigid": self.elements.Rigid,
                 "Reducer": self.elements.Reducer,
+                "Bellow": self.elements.Bellow,
 
                 # sections
                 "sections": self.sections,
@@ -179,7 +180,7 @@ class App(object):
         msg = ('Python %s\n'
                'Type "copyright", "credits" or "license" for more '
                'information.\n'
-               'PSI %s -- The pipe stress design and analysis program.\n' %
+               'PSI %s -- The pipe stress analysis and design program.\n' %
                (sys.version.split('\n')[0], psi.VERSION)
                )
 

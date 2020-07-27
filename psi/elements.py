@@ -803,6 +803,14 @@ class Bend(Run):
         if vert and len(vert.edges) == 2:
             self.build(self.to_point)
 
+    @property
+    def near_point(self):
+        raise NotImplementedError("implement")
+
+    @property
+    def far_point(self):
+        raise NotImplementedError("implement")
+
     def klocal(self, temp, sfac=1.0):
         # poluate the run list with temporary elements first
 
@@ -948,7 +956,7 @@ class Rigid(Run):
                                     material, insulation, code)
         self.weight = weight
         self.include_thermal = True     # include temperature
-        self.include_fluid = True
+        self.include_fluid = True       # include contents
 
     def mass(self, accel):
         """The mass is returned since the weight is a user defined parameter
@@ -1015,6 +1023,12 @@ class Flange(Rigid):
         raise 1.75 * super(Flange, self).cladding_mass()
 
 
+class Bellow(Run):
+    """An expansion joint"""
+
+    pass
+
+
 class ElementContainer(EntityContainer):
 
     def __init__(self):
@@ -1025,6 +1039,7 @@ class ElementContainer(EntityContainer):
         self.Rigid = Rigid
         self.Valve = Valve
         self.Flange = Flange
+        self.Bellow = Bellow
 
         # selected set of elements
         self._active_objects = set()
