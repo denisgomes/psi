@@ -105,6 +105,8 @@ from psi.entity import Entity, EntityContainer
 from psi import units
 from psi.utils.euclid import Vector3
 
+from psi.sections import Pipe
+
 
 # TODO: Check app.points to determine if point exists, __new__
 
@@ -278,7 +280,7 @@ class Piping(Element):
         return inst
 
     def convert(self, element_type, **kwargs):
-        """Convert from Run type element to another and vice versa."""
+        """Convert a Run element to another and vice versa."""
         raise NotImplementedError("abstract method")
 
     def mass(self):
@@ -691,11 +693,12 @@ class Bend(Run):
     when the next adjacent run element is defined. The curve is also
     built/updated when the bend radius is set.
 
-    A bend element is approximated using multiple runs element at runtime. The
-    number of elements is a user defined parameter. The underlying curve data
-    for the geometry is used at runtime to create additional runs and solved.
-    The temporary runs are then deleted so that all the model data is not
-    affected overall.
+    A bend element is approximated using multiple runs element. The number of
+    elements is a user defined parameter. The underlying curve data for the
+    geometry is used to create additional runs and solved.  The temporary runs
+    are then deleted so that all the model data is not affected overall.
+
+    The internal run approximations and results are not accessible by the user.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, radius="long", flange=0,
@@ -704,10 +707,11 @@ class Bend(Run):
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
-        self._runs = []         # internal runs - created at runtime
         self.radius = radius    # also calls build
         self.flange = flange    # 0=None, 1=single side, 2=both sides
         self.tol = tol
+
+        self._runs = []         # internal runs
 
     @property
     def runs(self):
@@ -844,30 +848,74 @@ class Reducer(Run):
     curve. The straight curve can be easily subdivided by calling the euler
     operations on the curve.
 
-    The code flexibility factor is applied to all approximating elements of
-    the reducer.
+    The code flexibility factor is applied to all approximating elements of the
+    reducer. The internal points, elements and sections are not accessible by
+    the end user and do not live in the model points or elements list.
     """
 
-    def __init__(self, point, section2, dx, dy=0, dz=0, from_point=None,
+    def __init__(self, point, dx, dy=0, dz=0, section2=None, from_point=None,
                  section=None, material=None, insulation=None, code=None):
+        self.section2 = section2
+        self._runs = []             # internal run approximations
+        self._sections = []         # internal section approximations
+
         super(Reducer, self).__init__(point, dx, dy, dz, from_point, section,
                                       material, insulation, code)
-        section2.activate()         # automatic
-        self.section2 = section2    # to section
-        self._runs = []             # internal runs created at runtime
-
-    @property
-    def runs(self):
-        """List of approximating run elements generated on demand"""
-        return self._runs
 
     def build(self, point):
-        """Similar to a bend a reducer consists of one curve which consists of
-        multiple internal edges. Each edge has a different section associated
-        with each with a smaller and smaller diameter to approximate the
-        reducer geometry.
+        """Each subrun has a different section associated with it with each run
+        getting smaller and smaller to approximate the reducer geometry.
         """
-        raise NotImplementedError("implement")
+        super(Reducer, self).build(point)
+        edge = self.geometry
+
+        if self.section2 is None:
+            self.section2 = self.section
+
+        v1, v2 = Vector3(*edge.v1.co), Vector3(*edge.v2.co)
+        v = v2 - v1
+        v.normalize()   # unit vector
+
+        L = edge.length         # length of reducer
+        D = self.section.od     # diameter at from point
+        d = self.section2.od    # diameter at to point
+        T = self.section.thk    # thickness at from point
+        t = self.section2.thk   # thickness at to point
+
+        mat = self.material
+        insul = self.insulation
+        code = self.code
+
+        N = 9   # number of division
+
+        for i in range(0, N):
+            x_i = i * (L/N)         # element start length
+            x_j = (i+1) * (L/N)     # element end length
+
+            # diameters
+            de_i = (d-D)/L * x_i + D
+            de_j = (d-D)/L * x_j + D
+            de = (de_i+de_j) / 2
+
+            # thickness
+            te_i = (t-T)/L * x_i + T
+            te_j = (t-T)/L * x_j + T
+            te = (te_i+te_j) / 2
+
+            # with redirect_stdout(sys.__stdout__):
+            #     print(de, te)
+
+            # create sections specific to the reducer
+            # names and fix the runs, also section corrosion allowance
+            sec = Pipe(str(self.name)+str(i), de, te)
+            self._sections.append(sec)
+
+            # create all new points and runs specific to reducer
+            ve = v1 + x_j*v
+            run = Run(str(self.name)+str(i), dx=ve.x, dy=ve.y, dz=ve.z,
+                      from_point=from_point, section=sec, material=mat,
+                      insulation=insul, code=code)
+            self._runs.append(run)
 
     def mass(self):
         """Mass of a reducer.

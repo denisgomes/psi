@@ -3,3 +3,4 @@ scipy==1.4.1
 Pint==0.9
 tqdm==4.36.1
 pyglet==1.5.7
+pyopengltk==0.0.3

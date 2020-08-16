@@ -55,8 +55,9 @@ class Entity(object):
 
         return inst
 
-    def __init__(self, name):
-        self.parent.new(name, self)
+    def __init__(self, name, register=True):
+        if register:
+            self.parent.new(name, self)
 
     def outlog(self, message, level=logging.INFO):
         """Log message to output file"""

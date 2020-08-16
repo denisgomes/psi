@@ -20,45 +20,8 @@ mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
 
 # geometry
 pt10 = Point(10)
-red20 = Reducer(20, pipe2, L)
+red20 = Reducer(20, L, section=pipe1, section2=pipe2)
 
 # supports
 anc1 = Anchor('A1', 10)
-anc1.apply([run20])
-
-# loads
-# W1 = Weight('W1', 1)
-# W1.apply([run20])
-
-# P1 = Pressure('P1', 1, 250)
-# P1.apply([run20])
-
-# T1 = Thermal('T1', 1, 500, 70)
-# T1.apply([run20])
-
-F1 = Force('F1', 1, 20, fy=-10000)
-F1.apply([red20])
-
-# loadcases
-L1 = LoadCase('L1', 'ope', [Force], [1])
-
-# code
-b311 = B311('B311')
-b311.apply([red20])
-
-# solve
-mdl.analyze()
-# mdl.units = 'si'
-
-# reports
-reac = Reactions('R1', [L1])
-reac.to_screen()
-
-disp = Movements('R2', [L1])
-disp.to_screen()
-
-forc = Forces('R3', [L3])
-forc.to_screen()
-
-str1 = Stresses('S1', [L2])
-str1.to_screen()
+anc1.apply([red20])
