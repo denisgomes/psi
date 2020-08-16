@@ -86,6 +86,7 @@ class Configuration:
 
     def __init__(self, default_units=DEFAULT_UNITS):
         with units.Units(user_units=default_units):
+            # core options
             self._units = default_units
             self.vertical = "y"
             self.stress_case_corroded = True
@@ -98,6 +99,27 @@ class Configuration:
             self.axial_force = False
             self.tref = 70.0
             self.version = VERSION
+
+            # gui options
+            self.debug = False
+            self.background_top_color = (0, 0, 0)
+            self.background_bottom_color = (0, 0, 0)
+            self.pipe_color = (45, 45, 45)
+            self.valve_color = (100, 100, 100)
+            self.reducer_color = (30, 111, 121)
+            self.flange_color = (33, 100, 244)
+            self.anchor_color = (11, 23, 113)
+            self.support_color = (111, 111, 111)
+            self.spring_color = (133, 0, 123)
+            self.snubber_color = (123, 111, 222)
+            self.point_color = (10, 100, 10)
+            self.line_color = (34, 123, 11)
+            self.face_color = (22, 11, 11)
+
+            self.epsilon = 0.01
+            self.pick_color = (200, 200, 200)
+            self.mouse_rotate_factor = 1.5
+            self.mouse_translate_factor = 0.3
 
     @property
     def units(self):
