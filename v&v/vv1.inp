@@ -1,0 +1,43 @@
+
+mdl = Model('vv1')
+
+Pipe.from_file('pipe1', '10', '40')
+Material.from_file('mat1', 'A53A', 'B31.1')
+
+Point(10)
+run20 = Run(20, 0, 10*12)
+run30 = Run(30, 15*12)
+run40 = Run(40, 0, -50*12)
+run50 = Run(50, 25*12)
+
+anc1 = Anchor('anc1', 10)
+anc1.apply([run20])
+
+anc2 = Anchor('anc2', 50)
+anc2.apply([run50])
+
+W1 = Weight('W1', 1)
+W1.apply([run20, run30, run40, run50])
+
+T1 = Thermal('T1', 1, 900, 70)
+T1.apply([run20, run30, run40, run50])
+
+L1 = LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
+L2 = LoadCase('L2', 'sus', [Weight], [1])
+L3 = LoadComb('L3', 'exp', 'algebraic', [L1, L2], [1, -1])
+
+# code
+b311 = B311('B311')
+b311.apply([run20, run30, run40, run50])
+
+mdl.analyze()
+
+# reports
+reac = Reactions('R1', [L1, L2, L3])
+reac.to_screen()
+
+disp = Movements('R2', [L1, L2, L3])
+disp.to_screen()
+
+cod1 = Codes('R3', [L3])
+cod1.to_screen()

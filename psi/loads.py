@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2020 Denis Gomes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -185,10 +185,16 @@ class Weight(Load):
             wz = -self.total(element) / L
             wy = 0.0
 
-        f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-                   0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+        # f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
+        #            0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
 
+        f[:, 0] = [0, wy*L/2, wz*L/2, 0, 0, 0,
+                   0, wy*L/2, wz*L/2, 0, 0, 0]
         return f
+
+    def fglobal(self, element):
+        """Gravity is always down"""
+        return self.flocal(element)
 
 
 @units.define(pres="pressure")

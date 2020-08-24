@@ -100,7 +100,7 @@ force at the anchor:
 
 .. code:: sh
 
-    $ psi demo.py > demo.out        # run demo.py and redirect to demo.out
+    $ psi demo.inp > demo.out        # run demo.py and redirect to demo.out
 
 Inspect the demo.out file to view the output:
 
@@ -111,7 +111,7 @@ switch:
 
 .. code:: sh
 
-    $ psi -i demo.py > demo.out     # start the PSI interpreter
+    $ psi -i demo.inp > demo.out     # start the PSI interpreter
 
 
 Contribution

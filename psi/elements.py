@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2020 Denis Gomes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -500,8 +500,8 @@ class Run(Piping):
 
         try:
             # check to see if local_x is parallel to global vertical
-            assert_array_almost_equal(local_x / la.norm(local_x),
-                                      local_y / la.norm(local_y),
+            assert_array_almost_equal(np.abs(local_x) / la.norm(local_x),
+                                      np.abs(local_y) / la.norm(local_y),
                                       decimal=5)
             # redefine local_y if local_x is parallel to global y
             local_y = np.array([1., 0., 0.], dtype=np.float64)
@@ -513,9 +513,15 @@ class Run(Piping):
         # recalculate local y so that it's orthogonal
         local_y = np.cross(local_z, local_x)
 
-        return np.array([local_x/la.norm(local_x),
-                         local_y/la.norm(local_y),
-                         local_z/la.norm(local_z)], dtype=np.float64)
+        dc = np.array([local_x/la.norm(local_x),
+                       local_y/la.norm(local_y),
+                       local_z/la.norm(local_z)], dtype=np.float64)
+
+        # nan values replaced with 0
+        # nanmat = np.isnan(dc)
+        # dc[nanmat] = 0
+
+        return dc
 
     def T(self):
         """Local to global transformation matrix"""

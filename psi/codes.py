@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2020 Denis Gomes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ class Code(Entity, ActiveEntityMixin):
         """
         raise NotImplementedError("implement")
 
-    def Shoop(self, element, loadcase):
+    def shoop(self, element, loadcase):
         """Element hoop stress due to pressure"""
         raise NotImplementedError("implement")
 
