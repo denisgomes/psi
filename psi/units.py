@@ -26,9 +26,7 @@ finally analyzed in base units.
 """
 
 import os
-import sys
 import csv
-from contextlib import redirect_stdout
 
 from pint import UnitRegistry
 
@@ -122,21 +120,24 @@ class UnitsContextManagerMixin(object):
         used.
     """
 
+    __user_units = []
+
     def __enter__(self):
         """Save the current active units being used and change units to new
         system.
         """
         try:
-            self.__user_units = self.app.models.active_object.settings.units
+            self.__user_units.append(self.app.models.active_object.settings.units)
             self.app.models.active_object.settings.units = self.user_units
         except AttributeError:
-            self.__user_units = DEFAULT_UNITS
+            self.__user_units.append(DEFAULT_UNITS)
 
     def __exit__(self, type, value, traceback):
         """Restore the previous system of units"""
         try:
-            self.set_user_units(self.__user_units)
-            self.app.models.active_object.settings.units = self.__user_units
+            user_units = self.__user_units.pop()
+            self.set_user_units(user_units)
+            self.app.models.active_object.settings.units = user_units
         except AttributeError:
             pass
 

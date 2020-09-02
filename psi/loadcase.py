@@ -521,6 +521,8 @@ class Stresses:
 
 class BaseCase(Entity):
 
+    stypes = ["hrg", "hyd", "sus", "exp", "occ", "ope", "fat"]
+
     def __init__(self, name, stype="sus"):
         super(BaseCase, self).__init__(name)
         self._stype = stype  # HRG, HYD, SUS, EXP, OCC, OPE, FAT
@@ -528,6 +530,11 @@ class BaseCase(Entity):
     @property
     def stype(self):
         return self._stype
+
+    @stype.setter
+    def stype(self, value):
+        assert value in BaseCase.stypes, "invalid stress type"
+        self._stype = value
 
     @property
     def points(self):
@@ -798,36 +805,6 @@ class LoadComb(BaseCase):
             combination, again the smallest allowable of the all the loadcases
             is taken.
         """
-        self._stresses.results = np.zeros((len(self.points), 10), dtype=np.float64)
-
-        # copy sifi, sifo, as they are unchanged between loadcases
-        for factor, loadcase in zip_longest(self._factors, self._loadcases,
-                                            fillvalue=1):
-            if self._method == "algebraic":
-                # add internal forces algebraically first then calculate code
-                # stress, this is done by the solver in solver.py
-                return self._stresses
-            elif self._method == "scaler":
-                self._stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])
-            elif self._method == "srss":
-                # note: sign of factor has no effect, always positive
-                self._stresses.results[:, :6] += (factor * loadcase.stresses.results[:, :6])**2
-            elif self._method == "abs":
-                self._stresses.results[:, :6] += (factor * np.abs(loadcase.stresses.results[:, :6]))
-            elif self._method == "signmax":
-                # overwrite every time through the loop
-                self._stresses.results[:, :6] = np.maximum(self._stresses.results[:, :6],
-                                                           loadcase.stresses.results[:, :6])
-            elif self._method == "signmin":
-                self._stresses.results[:, :6] = np.minimum(self._stresses.results[:, :6],
-                                                           loadcase.stresses.results[:, :6])
-
-        # final IR calculated based on combined stress and the allowable stress
-        self._stresses.results[:, -1] = self._stresses.results[:, 5] / self._stresses.results[:, -2]
-
-        if self._method == "srss":
-            self._stresses.results[:, :6] = np.sqrt(self._stresses.results[:, :6])
-
         return self._stresses
 
     @property

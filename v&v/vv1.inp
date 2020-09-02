@@ -33,11 +33,11 @@ b311.apply([run20, run30, run40, run50])
 mdl.analyze()
 
 # reports
-reac = Reactions('R1', [L1, L2, L3])
-reac.to_screen()
-
-disp = Movements('R2', [L1, L2, L3])
+disp = Movements('R1', [L1, L2, L3])
 disp.to_screen()
 
-cod1 = Codes('R3', [L3])
+reac = Reactions('R2', [L1, L2, L3])
+reac.to_screen()
+
+cod1 = Codes('R3', [L1, L2, L3])
 cod1.to_screen()

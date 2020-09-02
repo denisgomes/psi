@@ -91,7 +91,7 @@ class Code(Entity, ActiveEntityMixin):
         """Element torsional stress"""
         raise NotImplementedError("implement")
 
-    def sax(self, element, loadcase):
+    def sax(self, element, forces):
         """Element axial stress due to structural loading.
 
         F/A type stress.
@@ -109,7 +109,7 @@ class Code(Entity, ActiveEntityMixin):
         with units.Units(user_units="code_english"):
             thermals = []
             for loadtype, opercase in zip(loadcase.loadtypes,
-                                          loadcase.opercases):
+                                            loadcase.opercases):
                 for load in element.loads:
                     if isinstance(load, Thermal) and load.opercase == opercase:
                         thermals.append(load)
@@ -139,7 +139,7 @@ class Code(Entity, ActiveEntityMixin):
             # maximum
             pressures = []
             for loadtype, opercase in zip(loadcase.loadtypes,
-                                          loadcase.opercases):
+                                            loadcase.opercases):
                 for load in element.loads:
                     if isinstance(load, Pressure) and load.opercase == opercase:
                         pressures.append(load)
@@ -292,7 +292,7 @@ class B311(Code):
 
             return mx*do / (2*Ip)
 
-    def sax(self, element, loadcase, forces):
+    def sax(self, element, forces):
         """Axial stress due to mechanical loading.
 
         Axial stress can be included by user defined option. Force is zero by
@@ -319,7 +319,7 @@ class B311(Code):
         with units.Units(user_units="code_english"):
             slp = self.slp(element, loadcase)
             slb = self.slb(element, forces)
-            sax = self.sax(element, loadcase, forces)
+            sax = self.sax(element, forces)
             stor = self.stor(element, forces)
 
             if loadcase.stype == "sus" or loadcase.stype == "occ":
