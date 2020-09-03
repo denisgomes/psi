@@ -65,6 +65,7 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
+        Units._app = self
         self.units = Units()
 
         # pass app to class objects/containers
