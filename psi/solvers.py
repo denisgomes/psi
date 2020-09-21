@@ -88,7 +88,15 @@ Constraint equations.
 
 Spring Algorithm
 ----------------
-...
+The program tries to select a rigid support, variable or constant spring where
+a spring support is specified by the user. The algorithm must satisfy all the
+operating cases such that it does not bottom or top out. For each operating
+case a linear deadweight analysis (W+P+D+F) is performed and a +Y support is
+placed at each supports. Remove the force from the weight case at each spring
+support location with the equivalent upward force and run the operating case
+with the temperature. Determine the upward movement of the pipe at the spring
+support. Use the applied force (i.e. the hot load) and the movement to pick a
+hanger from the manufacturer catalog.
 
 Master Slave (CNode)
 --------------------
@@ -594,7 +602,7 @@ def static(model):
     for element in model.elements:
         for i, loadcase in enumerate(model.loadcases):
             element_codecheck(points, loadcase, element, S, i)
-            C.extend(2 * [element.code.name])
+            C.extend(2 * [element.code.label])
             loadcase.stresses.results = (S[:, :, i], C)
 
     tqdm.info("*** Code checking complete.")

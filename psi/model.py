@@ -65,7 +65,7 @@ class Model(Entity, ActiveEntityMixin):
 
         # active model objects
         self._active_point = None
-        self._active_elements = None
+        self._active_elements = set()
         self._active_section = None
         self._active_material = None
         self._active_insulation = None
@@ -74,7 +74,6 @@ class Model(Entity, ActiveEntityMixin):
 
         super(Model, self).__init__(name)   # call last
         self.activate()     # activate on init
-
 
     @property
     def jobname(self):

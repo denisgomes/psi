@@ -182,8 +182,13 @@ class B311(Code):
         self.k = 1.15    # usage factor
         self.f = 0.90    # fatigue reduction factor
 
+    @property
+    def label(self):
+        """Title used in report output"""
+        return "B31167"
+
     def h(self, element):
-        """Flexibility characterisitic for fittings per the code"""
+        """Flexibility characterisitic for fittings per the code."""
         if isinstance(element, Bend):
             # Per Appendix D of 1967 code
             R1 = element.radius                 # bend radius
@@ -204,7 +209,9 @@ class B311(Code):
             return h
 
     def sifi(self, element):
-        """In plane stress intensification factor for fittings"""
+        """In plane stress intensification factor for fittings. The sif must
+        be 1 or greater.
+        """
         if isinstance(element, Run):
             return 1.0
 
@@ -224,7 +231,7 @@ class B311(Code):
     sifo = sifi     # out of plane - same value
 
     def kfac(self, element):
-        """Code flexibility factor provided for fittings"""
+        """Code flexibility factor for fittings."""
         if isinstance(element, Run):
             return 1.0
 

@@ -253,19 +253,135 @@ class GlobalZ(RigidSupport):
         return f
 
 
-@units.define(stiffness="translation_stiffness", cold_load="force")
-class Spring(Support):
+class InLine(RigidSupport):
+    """Support in the axial direction of the pipe."""
 
-    def __init__(self, name, point, stiffness, cold_load, variability=25,
+    def klocal(self, element):
+        """The local element x direction is always the inline direction"""
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        if self.is_rotational:
+            if self.point == element.from_point.name:
+                f[3, 0] = self.rotation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[9, 0] = self.rotation_stiffness
+
+        else:
+            if self.point == element.from_point.name:
+                f[0, 0] = self.translation_stiffness
+
+            elif self.point == element.to_point.name:
+                f[6, 0] = self.translation_stiffness
+
+        return f
+
+    def kglobal(self, element):
+        """Transform such that support is always inline"""
+        T = element.T()
+
+        return T.transpose() @ self.klocal(element)
+
+
+class Guide(RigidSupport):
+    """Support perpendicular to the pipe direction.
+
+    An exceptional case is a guided riser support which restricts movement in
+    the horizontal plane.
+    """
+
+    def klocal(self, element):
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        vert = self.app.models.active_object.settings.vertical
+
+        if element.is_vertical:     # riser support
+
+            if vert == "y":
+                if self.is_rotational:
+                    if self.point == element.from_point.name:
+                        f[4, 0] = self.rotation_stiffness
+                        f[5, 0] = self.rotation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[10, 0] = self.rotation_stiffness
+                        f[11, 0] = self.rotation_stiffness
+                else:
+                    if self.point == element.from_point.name:
+                        f[1, 0] = self.translation_stiffness
+                        f[2, 0] = self.translation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[7, 0] = self.translation_stiffness
+                        f[8, 0] = self.translation_stiffness
+
+            elif vert == "z":
+                if self.is_rotational:
+                    if self.point == element.from_point.name:
+                        f[4, 0] = self.rotation_stiffness
+                        f[5, 0] = self.rotation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[10, 0] = self.rotation_stiffness
+                        f[11, 0] = self.rotation_stiffness
+                else:
+                    if self.point == element.from_point.name:
+                        f[1, 0] = self.translation_stiffness
+                        f[2, 0] = self.translation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[7, 0] = self.translation_stiffness
+                        f[8, 0] = self.translation_stiffness
+        else:   # guide on horiztonal pipe
+            if vert == "y":
+                if self.is_rotational:
+                    if self.point == element.from_point.name:
+                        f[5, 0] = self.rotation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[11, 0] = self.rotation_stiffness
+                else:
+                    if self.point == element.from_point.name:
+                        f[2, 0] = self.translation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[8, 0] = self.translation_stiffness
+
+            elif vert == "z":
+                if self.is_rotational:
+                    if self.point == element.from_point.name:
+                        f[4, 0] = self.rotation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[10, 0] = self.rotation_stiffness
+                else:
+                    if self.point == element.from_point.name:
+                        f[1, 0] = self.translation_stiffness
+
+                    elif self.point == element.to_point.name:
+                        f[7, 0] = self.translation_stiffness
+
+        return f
+
+    def kglobal(self, element):
+        T = element.T()
+
+        return T.transpose() @ self.klocal(element)
+
+
+
+@units.define(spring_rate="translation_stiffness", cold_load="force")
+class Spring(Support):
+    def __init__(self, name, point, spring_rate, cold_load, variability=25,
                  is_constant=False):
         super(Spring, self).__init__(name, point)
-        self.stiffness = stiffness
+        self.spring_rate = spring_rate
         self.cold_load = cold_load
-        self._variability = variability     # 25% allowable variation
+        self._variability = variability     # 25% per MSS-SP-58
         self._is_constant = is_constant     # true if constant effort
 
     @classmethod
-    def from_table(cls, name, point, hot_load, movement, vendor="Lisega"):
+    def from_table(cls, name, point, hot_load, movement, vendor="anvil"):
         """Pick a spring from a vendor hanger table based on the hot load
         and movement.
         """
@@ -289,11 +405,21 @@ class Spring(Support):
     def kglobal(self, element):
         f = np.zeros((12, 1), dtype=np.float64)
 
-        if self.point == element.from_point.name:
-            f[1, 0] = self.stiffness
+        vert = self.app.models.active_object.settings.vertical
 
-        elif self.point == element.to_point.name:
-            f[7, 0] = self.stiffness
+        if vert == "y":
+            if self.point == element.from_point.name:
+                f[1, 0] = self.spring_rate
+
+            elif self.point == element.to_point.name:
+                f[7, 0] = self.spring_rate
+
+        elif vert == "z":
+            if self.point == element.from_point.name:
+                f[2, 0] = self.spring_rate
+
+            elif self.point == element.to_point.name:
+                f[8, 0] = self.spring_rate
 
         return f
 
@@ -370,6 +496,8 @@ class SupportContainer(EntityContainer):
         self.GlobalX = GlobalX
         self.GlobalY = GlobalY
         self.GlobalZ = GlobalZ
+        self.InLine = InLine
+        self.Guide = Guide
         self.Spring = Spring
         self.Displacement = Displacement
 

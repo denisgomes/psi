@@ -498,15 +498,8 @@ class Run(Piping):
         to_vert = np.array(self.geometry.v2.co)
         local_x = to_vert - from_vert
 
-        try:
-            # check to see if local_x is parallel to global vertical
-            assert_array_almost_equal(np.abs(local_x) / la.norm(local_x),
-                                      np.abs(local_y) / la.norm(local_y),
-                                      decimal=5)
-            # redefine local_y if local_x is parallel to global y
+        if self.is_vertical:
             local_y = np.array([1., 0., 0.], dtype=np.float64)
-        except AssertionError:
-            pass
 
         local_z = np.cross(local_x, local_y)
 
@@ -517,11 +510,28 @@ class Run(Piping):
                        local_y/la.norm(local_y),
                        local_z/la.norm(local_z)], dtype=np.float64)
 
-        # nan values replaced with 0
-        # nanmat = np.isnan(dc)
-        # dc[nanmat] = 0
-
         return dc
+
+    @property
+    def is_vertical(self):
+        up = self.app.models.active_object.settings.vertical
+        # note, local y is being set to a global direction
+        if up == "y":
+            local_y = np.array([0., 1., 0.], dtype=np.float64)
+        elif up == "z":
+            local_y = np.array([0., 0., 1.], dtype=np.float64)
+
+        from_vert = np.array(self.geometry.v1.co)
+        to_vert = np.array(self.geometry.v2.co)
+        local_x = to_vert - from_vert
+
+        try:
+            assert_array_almost_equal(np.abs(local_x) / la.norm(local_x),
+                                      np.abs(local_y) / la.norm(local_y),
+                                      decimal=5)
+            return True
+        except AssertionError:
+            return False
 
     def T(self):
         """Local to global transformation matrix"""
@@ -1153,18 +1163,22 @@ class ElementContainer(EntityContainer):
                     and val.to_point.name == to_point):
                 return val
 
-    def select(self, inst):
+    def select(self, inst=None):
         """Add the element instance to the active set"""
-        self._active_objects.update(inst)
+        if inst:
+            self._active_objects.add(inst)
+        else:
+            # select all elements
+            self._active_objects.update(self._objects.values())
 
-    def unselect(self, inst):
+    def unselect(self, inst=None):
         """Remove the element instance from the active set"""
-        self._active_objects.remove(inst)
+        if inst:
+            self._active_objects.remove(inst)
+        else:
+            # unselect all
+            self._active_objects.clear()
 
     def is_active(self, inst):
         """Check to see if the element is in the active set"""
         return inst in self._active_objects
-
-    def clear_active_objects(self):
-        """Clear the active set of elements"""
-        self._active_objects.clear()
