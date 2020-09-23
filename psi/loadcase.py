@@ -541,6 +541,10 @@ class BaseCase(Entity):
         return list(self.app.points)
 
     @property
+    def supports(self):
+        return list(self.app.supports)
+
+    @property
     def parent(self):
         return self.app.loadcases
 

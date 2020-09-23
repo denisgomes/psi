@@ -34,7 +34,8 @@ class Report(Entity, ActiveEntityMixin):
     def __init__(self, name, loadcases):
         super(Report, self).__init__(name)
         self.loadcases = loadcases
-        self.env = Environment(loader=FileSystemLoader(TEMPLATE_DIRECTORY))
+        self.env = Environment(loader=FileSystemLoader(TEMPLATE_DIRECTORY),
+                               extensions=["jinja2.ext.do"])
 
     @property
     def parent(self):

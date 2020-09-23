@@ -9,7 +9,13 @@
 
 {% block body %}
 {%- for i, point in enumerate(loadcases[0].points) -%}
-
+{%- set supports_at_point = [] -%}
+{%- for support in loadcases[0].supports -%}
+    {%- if support.point == point.name -%}
+        {% do supports_at_point.append(support.type) %}
+    {%- endif -%}
+{%- endfor -%}
+{% if supports_at_point -%}
 {%- set FX = 0 -%}
 {%- set FY = 0 -%}
 {%- set FZ = 0 -%}
@@ -18,7 +24,6 @@
 {%- set MZ = 0 -%}
 
 {%- for loadcase in loadcases -%}
-
 {%- set results = loadcase.reactions.results[i*6:i*6+6] -%}
 {%- set fx = results[0][0] -%}
 {%- set fy = results[1][0] -%}
@@ -46,7 +51,8 @@
     {%- set MZ = mz -%}
 {% endif %}
 {% if loop.first -%}
-{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
+{{ "%-10s" | format(point.name) }}{{ supports_at_point | join("; ") }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- elif loop.last -%}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(FX) }}{{ "% 10.1f" | format(FY) }}{{ "% 10.1f" | format(FZ) }}{{ "% 10.1f" | format(MX) }}{{ "% 10.1f" | format(MY) }}{{ "% 10.1f" | format(MZ) }}
@@ -54,9 +60,8 @@
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- endif -%}
 {% endfor %}
+{% endif -%}
 {% endfor -%}
-
 {% endblock %}
-
 {% block footer %}
 {% endblock %}
