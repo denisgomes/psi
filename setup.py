@@ -18,7 +18,7 @@ setup(
 
     author_email="denis.mp.gomes@gmail.com",
 
-    license="GPL",
+    license="GPLv3",
 
     # advertise program attributes
     classifiers=[
@@ -49,6 +49,7 @@ setup(
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",
                      "insulation.csv"],
+        "psi.data.spring": ["anvil_variable.csv", "anvil_constant.csv"],
         "psi.data.units": ["base.csv", "english.csv", "code_english.csv",
                            "si.csv"],
         },
@@ -63,7 +64,7 @@ setup(
 
     entry_points={
         "console_scripts": [
-            "psi = psi.bin.launcher:main",
+            "psi = psi.bin.cli:main",
             ]
         }
     )

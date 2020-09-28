@@ -606,7 +606,7 @@ def static(model):
             loadcase.stresses.results = (S[:, :, i], C)
 
     tqdm.info("*** Code checking complete.")
-    tqdm.info("*** Analysis complete!\n\n\n")
+    tqdm.info("*** Analysis complete!\n")
 
 
 def modal(model, nmodes=3):
@@ -652,7 +652,6 @@ def modal(model, nmodes=3):
 
     The eigenvalue array polulates right to left, opposite of how a list
     populates using append.
-
 
     AutoPIPE uses lumped mass, does not consider rotational inertia except
     for nodes with eccentric weights, and considers shear stiffness.

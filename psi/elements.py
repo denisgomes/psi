@@ -555,8 +555,8 @@ class Run(Piping):
         effectively making the element more flexible in the transverse bending
         directions. The torsional stiffness is not altered.
 
-        Stiffness matrix from 'Theory of Matrix Structural Analysis'
-        by J.S. Przemieniecki.
+        Stiffness matrix from 'Theory of Matrix Structural Analysis' by J.S.
+        Przemieniecki.
         """
         kmat = np.zeros((12, 12), dtype=np.float64)
 
@@ -568,10 +568,23 @@ class Run(Piping):
         # used for rigids
         self.section.thk *= sfac
 
-        A = self.section.area
         J = self.section.ixx
         Iy = self.section.iyy
         Iz = self.section.izz
+
+        A = self.section.area
+        Ay = 0  # shear area y
+        Az = 0  # shear area z
+        phi_y = 0
+        phi_z = 0
+        if self.app.models.active_object.settings.timoshenko:
+            if self.section.is_thin_wall:
+                Ay = Az = (1/2) * A     # pipe shear shape factors
+            else:
+                Ay = Az = (27/32) * Ay  # pipe shear shape factors
+
+            phi_y = (12*E*Iz) / G*Ay*L**2
+            phi_z = (12*E*Iy) / G*Az*L**2
 
         # flex factor
         kfac = self.code.kfac(self)
@@ -579,40 +592,40 @@ class Run(Piping):
         kmat[0, 0] = E*A / L
         kmat[0, 6] = kmat[6, 0] = -E*A / L
 
-        kmat[1, 1] = (12*E*Iz/L**3) / kfac
-        kmat[1, 5] = kmat[5, 1] = (6*E*Iz/L**2) / kfac
-        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz/L**3) / kfac
-        kmat[1, 11] = kmat[11, 1] = (6*E*Iz/L**2) / kfac
+        kmat[1, 1] = (12*E*Iz / L**3*(1+phi_y)) / kfac
+        kmat[1, 5] = kmat[5, 1] = (6*E*Iz / L**2*(1+phi_y)) / kfac
+        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz / L**3*(1+phi_y)) / kfac
+        kmat[1, 11] = kmat[11, 1] = (6*E*Iz / L**2*(1+phi_y)) / kfac
 
-        kmat[2, 2] = (12*E*Iy/L**3) / kfac
-        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy/L**2) / kfac
-        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy/L**3) / kfac
-        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy/L**2) / kfac
+        kmat[2, 2] = (12*E*Iy / L**3*(1+phi_z)) / kfac
+        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy / L**2*(1+phi_z)) / kfac
+        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy / L**3*(1+phi_z)) / kfac
+        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy / L**2*(1+phi_z)) / kfac
 
         kmat[3, 3] = G*J / L
         kmat[9, 3] = kmat[3, 9] = -G*J / L
 
-        kmat[4, 4] = (4*E*Iy/L) / kfac
-        kmat[4, 8] = kmat[8, 4] = (6*E*Iy/L**2) / kfac
-        kmat[4, 10] = kmat[10, 4] = (2*E*Iy/L) / kfac
+        kmat[4, 4] = ((4+phi_z)*E*Iy / L*(1+phi_z)) / kfac
+        kmat[4, 8] = kmat[8, 4] = (6*E*Iy / L**2*(1+phi_z)) / kfac
+        kmat[4, 10] = kmat[10, 4] = ((2-phi_z)*E*Iy / L*(1+phi_z)) / kfac
 
-        kmat[5, 5] = (4*E*Iz/L) / kfac
-        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz/L**2) / kfac
-        kmat[5, 11] = kmat[11, 5] = (2*E*Iz/L) / kfac
+        kmat[5, 5] = ((4+phi_y)*E*Iz / L*(1+phi_y)) / kfac
+        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz / L**2*(1+phi_y)) / kfac
+        kmat[5, 11] = kmat[11, 5] = ((2-phi_y)*E*Iz / L*(1+phi_y)) / kfac
 
         kmat[6, 6] = E*A / L
 
-        kmat[7, 7] = (12*E*Iz/L**3) / kfac
-        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz/L**2) / kfac
+        kmat[7, 7] = (12*E*Iz / L**3*(1+phi_y)) / kfac
+        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz / L**2*(1+phi_y)) / kfac
 
-        kmat[8, 8] = (12*E*Iy/L**3) / kfac
-        kmat[8, 10] = kmat[10, 8] = (6*E*Iy/L**2) / kfac
+        kmat[8, 8] = (12*E*Iy / L**3*(1+phi_z)) / kfac
+        kmat[8, 10] = kmat[10, 8] = (6*E*Iy / L**2*(1+phi_z)) / kfac
 
         kmat[9, 9] = G*J / L
 
-        kmat[10, 10] = (4*E*Iy/L) / kfac
+        kmat[10, 10] = ((4+phi_z)*E*Iy / L*(1+phi_z)) / kfac
 
-        kmat[11, 11] = (4*E*Iz/L) / kfac
+        kmat[11, 11] = ((4+phi_y)*E*Iz / L*(1+phi_y)) / kfac
 
         # with redirect_stdout(sys.__stdout__):
         #     print(kmat)

@@ -74,6 +74,9 @@ class Configuration:
     tref : float
         Reference temperture used for thermal expansion calculations.
 
+    timoshenko : bool
+        Use Timoshenko beam formulation.
+
     version : str
         Latest software version.
     """
@@ -97,6 +100,7 @@ class Configuration:
             self.rotation_stiffness = 1.0e12
             self.axial_force = False
             self.tref = 70.0
+            self.timoshenko = True
             self.version = VERSION
 
     @property
