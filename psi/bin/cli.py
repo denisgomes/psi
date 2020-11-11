@@ -121,7 +121,7 @@ def main():
             null = open(os.devnull, "w")
             bar = tqdm(fp, total=num_lines)
 
-            header = ("PSI Design and Analysis\n"
+            header = ("PSI Analysis and Design\n"
                       "Version: %s \n"
                       "Design Codes: All Codes\n\n"
                       "Input File: %s \n" %

@@ -581,7 +581,7 @@ class Run(Piping):
             if self.section.is_thin_wall:
                 Ay = Az = (1/2) * A     # pipe shear shape factors
             else:
-                Ay = Az = (27/32) * Ay  # pipe shear shape factors
+                Ay = Az = (27/32) * A   # heavy wall shape factors
 
             phi_y = (12*E*Iz) / G*Ay*L**2
             phi_z = (12*E*Iy) / G*Az*L**2

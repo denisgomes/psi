@@ -590,7 +590,7 @@ def static(model):
         if isinstance(loadcase, LoadCase):
             # X[:, i], R[:, i] and Fi[:, i] return row vectors
             loadcase.movements.results = X[:, i]
-            loadcase.reactions.results = R[:, i]
+            loadcase.reactions.results = -R[:, i]   # action force on support
             loadcase.forces.results = Fi[:, i]
 
     # switch back to user units - analysis is complete
