@@ -444,7 +444,7 @@ def static(model):
         njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
         # element stiffness at room temp, conservative stresses
-        keg = element.kglobal(294.2611)
+        keg = element.kglobal(model.settings.tref)
 
         # with redirect_stdout(sys.__stdout__):
         #     print(keg)
@@ -554,7 +554,7 @@ def static(model):
         njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
         # element local stiffness and transformation matrix
-        kel = element.klocal(294.2611)
+        kel = element.klocal(model.settings.tref)
 
         T = element.T()
 
@@ -691,7 +691,7 @@ def modal(model, nmodes=3):
         njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
         meg = element.mglobal()
-        keg = element.kglobal(294.2611)     # room temp
+        keg = element.kglobal(model.settings.tref)     # room temp
 
         # assemble global mass matrix, quadrant 1 to 4
         Ms[niqi:niqj, niqi:niqj] += meg[:6, :6]         # 2nd

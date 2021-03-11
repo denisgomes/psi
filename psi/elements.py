@@ -583,49 +583,49 @@ class Run(Piping):
             else:
                 Ay = Az = (27/32) * A   # heavy wall shape factors
 
-            phi_y = (12*E*Iz) / G*Ay*L**2
-            phi_z = (12*E*Iy) / G*Az*L**2
+            phi_y = (12*E*Iz) / (G*Ay*L**2)
+            phi_z = (12*E*Iy) / (G*Az*L**2)
 
         # flex factor
         kfac = self.code.kfac(self)
 
-        kmat[0, 0] = E*A / L
-        kmat[0, 6] = kmat[6, 0] = -E*A / L
+        kmat[0, 0] = (E*A) / L
+        kmat[0, 6] = kmat[6, 0] = (-E*A) / L
 
-        kmat[1, 1] = (12*E*Iz / L**3*(1+phi_y)) / kfac
-        kmat[1, 5] = kmat[5, 1] = (6*E*Iz / L**2*(1+phi_y)) / kfac
-        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz / L**3*(1+phi_y)) / kfac
-        kmat[1, 11] = kmat[11, 1] = (6*E*Iz / L**2*(1+phi_y)) / kfac
+        kmat[1, 1] = (12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[1, 5] = kmat[5, 1] = (6*E*Iz / (L**2*(1+phi_y))) / kfac
+        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[1, 11] = kmat[11, 1] = (6*E*Iz / (L**2*(1+phi_y))) / kfac
 
-        kmat[2, 2] = (12*E*Iy / L**3*(1+phi_z)) / kfac
-        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy / L**2*(1+phi_z)) / kfac
-        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy / L**3*(1+phi_z)) / kfac
-        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy / L**2*(1+phi_z)) / kfac
+        kmat[2, 2] = (12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy / (L**2*(1+phi_z))) / kfac
+        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy / (L**2*(1+phi_z))) / kfac
 
-        kmat[3, 3] = G*J / L
-        kmat[9, 3] = kmat[3, 9] = -G*J / L
+        kmat[3, 3] = (G*J) / L
+        kmat[9, 3] = kmat[3, 9] = (-G*J) / L
 
-        kmat[4, 4] = ((4+phi_z)*E*Iy / L*(1+phi_z)) / kfac
-        kmat[4, 8] = kmat[8, 4] = (6*E*Iy / L**2*(1+phi_z)) / kfac
-        kmat[4, 10] = kmat[10, 4] = ((2-phi_z)*E*Iy / L*(1+phi_z)) / kfac
+        kmat[4, 4] = ((4+phi_z)*E*Iy / (L*(1+phi_z))) / kfac
+        kmat[4, 8] = kmat[8, 4] = (6*E*Iy / (L**2*(1+phi_z))) / kfac
+        kmat[4, 10] = kmat[10, 4] = ((2-phi_z)*E*Iy / (L*(1+phi_z))) / kfac
 
-        kmat[5, 5] = ((4+phi_y)*E*Iz / L*(1+phi_y)) / kfac
-        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz / L**2*(1+phi_y)) / kfac
-        kmat[5, 11] = kmat[11, 5] = ((2-phi_y)*E*Iz / L*(1+phi_y)) / kfac
+        kmat[5, 5] = ((4+phi_y)*E*Iz / (L*(1+phi_y))) / kfac
+        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz / (L**2*(1+phi_y))) / kfac
+        kmat[5, 11] = kmat[11, 5] = ((2-phi_y)*E*Iz / (L*(1+phi_y))) / kfac
 
-        kmat[6, 6] = E*A / L
+        kmat[6, 6] = (E*A) / L
 
-        kmat[7, 7] = (12*E*Iz / L**3*(1+phi_y)) / kfac
-        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz / L**2*(1+phi_y)) / kfac
+        kmat[7, 7] = (12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz / (L**2*(1+phi_y))) / kfac
 
-        kmat[8, 8] = (12*E*Iy / L**3*(1+phi_z)) / kfac
-        kmat[8, 10] = kmat[10, 8] = (6*E*Iy / L**2*(1+phi_z)) / kfac
+        kmat[8, 8] = (12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[8, 10] = kmat[10, 8] = (6*E*Iy / (L**2*(1+phi_z))) / kfac
 
-        kmat[9, 9] = G*J / L
+        kmat[9, 9] = (G*J) / L
 
-        kmat[10, 10] = ((4+phi_z)*E*Iy / L*(1+phi_z)) / kfac
+        kmat[10, 10] = ((4+phi_z)*E*Iy / (L*(1+phi_z))) / kfac
 
-        kmat[11, 11] = ((4+phi_y)*E*Iz / L*(1+phi_y)) / kfac
+        kmat[11, 11] = ((4+phi_y)*E*Iz / (L*(1+phi_y))) / kfac
 
         # with redirect_stdout(sys.__stdout__):
         #     print(kmat)

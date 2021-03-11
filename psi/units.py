@@ -28,17 +28,16 @@ finally analyzed in base units.
 import os
 import csv
 import sys
+from contextlib import redirect_stdout
 
 from pint import UnitRegistry
 
 from psi import UNITS_DIRECTORY
 
-from contextlib import redirect_stdout
 
 
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
-
 
 DEFAULT_UNITS = "english"
 

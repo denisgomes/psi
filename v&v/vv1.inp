@@ -40,3 +40,6 @@ reac.to_screen()
 
 cod1 = Codes('R3', [L1, L2, L3])
 cod1.to_screen()
+
+forc = Forces('R4', [L2])
+forc.to_screen()

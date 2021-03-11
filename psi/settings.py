@@ -75,7 +75,7 @@ class Configuration:
         Reference temperture used for thermal expansion calculations.
 
     timoshenko : bool
-        Use Timoshenko beam formulation.
+        Use Timoshenko beam formulation accounting for shear deformation.
 
     version : str
         Latest software version.
@@ -96,8 +96,8 @@ class Configuration:
             self.pressure_thrust = False
             self.liberal_stress = False
             self.weak_springs = False
-            self.translation_stiffness = 1.0e12
-            self.rotation_stiffness = 1.0e12
+            self.translation_stiffness = 10**10
+            self.rotation_stiffness = 10**12
             self.axial_force = False
             self.tref = 70.0
             self.timoshenko = True

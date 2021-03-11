@@ -96,7 +96,8 @@ class Load(Entity):
 class Weight(Load):
     """The element deadweight load.
 
-    Includes pipe, insulation, cladding and refractory.
+    Includes pipe, insulation, cladding and refractory. The weight load is
+    applied as an uniform load across the length of the entire element.
     """
 
     label = "W"
@@ -178,22 +179,38 @@ class Weight(Load):
         f = np.zeros((12, 1), dtype=np.float64)
 
         if vert == "y":
-            wy = -self.total(element) / L
+            # length for moment is the element vector rejection with y axis
+            a = (np.array(element.to_point.xyz, dtype=np.float64) -
+                    np.array(element.from_point.xyz, dtype=np.float64))
+            b = np.array([0, 1, 0], dtype=np.float64)
+            Lm = np.linalg.norm(a - (a.dot(b)/b.dot(b))*b)
+
+            wy = self.total(element) / L
             wz = 0.0
 
         elif vert == "z":
-            wz = -self.total(element) / L
+            # length for moment is the element vector rejection with z axis
+            a = (np.array(element.to_point.xyz, dtype=np.float64) -
+                    np.array(element.from_point.xyz, dtype=np.float64))
+            b = np.array([0, 0, 1], dtype=np.float64)
+            Lm = np.linalg.norm(a - (a.dot(b)/b.dot(b))*b)
+
             wy = 0.0
+            wz = self.total(element) / L
 
-        # f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-        #            0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+        f[:, 0] = [0, -wy*L/2, -wz*L/2, 0, -wz*Lm**2/12, -wy*Lm**2/12,
+                   0, -wy*L/2, -wz*L/2, 0, wz*Lm**2/12, wy*Lm**2/12]
 
-        f[:, 0] = [0, wy*L/2, wz*L/2, 0, 0, 0,
-                   0, wy*L/2, wz*L/2, 0, 0, 0]
+        # f[:, 0] = [0, -wy*L/2, -wz*L/2, 0, 0, 0,
+        #            0, -wy*L/2, -wz*L/2, 0, 0, 0]
         return f
 
     def fglobal(self, element):
-        """Gravity is always down"""
+        """Gravity is always down.
+
+        The load is not transformed along with the element. It is with respect
+        to the globals coordinates.
+        """
         return self.flocal(element)
 
 

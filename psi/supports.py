@@ -26,6 +26,7 @@ import numpy as np
 
 from psi.entity import Entity, EntityContainer
 from psi import units
+from psi.units import DEFAULT_UNITS
 
 
 class Support(Entity):
@@ -93,7 +94,7 @@ class Anchor(Support):
         super(Anchor, self).__init__(name, point)
 
         model = self.app.models.active_object
-        with units.Units(user_units="english"):
+        with units.Units(user_units=DEFAULT_UNITS):
             self.translation_stiffness = model.settings.translation_stiffness
             self.rotation_stiffness = model.settings.rotation_stiffness
 
@@ -167,7 +168,7 @@ class RigidSupport(Support):
         self.is_snubber = is_snubber
 
         model = self.app.models.active_object
-        with units.Units(user_units="english"):
+        with units.Units(user_units=DEFAULT_UNITS):
             self.translation_stiffness = model.settings.translation_stiffness
             self.rotation_stiffness = model.settings.rotation_stiffness
             self.gap = gap
@@ -456,7 +457,7 @@ class Displacement(Support):
         self.rz = rz
 
         model = self.app.models.active_object
-        with units.Units(user_units="english"):
+        with units.Units(user_units=DEFAULT_UNITS):
             self.translation_stiffness = model.settings.translation_stiffness
             self.rotation_stiffness = model.settings.rotation_stiffness
 
