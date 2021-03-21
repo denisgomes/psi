@@ -179,23 +179,33 @@ class Weight(Load):
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
 
-        a = (np.array(element.to_point.xyz, dtype=np.float64) -
-             np.array(element.from_point.xyz, dtype=np.float64))
-        b = np.array([0, 1, 0], dtype=np.float64)
-
-        # angle element makes with vertical
-        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
-        sint = sin(theta)
-        cost = cos(theta)
         w = self.total(element) / L
 
         if vert == "y":
+            a = (np.array(element.to_point.xyz, dtype=np.float64) -
+                 np.array(element.from_point.xyz, dtype=np.float64))
+            b = np.array([0., 1., 0.], dtype=np.float64)
+
+            # angle element makes with vertical
+            theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+            sint = sin(theta)
+            cost = cos(theta)
+
             f[:, 0] = [-w*L*cost/2, -w*L*sint/2, 0, 0, 0, -w*L**2*sint/12,
                        -w*L*cost/2, -w*L*sint/2, 0, 0, 0, w*L**2*sint/12]
 
         elif vert == "z":
-            f[:, 0] = [-w*L*cost/2, 0, -w*L*sint/2, 0, -w*L**2*sint/12, 0,
-                       -w*L*cost/2, 0, -w*L*sint/2, 0, w*L**2*sint/12, 0]
+            a = (np.array(element.to_point.xyz, dtype=np.float64) -
+                 np.array(element.from_point.xyz, dtype=np.float64))
+            b = np.array([0., 0., 1.], dtype=np.float64)
+
+            # angle element makes with vertical
+            theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+            sint = sin(theta)
+            cost = cos(theta)
+
+            f[:, 0] = [-w*L*cost/2, -w*L*sint/2, 0, 0, 0, -w*L**2*sint/12,
+                       -w*L*cost/2, -w*L*sint/2, 0, 0, 0, w*L**2*sint/12]
 
         return f
 

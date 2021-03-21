@@ -498,7 +498,7 @@ class Run(Piping):
         to_vert = np.array(self.geometry.v2.co)
         local_x = to_vert - from_vert
 
-        if self.is_vertical:
+        if self.is_vertical:    # set to global x
             local_y = np.array([1., 0., 0.], dtype=np.float64)
 
         local_z = np.cross(local_x, local_y)
@@ -517,9 +517,9 @@ class Run(Piping):
         up = self.app.models.active_object.settings.vertical
         # note, local y is being set to a global direction
         if up == "y":
-            local_y = np.array([0., 1., 0.], dtype=np.float64)
+            vertical = np.array([0., 1., 0.], dtype=np.float64)
         elif up == "z":
-            local_y = np.array([0., 0., 1.], dtype=np.float64)
+            vertical = np.array([0., 0., 1.], dtype=np.float64)
 
         from_vert = np.array(self.geometry.v1.co)
         to_vert = np.array(self.geometry.v2.co)
@@ -527,7 +527,7 @@ class Run(Piping):
 
         try:
             assert_array_almost_equal(np.abs(local_x) / la.norm(local_x),
-                                      np.abs(local_y) / la.norm(local_y),
+                                      np.abs(vertical) / la.norm(vertical),
                                       decimal=5)
             return True
         except AssertionError:
