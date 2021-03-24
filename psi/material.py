@@ -88,11 +88,12 @@ class Property(object):
                 # of precision
                 temps = [round(temp, 6) for temp in temps]
 
-                # input temp in range?
+                # check if temp in range
                 mintemp = min(temps)
                 maxtemp = max(temps)
                 if item < mintemp or item > maxtemp:
-                    return None  # temp out of range
+                    raise IndexError("temperature out of bounds")
+                    #return None  # temp out of range
 
                 # find bounding indices and interpolate
                 for idx, temp in enumerate(temps):
@@ -110,7 +111,8 @@ class Property(object):
                     try:
                         return y1 - (y2-y1)/(x2-x1) * (x1-item)
                     except TypeError:   # None value
-                        return None
+                        raise IndexError("unable to interpolate value")
+                        #return None
 
     def clear(self):
         self._temps = []
