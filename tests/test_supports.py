@@ -70,15 +70,15 @@ def test_anchor(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert compare(L1.reactions[pt10][1], 10000)
-    assert compare(L1.reactions[pt10][5], 100000)
+    assert compare(L1.reactions[pt10][1], -10000)
+    assert compare(L1.reactions[pt10][5], -100000)
 
     # check reaction due to fx
-    assert compare(L2.reactions[pt10][0], 10000)
+    assert compare(L2.reactions[pt10][0], -10000)
 
     # check reaction due to fz
-    assert compare(L3.reactions[pt10][2], 10000)
-    assert compare(L3.reactions[pt10][4], -100000)
+    assert compare(L3.reactions[pt10][2], -10000)
+    assert compare(L3.reactions[pt10][4], 100000)
 
 
 def test_global_y(app):
@@ -122,8 +122,8 @@ def test_global_y(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert compare(L1.reactions[pt10][1], 5000)
-    assert compare(L1.reactions[pt20][1], 5000)
+    assert compare(L1.reactions[pt10][1], -5000)
+    assert compare(L1.reactions[pt20][1], -5000)
 
     # check max moment at the middle
     assert compare(L1.forces[pt15][5], -25000)

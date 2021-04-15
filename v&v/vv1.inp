@@ -1,15 +1,16 @@
 
 mdl = Model('vv1')
+mdl.settings.vertical = "z"
 
 Pipe.from_file('pipe1', '10', '40')
 Material.from_file('mat1', 'A53A', 'B31.1')
 B311('code1')
 
 Point(10)
-run20 = Run(20, 0, 10*12)
-Run(30, 15*12)
-Run(40, 0, -50*12)
-run50 = Run(50, 25*12)
+run20 = Run(20, 0, 0, 10*12)
+Run(30, 0, 15*12)
+Run(40, 0, 0, -50*12)
+run50 = Run(50, 0, 25*12)
 
 anc1 = Anchor('anc1', 10)
 anc1.apply([run20])
@@ -25,9 +26,16 @@ W1.apply()  # to selected elements
 T1 = Thermal('T1', 1, 900, 70)
 T1.apply()  # to selected elements
 
+S1 = Seismic('S1', 2, gz=1.0)
+S1.apply()
+
+WIN1 = Wind('WIN1', 2, profile=[(0, 50)], direction=(1, 0, 0))
+WIN1.apply()
+
 L1 = LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
 L2 = LoadCase('L2', 'sus', [Weight], [1])
 L3 = LoadComb('L3', 'exp', 'algebraic', [L1, L2], [1, -1])
+L4 = LoadCase('L4', 'ope', [Seismic], [2])
 
 mdl.analyze()
 
@@ -43,3 +51,9 @@ cod1.to_screen()
 
 forc = Forces('R4', [L2])
 forc.to_screen()
+
+disp2 = Movements('R5', [L4])
+disp2.to_screen()
+
+reac = Reactions('R6', [L4])
+reac.to_screen()

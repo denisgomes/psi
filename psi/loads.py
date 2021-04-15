@@ -52,11 +52,12 @@ import sys
 from contextlib import redirect_stdout
 
 import numpy as np
-from numpy import sin, cos, arccos
+from numpy import sin, cos, arccos, arctan
 
 import psi
 from psi.entity import Entity, EntityContainer
 from psi.elements import Rigid
+from psi.sections import Pipe
 from psi import units
 
 
@@ -197,6 +198,9 @@ class Weight(Load):
             sint = sin(theta)
             cost = cos(theta)
 
+            # note: the cos and sin allows for the forces to be aligned with
+            # the global vertical direction as opposed to the element
+            # coordinate system no matter how the element is positioned
             f[:, 0] = [-w*L*cost/2, -w*L*sint/2, 0, 0, 0, -w*L**2*sint/12,
                        -w*L*cost/2, -w*L*sint/2, 0, 0, 0, w*L**2*sint/12]
 
@@ -210,6 +214,9 @@ class Weight(Load):
             sint = sin(theta)
             cost = cos(theta)
 
+            # note: the cos and sin allows for the forces to be aligned with
+            # the global vertical direction as opposed to the element
+            # coordinate system no matter how the element is positioned
             f[:, 0] = [-w*L*cost/2, -w*L*sint/2, 0, 0, 0, -w*L**2*sint/12,
                        -w*L*cost/2, -w*L*sint/2, 0, 0, 0, w*L**2*sint/12]
 
@@ -538,7 +545,7 @@ class Uniform(Load):
 
     label = "U"
 
-    def __init__(self, name, opercase, ux=0, uy=0, uz=0, projected=True):
+    def __init__(self, name, opercase, ux=0.0, uy=0.0, uz=0.0, projected=True):
         super(Uniform, self).__init__(name, opercase)
         self.ux = ux
         self.uy = uy
@@ -568,9 +575,11 @@ class Uniform(Load):
             sint = sin(theta)
             cost = cos(theta)
 
-            # projected length in global x direction
+            # projected length in global x
             if self.projected:
-                L = L*sint
+                Lp = L*sint
+                F = wx * Lp     # force perpendicular to projected direction
+                wx = F / L      # equivalent uniform over element length
 
             fx[:, 0] = [-wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12,
                         -wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12]
@@ -587,9 +596,11 @@ class Uniform(Load):
             sint = sin(theta)
             cost = cos(theta)
 
-            # projected length in global x direction
+            # projected length in global y
             if self.projected:
-                L = L*sint
+                Lp = L*sint
+                F = wy * Lp     # force perpendicular to projected direction
+                wy = F / L      # equivalent uniform over element length
 
             fy[:, 0] = [-wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12,
                         -wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12]
@@ -601,14 +612,16 @@ class Uniform(Load):
                  np.array(element.from_point.xyz, dtype=np.float64))
             b = np.array([0., 0., 1.], dtype=np.float64)
 
-            # angle element makes with global y
+            # angle element makes with global z
             theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
             sint = sin(theta)
             cost = cos(theta)
 
-            # projected length in global z direction
+            # projected length in global z
             if self.projected:
-                L = L*sint
+                Lp = L*sint
+                F = wz * Lp     # force perpendicular to projected direction
+                wz = F / L      # equivalent uniform over element length
 
             fz[:, 0] = [-wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, -wz*L**2*sint/12,
                         -wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, wz*L**2*sint/12]
@@ -619,8 +632,7 @@ class Uniform(Load):
         return f
 
 
-@units.define(gx="g_load", gy="g_load", gz="g_load")
-class Seismic(Load):
+class Seismic(Weight):
     """Three directional seismic loading applied as a gravity (g) factor in
     global coordinates.
 
@@ -633,19 +645,22 @@ class Seismic(Load):
         Operating case the load belongs to.
 
     gx : float
-        Gravity load factor in the global x direction.
+        Seismic g load factor in the global x direction. Defaults to 0.
 
     gy : float
-        Gravity load factor in the global y direction.
+        Seismic g load factor in the global y direction. Defaults to 0.
 
     gz : float
-        Gravity load factor in the global z direction.
+        Seismic g load factor in the global z direction. Defaults to 0.
+
+    gfac: float
+        Gravity factor with 1 being earth gravity. Defaults to 1.
     """
 
     label = "S"
 
-    def __init__(self, name, opercase, gx=0.0, gy=0.0, gz=0.0):
-        super(Seismic, self).__init__(name, opercase)
+    def __init__(self, name, opercase, gx=0.0, gy=0.0, gz=0.0, gfac=1.0):
+        super(Seismic, self).__init__(name, opercase, gfac)
         self.gx = gx
         self.gy = gy
         self.gz = gz
@@ -657,6 +672,9 @@ class Seismic(Load):
     def flocal(self, element):
         L = element.length
 
+        # the vertical direction
+        vert = self.app.models.active_object.settings.vertical
+
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
 
@@ -665,60 +683,192 @@ class Seismic(Load):
         fy = np.zeros((12, 1), dtype=np.float64)
         fz = np.zeros((12, 1), dtype=np.float64)
 
-        # the gfac is 1 by default for earth gravity
+        # gx, gy, and gz are fractions of earth gravity
         wx = (self.total(element)*self.gx) / L
         wy = (self.total(element)*self.gy) / L
         wz = (self.total(element)*self.gz) / L
 
-        if self.ux:
-            wx = self.ux
+        if vert == "y":
+            sint, cost = element.angle((0., 1., 0.))
+            # note: the cos and sin allows for the forces to be aligned with
+            # the global vertical direction as opposed to the element
+            # coordinate system no matter how the element is positioned
 
-            a = (np.array(element.to_point.xyz, dtype=np.float64) -
-                 np.array(element.from_point.xyz, dtype=np.float64))
-            b = np.array([1., 0., 0.], dtype=np.float64)
+            fy[:, 0] = [wy*L*cost/2, wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12,
+                        wy*L*cost/2, wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12]
 
-            # angle element makes with global x
-            theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
-            sint = sin(theta)
-            cost = cos(theta)
+            if element.is_vertical:
+                # global x loading decomposed into local coordinates
+                sint, cost = element.angle((1., 0., 0.))
+                fx[:, 0] = [wx*L*cost/2, wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12,
+                            wx*L*cost/2, wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12]
 
-            fx[:, 0] = [-wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12,
-                        -wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12]
+                # global z loading decomposed into local coordinates
+                sint, cost = element.angle((0., 0., 1.))
+                if element.to_point.y > element.from_point.y:
+                    fz[:, 0] = [wz*L*cost/2, 0, -wz*L*sint/2, 0, wz*L**2*sint/12, 0,
+                                wz*L*cost/2, 0, -wz*L*sint/2, 0, -wz*L**2*sint/12, 0]
+                elif element.to_point.y < element.from_point.y:
+                    fz[:, 0] = [wz*L*cost/2, 0, wz*L*sint/2, 0, -wz*L**2*sint/12, 0,
+                                wz*L*cost/2, 0, wz*L*sint/2, 0, wz*L**2*sint/12, 0]
 
-        if self.uy:
-            wy = self.uy
+            else:
+                # global x loading decomposed into local coordinates
+                if element.to_point.x > element.from_point.x:
+                    sint, cost = element.angle((1., 0., 0.))
+                    fx[:, 0] = [wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12,
+                                wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12]
 
-            a = (np.array(element.to_point.xyz, dtype=np.float64) -
-                 np.array(element.from_point.xyz, dtype=np.float64))
-            b = np.array([0., 1., 0.], dtype=np.float64)
+                    # global z loading decomposed into local coordinates
+                    sint, cost = element.angle((0., 0., 1.))
+                    fz[:, 0] = [wz*L*cost/2, 0, wz*L*sint/2, 0, -wz*L**2*sint/12, 0,
+                                wz*L*cost/2, 0, wz*L*sint/2, 0, wz*L**2*sint/12, 0]
 
-            # angle element makes with global y
-            theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
-            sint = sin(theta)
-            cost = cos(theta)
+                else:
+                    sint, cost = element.angle((1., 0., 0.))
+                    fx[:, 0] = [wx*L*cost/2, wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12,
+                                wx*L*cost/2, wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12]
 
-            fy[:, 0] = [-wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12,
-                        -wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12]
+                    # global z loading decomposed into local coordinates
+                    sint, cost = element.angle((0., 0., 1.))
+                    fz[:, 0] = [wz*L*cost/2, 0, -wz*L*sint/2, 0, wz*L**2*sint/12, 0,
+                                wz*L*cost/2, 0, -wz*L*sint/2, 0, -wz*L**2*sint/12, 0]
 
-        if self.uz:
-            wz = self.uz
+        elif vert == "z":
+            # global z loading decomposed into local coordinates
+            sint, cost = element.angle((0., 0., 1.))
+            # note: the cos and sin allows for the forces to be aligned with
+            # the global vertical direction as opposed to the element
+            # coordinate system no matter how the element is positioned
+            fz[:, 0] = [wz*L*cost/2, wz*L*sint/2, 0, 0, 0, wz*L**2*sint/12,
+                        wz*L*cost/2, wz*L*sint/2, 0, 0, 0, -wz*L**2*sint/12]
 
-            a = (np.array(element.to_point.xyz, dtype=np.float64) -
-                 np.array(element.from_point.xyz, dtype=np.float64))
-            b = np.array([0., 0., 1.], dtype=np.float64)
+            # local y is along global x, local x is vertical, and local z
+            # is along global y
+            if element.is_vertical:
+                # global x loading decomposed into local coordinates
+                sint, cost = element.angle((1., 0., 0.))
+                fx[:, 0] = [wx*L*cost/2, wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12,
+                            wx*L*cost/2, wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12]
 
-            # angle element makes with global y
-            theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
-            sint = sin(theta)
-            cost = cos(theta)
+                # global y loading decomposed into local coordinates
+                sint, cost = element.angle((0., 1., 0.))
+                # local z may point left or right depending on the up or down
+                # direction of the element
+                if element.to_point.z > element.from_point.z:
+                    fy[:, 0] = [wy*L*cost/2, 0, wy*L*sint/2, 0, -wy*L**2*sint/12, 0,
+                                wy*L*cost/2, 0, wy*L*sint/2, 0, wy*L**2*sint/12, 0]
+                elif element.to_point.z < element.from_point.z:
+                    fy[:, 0] = [wy*L*cost/2, 0, -wy*L*sint/2, 0, wy*L**2*sint/12, 0,
+                                wy*L*cost/2, 0, -wy*L*sint/2, 0, -wy*L**2*sint/12, 0]
 
-            fz[:, 0] = [-wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, -wz*L**2*sint/12,
-                        -wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, wz*L**2*sint/12]
+            else:
+                # global x loading decomposed into local coordinates
+                if element.to_point.y > element.from_point.y:
+                    sint, cost = element.angle((1., 0., 0.))
+                    fx[:, 0] = [wx*L*cost/2, 0, wx*L*sint/2, 0, -wx*L**2*sint/12, 0,
+                                wx*L*cost/2, 0, wx*L*sint/2, 0, wx*L**2*sint/12, 0]
+
+                    # global y loading decomposed into local coordinates
+                    sint, cost = element.angle((0., 1., 0.))
+                    fy[:, 0] = [wy*L*cost/2, wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12,
+                                wy*L*cost/2, wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12]
+                else:
+                    sint, cost = element.angle((1., 0., 0.))
+                    fx[:, 0] = [wx*L*cost/2, 0, -wx*L*sint/2, 0, wx*L**2*sint/12, 0,
+                                wx*L*cost/2, 0, -wx*L*sint/2, 0, -wx*L**2*sint/12, 0]
+
+                    # global y loading decomposed into local coordinates
+                    sint, cost = element.angle((0., 1., 0.))
+                    fy[:, 0] = [wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12,
+                                wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12]
 
         # total uniform sum
         f = fx + fy + fz
 
         return f
+
+
+@units.define(_keys="elevation", _values="wind_load")
+class Profile(object):
+    """Tabular wind profile data given in list of (key, value) pairs."""
+
+    def __init__(self, data):
+        self._keys = []
+        self._values = []
+        self.table = data
+
+    @property
+    def _data(self):
+        return list(zip(self._keys, self._values))
+
+    @_data.setter
+    def _data(self, data):
+        self._keys, self._values = list(zip(*data))
+
+    @property
+    def table(self):
+        """Return tabular list of (key, value) pairs"""
+        return self._data
+
+    @table.setter
+    def table(self, data):
+        """Set tabular list of (key, value) pairs"""
+        self._data = sorted(data, key=lambda val: val[0])
+
+    def __getitem__(self, item):
+        """Key based value interpolation"""
+        tvals = self._data  # keys vs. vals
+
+        if len(tvals) == 1:
+            # only one elevation entered
+            return tvals[0][1]
+        elif len(tvals) > 1:
+            # interpolate
+            sorted(tvals, key=lambda p: p[0])   # by key
+            keys, vals = zip(*tvals)
+
+            # user not expected to enter key with 6 digits
+            # of precision
+            keys = [round(key, 6) for key in keys]
+
+            # check if key in range
+            minkey = min(keys)
+            maxkey = max(keys)
+            if item < minkey or item > maxkey:
+                raise IndexError("elevation out of bounds")
+
+            # find bounding indices and interpolate
+            for idx, key in enumerate(keys):
+                if key >= item:
+                    uidx = idx
+                    lidx = uidx - 1
+                    break
+
+            if key == item:    # exact match
+                return vals[uidx]
+            else:
+                x1, y1 = keys[lidx], vals[lidx]
+                x2, y2 = keys[uidx], vals[uidx]
+
+                try:
+                    return y1 - (y2-y1)/(x2-x1) * (x1-item)
+                except TypeError:   # None value
+                    raise ValueError("pressure interpolation failed")
+                    #return None
+
+        else:
+            raise ValueError("pressure undetermined")
+
+    def clear(self):
+        self._keys = []
+        self._values = []
+
+    def __repr__(self):
+        if len(self._data) == 1:
+            return str(self._data[0][1])
+
+        return str(self.table)
 
 
 class Wind(Load):
@@ -745,20 +895,20 @@ class Wind(Load):
         The element wind shape factor. Set to typical default value of 0.65.
 
     direction : tuple
-        The wind unit vector direction given in (x, y, z) tuple.
+        The wind unit vector direction given in (x, y, z) coordinate tuple.
     """
 
-    label = "W"
+    label = "WIN"
 
-    def __init__(self, name, opercase, profile, direction=(1, 0, 0),
+    def __init__(self, name, opercase, profile=[], direction=(1, 0, 0),
                  shape=0.65):
         super(Wind, self).__init__(name, opercase)
-        self.profile = profile
+        self.profile = Profile(profile)
         self.direction = direction
         self.shape = shape
 
     @classmethod
-    def from_ASCE7(cls, name, **kwargs):
+    def from_ASCE7(cls, name, opercase, **kwargs):
         """Generate a profile and define shape factor based on ASCE criteria.
         """
         raise NotImplementedError
@@ -767,33 +917,96 @@ class Wind(Load):
         f = np.zeros((12, 1), dtype=np.float64)
 
         L = element.length
+        d = np.array(self.direction, dtype=np.float64)
+        du = d / np.linalg.norm(d)  # unit vector
 
-        # the vertical direction
-        vert = self.app.models.active_object.settings.vertical
-
-        from_point = np.array(element.to_point.xyz, dtype=np.float64)
-        to_point = np.array(element.from_point.xyz, dtype=np.float64)
+        from_point = np.array(element.from_point.xyz, dtype=np.float64)
+        to_point = np.array(element.to_point.xyz, dtype=np.float64)
 
         # angle element makes with wind direction
-        a = to_point - from_point
-        b = np.array(self.direction, dtype=np.float64)
+        a = d
+        b = to_point - from_point
         theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
         sint = sin(theta)
         cost = cos(theta)
-        L = L*sint  # projected length
+        Lp = L*sint  # projected length
 
+        # averaged pressure from node i and j applied as equivalent
+        # uniform load
+        vert = self.app.models.active_object.settings.vertical
         if vert == "y":
             elev1 = from_point[1]
             elev2 = to_point[1]
-            pressure = (self.profile[elev1] + self.profile[elev2]) / 2
+            pres = (self.profile[elev1]+self.profile[elev2]) / 2
         elif vert == "z":
             elev1 = from_point[2]
             elev2 = to_point[2]
-            pressure = (self.profile[elev1] + self.profile[elev2]) / 2
-        w = pressure * L    # wind pressure
+            pres = (self.profile[elev1]+self.profile[elev2]) / 2
+        # pipe and insulation diameter exposed to wind
+        if type(element.section) == Pipe:
+            dp = element.section.od
+            if element.insulation:
+                dp += (2 * element.insulation.thk)
+        fw = pres * self.shape * (Lp*dp)    # force over projected area
 
-        f[:, 0] = [-w*L*cost/2, -w*L*sint/2, 0, 0, 0, -w*L**2*sint/12,
-                   -w*L*cost/2, -w*L*sint/2, 0, 0, 0, w*L**2*sint/12]
+        # directional force vectors
+        fx = np.zeros((12, 1), dtype=np.float64)
+        fy = np.zeros((12, 1), dtype=np.float64)
+        fz = np.zeros((12, 1), dtype=np.float64)
+
+        # angle force makes with global x
+        a = d
+        b = np.array([1., 0., 0.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        f = fw * cost
+        wx = f / L
+        # angle element makes with global x
+        a = to_point - from_point
+        b = np.array([1., 0., 0.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        fx[:, 0] = [-wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, -wx*L**2*sint/12,
+                    -wx*L*cost/2, -wx*L*sint/2, 0, 0, 0, wx*L**2*sint/12]
+
+        # angle force makes with global y
+        a = d
+        b = np.array([0., 1., 0.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        f = fw * cost
+        wy = f / L
+        # angle element makes with global y
+        a = to_point - from_point
+        b = np.array([0., 1., 0.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        fy[:, 0] = [-wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, -wy*L**2*sint/12,
+                    -wy*L*cost/2, -wy*L*sint/2, 0, 0, 0, wy*L**2*sint/12]
+
+        # angle force makes with global z
+        a = d
+        b = np.array([0., 0., 1.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        f = fw * cost
+        wz = f / L
+        # angle element makes with global z
+        a = to_point - from_point
+        b = np.array([0., 0., 1.], dtype=np.float64)
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+        sint = sin(theta)
+        cost = cos(theta)
+        fz[:, 0] = [-wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, -wz*L**2*sint/12,
+                    -wz*L*cost/2, -wz*L*sint/2, 0, 0, 0, wz*L**2*sint/12]
+
+        # total uniform sum
+        f = fx + fy + fz
 
         return f
 

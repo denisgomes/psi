@@ -483,7 +483,7 @@ def static(model):
                                               loadcase.opercases):
 
                     for load in element.loads:
-                        if (isinstance(load, loadtype) and
+                        if (type(load) == loadtype and
                                 load.opercase == opercase):
                             feg += load.fglobal(element)
                         else:

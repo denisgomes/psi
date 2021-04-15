@@ -27,13 +27,11 @@ finally analyzed in base units.
 
 import os
 import csv
-import sys
-from contextlib import redirect_stdout
+#from contextlib import redirect_stdout
 
 from pint import UnitRegistry
 
 from psi import UNITS_DIRECTORY
-
 
 
 UREG = UnitRegistry()

@@ -42,9 +42,9 @@ def test_alp(app):
 def test_ymod(app):
     mat = app.materials("MAT1")
 
-    assert round(mat.ymod[-325], 0) == 31400000
-    assert round(mat.ymod[70], 0) == 29500000
-    assert round(mat.ymod[1100], 0) == 18000000
+    assert round(mat.ymod[-325], 0) == 30000000
+    assert round(mat.ymod[70], 0) == 27900000
+    assert round(mat.ymod[1100], 0) == 13000000
 
 
 def test_sh(app):

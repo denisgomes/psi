@@ -93,13 +93,14 @@ The following items require extra attention:
 * Unit conversion should be disabled before the analysis is performed.
 """
 
-from math import cos, pi, sqrt
+from math import pi, sqrt
 from contextlib import redirect_stdout
 import sys
 
 import numpy as np
 import numpy.linalg as la
 from numpy.testing import assert_array_almost_equal
+from numpy import sin, cos, arccos, arctan
 
 from psi.entity import Entity, EntityContainer
 from psi import units
@@ -223,6 +224,25 @@ class Element(Entity):
 
     def is_active(self):
         return self.parent.is_active(self)
+
+    def angle(self, vector):
+        """Returns the sin and cos of theta where theta is the angle between
+        the element local x axis and an user vector.
+        """
+        a = (np.array(self.to_point.xyz, dtype=np.float64) -
+             np.array(self.from_point.xyz, dtype=np.float64))
+        b = np.array(vector, dtype=np.float64)
+        # c = np.cross(a, b)  # normal of plane
+
+        # angle element makes with vertical
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+
+        # theta = arctan(np.cross(a, b).dot(c) / a.dot(b))
+
+        sint = sin(theta)
+        cost = cos(theta)
+
+        return sint, cost
 
     def __repr__(self):
         return "%s(%s, %s)" % (self.type, self.from_point.name,
@@ -473,7 +493,7 @@ class Run(Piping):
 
     def dircos(self):
         """Return the direction cosine of the element in matrix form. The unit
-        vector components of the local coordinate axes of the element determine
+-        vector components of the local coordinate axes of the element determine
         the 3x3 transformation matrix.
 
         For straight elements, the local x axis is given by the direction from
