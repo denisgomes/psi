@@ -10,11 +10,6 @@ with the documentation, please open an issue with the `issue tracker`_. Anyone
 is welcome to join our discord_ server were a lot of the development discussion
 is going on. It's also a great place to ask for help.
 
-Some of the features of PSI are:
-
-* Linear static analysis
-* Open source and free to use
-
 
 Contact
 -------

@@ -466,15 +466,13 @@ class Stresses:
 
     def __getitem__(self, item):
         """Get nodal results."""
-        ndof = 6    # degrees of freedom per node
         if isinstance(item, Point):
             try:
                 model = self._app.models.active_object
                 idxi = list(model.points).index(item)
-                niqi, niqj = idxi*ndof, idxi*ndof + ndof
 
                 # note that .results is a column vector
-                return self.results[niqi:niqj, 0]
+                return self.results[idxi]
             except:
                 raise ValueError("node is not in results array")
 

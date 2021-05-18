@@ -72,7 +72,7 @@ html_theme_options = {
     # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
-    'description': 'The pipe stress design and analysis software.',
+    'description': 'The pipe stress analysis and design software.',
     # 'fixed_sidebar': True,
     # 'github_banner': True,
     # 'github_button': True,

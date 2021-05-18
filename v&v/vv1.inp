@@ -26,7 +26,7 @@ W1.apply()  # to selected elements
 T1 = Thermal('T1', 1, 900, 70)
 T1.apply()  # to selected elements
 
-S1 = Seismic('S1', 2, gz=1.0)
+S1 = Seismic('S1', 2, gx=1.0)
 S1.apply()
 
 WIN1 = Wind('WIN1', 2, profile=[(0, 50)], direction=(1, 0, 0))
@@ -40,7 +40,7 @@ L4 = LoadCase('L4', 'ope', [Seismic], [2])
 mdl.analyze()
 
 # reports
-disp = Movements('R1', [L1, L2, L3])
+disp = Movements('R1', [L2])
 disp.to_screen()
 
 reac = Reactions('R2', [L1, L2, L3])

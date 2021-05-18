@@ -6,42 +6,38 @@ problem using standard engineering strength of materials formulations and using
 PSI's finite element capabilities.
 
 
-Problem
--------
+**Problem**
 
 A 10 *feet* long, 10" schedule 40 cantilevered pipe is anchored at one end
-with a 1000 *lbf* force (P) acting on the other. What is the tip deflection
+with a 1000 *lbf* force (P) acting on the other. Determine the tip deflection
 at the end with the force? What is the reaction force (R) at the fixed end?
 
 
-Methodology
------------
+**Methodology**
 
 The deflections and reaction forces are derived using strength of materials
 formulations and calculated using the formulas in :ref:`Figure 1 <fig-1>`.
 
 
-Acceptance Criteria
--------------------
+**Acceptance Criteria**
 
-1. ASME B31.1 1967 Edition
+1. ASME B&PV B31.1 Power Piping Code 1967 Edition
 
 
-Assumptions
------------
+**Assumptions**
 
 1. The pipe is made of Standard Steel with a Young's Modulus of 2.9e7 *psi*.
 2. Shear deflection effects are negligible.
 
 
-Inputs
-------
+**Inputs**
 
-Under Construction!
+1. L = 10 ft - Pipe length
+2. E = 2.9e7 psi - Young's modulus of pipe material
+3. P = 1000 lbf - Force applied at the end
 
 
-Analysis
---------
+**Analysis**
 
 The applied end force results in:
 
@@ -79,9 +75,6 @@ Where:
     I = (\pi/64)(d_o^4 - d_i^4)
 
 
-Results
--------
-
 Plugging into the formulas from :ref:`Figure 1 <fig-1>` and solving for the
 deflection :eq:`Eqn. 1 <umax>`, shear :eq:`Eqn. 2 <shear>`, and max moment
 :eq:`Eqn. 3 <mmax>` gives:
@@ -101,8 +94,7 @@ deflection :eq:`Eqn. 1 <umax>`, shear :eq:`Eqn. 2 <shear>`, and max moment
     print("Mmax = {}".format(Mmax))
 
 
-Source Code
------------
+**Source Code**
 
 The PSI code listing below is used to solve the cantilevered beam pipe example
 above.
@@ -116,18 +108,17 @@ above.
 .. literalinclude:: ../../examples/demo.out
     :linenos:
     :caption: PSI Output
-    :emphasize-lines: 5, 16, 19, 22, 30, 45
+    :emphasize-lines: 32, 48, 65
 
 
-Conclusions
------------
+**Results**
 
 Under Construction!
 
-
 .. _ref-sec:
 
-References
-----------
+
+**References**
 
 1. AISC ASD 9th Edition
+2. ASME B&PV B31.1 Power Piping Code 1967 Edition
