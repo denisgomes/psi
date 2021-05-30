@@ -1,5 +1,5 @@
 # Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
-# Copyright (c) 2020 Denis Gomes
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -159,7 +159,6 @@ class App(object):
                 "Hydro": self.loads.Hydro,
                 "Thermal": self.loads.Thermal,
                 "Fluid": self.loads.Fluid,
-                "Uniform": self.loads.Uniform,
                 "Wind": self.loads.Wind,
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,

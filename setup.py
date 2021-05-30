@@ -16,7 +16,7 @@ setup(
 
     author="Denis Gomes",
 
-    author_email="denis.mp.gomes@gmail.com",
+    author_email="denis.gomes@consultant.com",
 
     license="GPLv3",
 

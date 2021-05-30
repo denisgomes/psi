@@ -193,4 +193,4 @@ check out the project links below.
 .. _discord: https://discord.gg/xnHnwbD
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
-.. _Denis Gomes: denis.mp.gomes@gmail.com
+.. _Denis Gomes: denisgomes@consultant.com

@@ -1,5 +1,5 @@
 # Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
-# Copyright (c) 2020 Denis Gomes
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ Reducers and Bends
 ------------------
 Both reducers and bends are topologically curves and therefore approximations.
 The midpoint of a bend is created as a side effect of defining the bend when
-it is created. All the other vertices and inaccessible from a nodal standpoint.
+it is created. All the other vertices are inaccessible from a nodal standpoint.
 In other words, the user does not have control of the other underlying vertices
 because only the vertex that corresponds to the midnode is referenced by the
 midpoint.
@@ -84,11 +84,11 @@ Tee Flexibility
 
 Skewed Supports
 ---------------
-Constraint equations.
+Implement using constraint equations.
 
 Spring Algorithm
 ----------------
-The program tries to select a rigid support, variable or constant spring where
+The program tries to place a rigid support, variable or constant spring where
 a spring support is specified by the user. The algorithm must satisfy all the
 operating cases such that it does not bottom or top out. For each operating
 case a linear deadweight analysis (W+P+D+F) is performed and a +Y support is

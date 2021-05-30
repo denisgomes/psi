@@ -1,5 +1,5 @@
 # Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
-# Copyright (c) 2020 Denis Gomes
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class Pipe(Section):
 
     @classmethod
     def from_file(cls, name, nps, sch, corra=None, milltol=None, fname=None,
-                  default_units='english'):
+                  default_units="english"):
         """Create a pipe object from a csv data file.
 
         Parameters

@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('./..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Pipe Stress Infinity'
-copyright = '2019, Denis Gomes'
+copyright = '2021, Denis Gomes'
 author = 'Denis Gomes'
 
 # The full version, including alpha/beta/rc tags

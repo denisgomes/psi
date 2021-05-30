@@ -1,5 +1,5 @@
 # Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
-# Copyright (c) 2020 Denis Gomes
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,5 +38,6 @@ BEAM_DATA_FILE = os.path.join(DATA_DIRECTORY, "wshapes.csv")
 PIPE_DATA_FILE = os.path.join(DATA_DIRECTORY, "pipes.csv")
 MATERIAL_DATA_FILE = os.path.join(DATA_DIRECTORY, "materials.csv")
 INSULATION_DATA_FILE = os.path.join(DATA_DIRECTORY, "insulation.csv")
+FLUID_DATA_FILE = os.path.join(DATA_DIRECTORY, "fluids.csv")
 UNITS_DIRECTORY = os.path.join(DATA_DIRECTORY, "units")
 TEMPLATE_DIRECTORY = os.path.join(PACKAGE_ROOT_DIRECTORY, "templates")
