@@ -139,9 +139,10 @@ class App(object):
                 "GlobalX": self.supports.GlobalX,
                 "GlobalY": self.supports.GlobalY,
                 "GlobalZ": self.supports.GlobalZ,
-                "InLine": self.supports.InLine,
+                "InLine": self.supports.LineStop,
                 "Guide": self.supports.Guide,
                 "Spring": self.supports.Spring,
+                "Incline": self.supports.Incline,
                 "Displacement": self.supports.Displacement,
 
                 # codes

@@ -22,9 +22,12 @@ stiffness value of 1000*K, where K is the largest stiffness in the global
 stiffness matrix has shown to produce good results.
 """
 
+import warnings
+
 import numpy as np
 
 from psi.entity import Entity, EntityContainer
+from psi.loads import Load
 from psi import units
 from psi.units import DEFAULT_UNITS
 
@@ -99,17 +102,17 @@ class Anchor(Support):
             self.rotation_stiffness = model.settings.rotation_stiffness
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
         if self.point == element.from_point.name:
-            f[:3, 0] = [self.translation_stiffness] * 3
-            f[3:6, 0] = [self.rotation_stiffness] * 3
+            k[:3, 0] = [self.translation_stiffness] * 3
+            k[3:6, 0] = [self.rotation_stiffness] * 3
 
         elif self.point == element.to_point.name:
-            f[6:9, 0] = [self.translation_stiffness] * 3
-            f[9:12, 0] = [self.rotation_stiffness] * 3
+            k[6:9, 0] = [self.translation_stiffness] * 3
+            k[9:12, 0] = [self.rotation_stiffness] * 3
 
-        return f
+        return k
 
 
 @units.define(translation_stiffness="translation_stiffness",
@@ -123,9 +126,8 @@ class RigidSupport(Support):
     gap.
     """
 
-    def __init__(self, name, point, dircos=None, friction=None,
-                 is_rotational=False, is_nonlinear=False, is_snubber=False,
-                 gap=0):
+    def __init__(self, name, point, friction=None, is_rotational=False,
+                 is_nonlinear=False, is_snubber=False, gap=0):
         """Create a support instance at a node point.
 
         Parameters
@@ -135,9 +137,6 @@ class RigidSupport(Support):
 
         point : Point
             Point instance where support is located.
-
-        dircos : tuple
-            Support direction cosine.
 
         friction : float
             Support friction (non-linear).
@@ -161,7 +160,6 @@ class RigidSupport(Support):
             Support gap (non-linear).
         """
         super(RigidSupport, self).__init__(name, point)
-        self._dircos = dircos   # direction cosine
         self.friction = friction
         self.is_rotational = is_rotational
         self.is_nonlinear = is_nonlinear
@@ -173,112 +171,99 @@ class RigidSupport(Support):
             self.rotation_stiffness = model.settings.rotation_stiffness
             self.gap = gap
 
-    @property
-    def direction(self):
-        return self._direction
-
-    @direction.setter
-    def direction(self, cosx, cosy, cosz):
-        self._direction = (cosx, cosy, cosz)
-
 
 class GlobalX(RigidSupport):
+    """Support aligned with the global x direction."""
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        if self.is_rotational:
-
+        if self.is_rotational is False:
             if self.point == element.from_point.name:
-                f[3, 0] = self.rotation_stiffness
-
+                k[0, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                f[9, 0] = self.rotation_stiffness
+                k[6, 0] = self.translation_stiffness
 
         else:
-
             if self.point == element.from_point.name:
-                f[0, 0] = self.translation_stiffness
-
+                k[3, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                f[6, 0] = self.translation_stiffness
+                k[9, 0] = self.rotation_stiffness
 
-        return f
+        return k
 
 
 class GlobalY(RigidSupport):
+    """Support aligned with the global y direction."""
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        if self.is_rotational:
-
+        if self.is_rotational is False:
             if self.point == element.from_point.name:
-                f[4, 0] = self.rotation_stiffness
-
+                k[1, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                f[10, 0] = self.rotation_stiffness
+                k[7, 0] = self.translation_stiffness
 
         else:
-
             if self.point == element.from_point.name:
-                f[1, 0] = self.translation_stiffness
-
+                k[4, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                f[7, 0] = self.translation_stiffness
+                k[10, 0] = self.rotation_stiffness
 
-        return f
+        return k
 
 
 class GlobalZ(RigidSupport):
+    """Support aligned with the global z direction."""
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        if self.is_rotational:
-
+        if self.is_rotational is False:
             if self.point == element.from_point.name:
-                f[5, 0] = self.rotation_stiffness
-
+                k[2, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                f[11, 0] = self.rotation_stiffness
+                k[8, 0] = self.translation_stiffness
 
         else:
-
             if self.point == element.from_point.name:
-                f[2, 0] = self.translation_stiffness
-
+                k[5, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                f[8, 0] = self.translation_stiffness
+                k[11, 0] = self.rotation_stiffness
 
-        return f
+        return k
 
 
-class InLine(RigidSupport):
-    """Support in the axial direction of the pipe."""
+class LineStop(RigidSupport):
+    """Support aligned with the axial direction of the pipe.
+
+    LineStop supports are used to redirect thermal movement. They are commonly
+    used for rack piping with expansion loops.
+    """
 
     def klocal(self, element):
-        """The local element x direction is always the inline direction"""
-        f = np.zeros((12, 1), dtype=np.float64)
+        """The local element x direction is the inline/axial direction"""
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        if self.is_rotational:
+        if self.is_rotational is False:
             if self.point == element.from_point.name:
-                f[3, 0] = self.rotation_stiffness
-
+                k[0, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                f[9, 0] = self.rotation_stiffness
+                k[6, 0] = self.translation_stiffness
 
         else:
             if self.point == element.from_point.name:
-                f[0, 0] = self.translation_stiffness
-
+                k[3, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                f[6, 0] = self.translation_stiffness
+                k[9, 0] = self.rotation_stiffness
 
-        return f
+        return k
 
     def kglobal(self, element):
-        """Transform such that support is always inline"""
+        """Transform such that support is always inline with respect to the
+        element coordinate system.
+        """
         T = element.T()
 
         return T.transpose() @ self.klocal(element)
@@ -292,77 +277,25 @@ class Guide(RigidSupport):
     """
 
     def klocal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        vert = self.app.models.active_object.settings.vertical
+        if self.is_rotational is False:
+            if self.point == element.from_point.name:
+                k[1, 0] = self.translation_stiffness
+                k[2, 0] = self.translation_stiffness
+            elif self.point == element.to_point.name:
+                k[7, 0] = self.translation_stiffness
+                k[8, 0] = self.translation_stiffness
 
-        if element.is_vertical:     # riser support
+        else:
+            if self.point == element.from_point.name:
+                k[4, 0] = self.rotation_stiffness
+                k[5, 0] = self.rotation_stiffness
+            elif self.point == element.to_point.name:
+                k[10, 0] = self.rotation_stiffness
+                k[11, 0] = self.rotation_stiffness
 
-            if vert == "y":
-                if self.is_rotational:
-                    if self.point == element.from_point.name:
-                        f[4, 0] = self.rotation_stiffness
-                        f[5, 0] = self.rotation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[10, 0] = self.rotation_stiffness
-                        f[11, 0] = self.rotation_stiffness
-                else:
-                    if self.point == element.from_point.name:
-                        f[1, 0] = self.translation_stiffness
-                        f[2, 0] = self.translation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[7, 0] = self.translation_stiffness
-                        f[8, 0] = self.translation_stiffness
-
-            elif vert == "z":
-                if self.is_rotational:
-                    if self.point == element.from_point.name:
-                        f[4, 0] = self.rotation_stiffness
-                        f[5, 0] = self.rotation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[10, 0] = self.rotation_stiffness
-                        f[11, 0] = self.rotation_stiffness
-                else:
-                    if self.point == element.from_point.name:
-                        f[1, 0] = self.translation_stiffness
-                        f[2, 0] = self.translation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[7, 0] = self.translation_stiffness
-                        f[8, 0] = self.translation_stiffness
-        else:   # guide on horiztonal pipe
-            if vert == "y":
-                if self.is_rotational:
-                    if self.point == element.from_point.name:
-                        f[5, 0] = self.rotation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[11, 0] = self.rotation_stiffness
-                else:
-                    if self.point == element.from_point.name:
-                        f[2, 0] = self.translation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[8, 0] = self.translation_stiffness
-
-            elif vert == "z":
-                if self.is_rotational:
-                    if self.point == element.from_point.name:
-                        f[4, 0] = self.rotation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[10, 0] = self.rotation_stiffness
-                else:
-                    if self.point == element.from_point.name:
-                        f[1, 0] = self.translation_stiffness
-
-                    elif self.point == element.to_point.name:
-                        f[7, 0] = self.translation_stiffness
-
-        return f
+        return k
 
     def kglobal(self, element):
         T = element.T()
@@ -370,11 +303,87 @@ class Guide(RigidSupport):
         return T.transpose() @ self.klocal(element)
 
 
+@units.define(dx="length", dy="length", dz="length",
+              mx="rotation", my="rotation", mz="rotation",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness")
+class Displacement(Support, Load):
+    """A generic global displacement vector.
+
+    Displacements are applied similar to how supports are. Supports are in
+    essence a special case with 0 movement in the direction of stiffness.
+    Using the penalty approach, the stiffness and force terms in the global
+    system matrix are modified.
+
+    Displacements are associated to an operating case and typically used with a
+    thermal case.
+
+    TODO:
+
+    Add a way to specify a 'free' nonzero displacement; dx, dy etc for
+    example must be a number value so it is set to 0 by default otherwise
+    free.
+
+    Move to loads.py so that displacement is opercase dependent and update
+    solver.py such that the global stiffness matrix is reset before solving for
+    each loadcase.
+    """
+
+    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
+                 rx=0, ry=0, rz=0):
+        """Create a displacement support instance."""
+        Support.__init__(self, name, point)
+        Load.__init__(self, name, opercase)
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+        model = self.app.models.active_object
+        with units.Units(user_units=DEFAULT_UNITS):
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
+
+    def kglobal(self, element):
+        k = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            k[:3, 0] = [self.translation_stiffness] * 3
+            k[3:6, 0] = [self.rotation_stiffness] * 3
+
+        elif self.point == element.to_point.name:
+            k[6:9, 0] = [self.translation_stiffness] * 3
+            k[9:12, 0] = [self.rotation_stiffness] * 3
+
+        return k
+
+    def dglobal(self, element):
+        """Nodal displacements used for penalty method"""
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            a[:6, 0] = [self.dx, self.dy, self.dz,
+                        self.rx, self.ry, self.rz]
+
+        elif self.point == element.to_point.name:
+            a[6:12, 0] = [self.dx, self.dy, self.dz,
+                          self.rx, self.ry, self.rz]
+
+        return a
+
+    def fglobal(self, element):
+        return self.kglobal(element) * self.dglobal()
+
 
 @units.define(spring_rate="translation_stiffness", cold_load="force")
 class Spring(Support):
+
     def __init__(self, name, point, spring_rate, cold_load, variability=25,
                  is_constant=False):
+        warnings.warn("do not use, implementation incomplete")
+
         super(Spring, self).__init__(name, point)
         self.spring_rate = spring_rate
         self.cold_load = cold_load
@@ -404,89 +413,97 @@ class Spring(Support):
         return self._is_constant
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
         vert = self.app.models.active_object.settings.vertical
 
         if vert == "y":
             if self.point == element.from_point.name:
-                f[1, 0] = self.spring_rate
-
+                k[1, 0] = self.spring_rate
             elif self.point == element.to_point.name:
-                f[7, 0] = self.spring_rate
+                k[7, 0] = self.spring_rate
 
         elif vert == "z":
             if self.point == element.from_point.name:
-                f[2, 0] = self.spring_rate
-
+                k[2, 0] = self.spring_rate
             elif self.point == element.to_point.name:
-                f[8, 0] = self.spring_rate
+                k[8, 0] = self.spring_rate
 
-        return f
+        return k
 
 
-@units.define(dx="length", dy="length", dz="length",
-              mx="rotation", my="rotation", mz="rotation",
-              translation_stiffness="translation_stiffness",
-              rotation_stiffness="rotation_stiffness")
-class Displacement(Support):
-    """A generic global displacement vector.
+class Incline(RigidSupport):
+    """Skewed support implemented using direction cosine."""
 
-    Displacements are applied similar to how supports are. Supports are in
-    essence a special case with 0 movement in the direction of stiffness.
-    Using the penalty approach, the stiffness and force terms in the global
-    system matrix are modified.
+    def __init__(self, name, point, friction=None, is_rotational=False,
+                 is_nonlinear=False, is_snubber=False, gap=0,
+                 dircos=(1, 0, 0)):
+        """Create a support instance at a node point.
 
-    Displacements are associated to an operating case and typically used with a
-    thermal case.
+        Parameters
+        ----------
+        name : str
+            Unique name for pipe object.
 
-    TODO: how to specify a 'free' nonzero displacement; dx, dy etc for example
-    must be a number value so it is set to 0 by default
-    """
+        point : Point
+            Point instance where support is located.
 
-    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
-                 rx=0, ry=0, rz=0):
-        """Create a displacement support instance."""
-        super(Displacement, self).__init__(name, point)
-        self.opercase = opercase
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.rx = rx
-        self.ry = ry
-        self.rz = rz
+        friction : float
+            Support friction (non-linear).
 
-        model = self.app.models.active_object
-        with units.Units(user_units=DEFAULT_UNITS):
-            self.translation_stiffness = model.settings.translation_stiffness
-            self.rotation_stiffness = model.settings.rotation_stiffness
+        is_rotational : bool
+            True if the support is a rotational restraint.
+
+        is_nonlinear : bool
+            True if the support is a nonlinear restraint (i.e can liftoff)
+
+        is_snubber : bool
+            True if the support is snubber.
+
+        translation_stiffnesss : float
+            Stiffness in the translational direction.
+
+        rotation_stiffness : float
+            Stiffness in the rotational direction.
+
+        gap : float
+            Support gap (non-linear).
+
+        dircos : tuple
+            Support direction cosine vector. Defaults to global x support.
+        """
+        super(Incline, self).__init__(name, point, friction=friction,
+                                      is_rotational=is_rotational,
+                                      is_nonlinear=is_nonlinear,
+                                      is_snubber=is_snubber, gap=gap)
+        self.dircos = dircos
 
     def kglobal(self, element):
-        f = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 1), dtype=np.float64)
 
-        if self.point == element.from_point.name:
-            f[:3, 0] = [self.translation_stiffness] * 3
-            f[3:6, 0] = [self.rotation_stiffness] * 3
+        cosx, cosy, cosz = self.dircos
 
-        elif self.point == element.to_point.name:
-            f[6:9, 0] = [self.translation_stiffness] * 3
-            f[9:12, 0] = [self.rotation_stiffness] * 3
+        if self.is_rotational is False:
+            if self.point == element.from_point.name:
+                k[0, 0] = self.translation_stiffness * cosx
+                k[1, 0] = self.translation_stiffness * cosy
+                k[2, 0] = self.translation_stiffness * cosz
+            elif self.point == element.to_point.name:
+                k[6, 0] = self.translation_stiffness * cosx
+                k[7, 0] = self.translation_stiffness * cosy
+                k[8, 0] = self.translation_stiffness * cosz
 
-        return f
+        else:
+            if self.point == element.from_point.name:
+                k[3, 0] = self.rotation_stiffness * cosx
+                k[4, 0] = self.rotation_stiffness * cosy
+                k[5, 0] = self.rotation_stiffness * cosz
+            elif self.point == element.to_point.name:
+                k[9, 0] = self.rotation_stiffness * cosx
+                k[10, 0] = self.rotation_stiffness * cosy
+                k[11, 0] = self.rotation_stiffness * cosz
 
-    def dglobal(self, element):
-        """Nodal displacements used for penalty method"""
-        a = np.zeros((12, 1), dtype=np.float64)
-
-        if self.point == element.from_point.name:
-            a[:6, 0] = [self.dx, self.dy, self.dz,
-                        self.rx, self.ry, self.rz]
-
-        elif self.point == element.to_point.name:
-            a[6:12, 0] = [self.dx, self.dy, self.dz,
-                          self.rx, self.ry, self.rz]
-
-        return a
+        return k
 
 
 class SupportContainer(EntityContainer):
@@ -497,9 +514,10 @@ class SupportContainer(EntityContainer):
         self.GlobalX = GlobalX
         self.GlobalY = GlobalY
         self.GlobalZ = GlobalZ
-        self.InLine = InLine
+        self.LineStop = LineStop
         self.Guide = Guide
         self.Spring = Spring
+        self.Incline = Incline
         self.Displacement = Displacement
 
     def apply(self, supports=[], elements=None):

@@ -8,12 +8,15 @@ B311('code1')
 
 Point(10)
 run20 = Run(20, 0, 0, 10*12)
-Run(30, 0, 15*12)
-Run(40, 0, 0, -50*12)
+run30 = Run(30, 0, 15*12)
+run40 = Run(40, 0, 0, -50*12)
 run50 = Run(50, 0, 25*12)
 
 anc1 = Anchor('anc1', 10)
 anc1.apply([run20])
+
+guide1 = Incline('guide1', 40, dircos=(0, 1, 0))
+guide1.apply([run40])
 
 anc2 = Anchor('anc2', 50)
 anc2.apply([run50])
@@ -37,7 +40,7 @@ WIN1 = Wind('WIN1', 3, profile=[(0, 10), (50, 100)], dirvec=(1, 0, 0),
 WIN1.apply()
 
 L1 = LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
-L2 = LoadCase('L2', 'sus', [Weight, Fluid], [1, 1])
+L2 = LoadCase('L2', 'sus', [Weight], [1])
 L3 = LoadComb('L3', 'exp', 'algebraic', [L1, L2], [1, -1])
 L4 = LoadCase('L4', 'ope', [Seismic], [2])
 L5 = LoadCase('L5', 'ope', [Wind], [3])

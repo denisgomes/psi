@@ -46,10 +46,9 @@ For multiple loads use the LoadContainer apply method:
 .. warning::
 
     An element can have multiple loads of the same type however each load
-    should be of a different operating case. This is not enforced by the
-    program at the moment so an element can have two Weight loads defined for
-    the same operating case in which case the the weights will be added
-    together.
+    should be of a different operating case. This is not currently enforced by
+    the program so an element can have two Weight loads defined for the same
+    operating case in which case the weights will be added together.
 """
 
 from __future__ import division
@@ -66,6 +65,7 @@ from psi.entity import Entity, EntityContainer
 from psi.elements import Rigid
 from psi.sections import Pipe
 from psi import units
+from psi.units import DEFAULT_UNITS
 
 
 class Load(Entity):
@@ -341,7 +341,7 @@ class Hydro(Pressure):
         .. code-block::
 
             >>> hp = Hydro('HP', 1, 200)
-            >>> fl = Fluid('F1', 1, rho=)
+            >>> fl = Fluid.from_file('F1', 1, "water")
             >>> loads.apply([hp, fl])   # active elements
             ...
             >>> lc1 = LoadCase('L1', 'sus', [Hydro, Fluid], [1, 1])
@@ -404,6 +404,78 @@ class Thermal(Load):
                    fa, 0, 0, 0, 0, 0]
 
         return f
+
+
+@units.define(dx="length", dy="length", dz="length",
+              mx="rotation", my="rotation", mz="rotation",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness")
+class Displacement(Load):
+    """A generic global displacement vector.
+
+    Displacements are applied similar to how supports are. Supports are in
+    essence a special case with 0 movement in the direction of stiffness.
+    Using the penalty approach, the stiffness and force terms in the global
+    system matrix are modified.
+
+    Displacements are associated to an operating case and typically used with a
+    thermal case.
+
+    TODO:
+
+    Add a way to specify a 'free' nonzero displacement; dx, dy etc for
+    example must be a number value so it is set to 0 by default otherwise
+    free.
+    """
+
+    label = "D"
+
+    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
+                 rx=0, ry=0, rz=0):
+        """Create a displacement support instance."""
+        super(Displacement, self).__init__(name, opercase)
+        self.point = point
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+        model = self.app.models.active_object
+        with units.Units(user_units=DEFAULT_UNITS):
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
+
+    def kglobal(self, element):
+        k = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            k[:3, 0] = [self.translation_stiffness] * 3
+            k[3:6, 0] = [self.rotation_stiffness] * 3
+
+        elif self.point == element.to_point.name:
+            k[6:9, 0] = [self.translation_stiffness] * 3
+            k[9:12, 0] = [self.rotation_stiffness] * 3
+
+        return k
+
+    def dglobal(self, element):
+        """Nodal displacements used for penalty method"""
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            a[:6, 0] = [self.dx, self.dy, self.dz,
+                        self.rx, self.ry, self.rz]
+
+        elif self.point == element.to_point.name:
+            a[6:12, 0] = [self.dx, self.dy, self.dz,
+                          self.rx, self.ry, self.rz]
+
+        return a
+
+    def fglobal(self, element):
+        return self.kglobal() * self.dglobal()
 
 
 @units.define(rho="fluid_density", gfac="g_load")
@@ -615,7 +687,7 @@ class Wind(Load):
             the global vertical position of ground.
 
     shape : float
-        The element wind shape factor. Set to a typical default value of 0.65.
+        The element wind shape factor. Set to a typical default value of 0.7.
 
     dirvec : tuple
         The wind vector direction given in global coordinates (x, y, z).
