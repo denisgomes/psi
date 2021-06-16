@@ -35,6 +35,7 @@ are stored internally in the load case object. Note that properties with units
 for different values are stored separately and combined on the fly.
 """
 
+from collections import namedtuple
 from itertools import zip_longest, product
 from collections import defaultdict
 from contextlib import redirect_stdout
@@ -120,7 +121,7 @@ class Movements:
     vector.
 
     .. note::
-       The translation and rotation components are seperately stored because
+       The translation and rotation components are separately stored because
        they have different units.
 
     .. code-block: python
@@ -128,6 +129,8 @@ class Movements:
         >>> r1.movements[pt10]          # returns all comps
         >>> r1.movements[pt10][0:3]     # returns dx, dy, dz
         >>> r1.movements[pt10][3:6]     # returns rx, ry, rz
+        >>> r1.movements[pt10].dx       # return dx
+        >>> r1.movements[pt10].rz       # return rz
 
     Slices with strides can also be used such as:
 
@@ -145,6 +148,8 @@ class Movements:
     * 5 = rz
     """
 
+    Result = namedtuple("Result", "dx dy dz rx ry rz")
+
     def __init__(self, app):
         self._app = app
         self._translation = Translation()
@@ -160,7 +165,7 @@ class Movements:
                 niqi, niqj = idxi*ndof, idxi*ndof + ndof
 
                 # note that .results is a column vector
-                return self.results[niqi:niqj, 0]
+                return Movements.Result(*self.results[niqi:niqj, 0])
             except:
                 raise ValueError("node is not in results array")
 
@@ -256,14 +261,16 @@ class Reactions:
     .. code-block: python
 
         >>> r1.reactions[pt10]          # returns all comps
-        >>> r1.reactions[pt10][0:3]     # returns dx, dy, dz
-        >>> r1.reactions[pt10][3:6]     # returns rx, ry, rz
+        >>> r1.reactions[pt10][0:3]     # returns fx, fy, fz
+        >>> r1.reactions[pt10][3:6]     # returns mx, my, mz
+        >>> r1.reactions[pt10].fx       # returns fx
+        >>> r1.reactions[pt10].mz       # returns mz
 
     Slices with strides can also be used such as:
 
     .. code-block: python
 
-        >>> r1.reactions[pt10][::2]     # returns dx, dz, ry
+        >>> r1.reactions[pt10][::2]     # returns fx, fz, my
 
     Data index and corresponding nodal force/moment.
 
@@ -274,6 +281,8 @@ class Reactions:
     * 4 = my
     * 5 = mz
     """
+
+    Result = namedtuple("Result", "fx fy fz mx my mz")
 
     def __init__(self, app):
         self._app = app
@@ -290,7 +299,7 @@ class Reactions:
                 niqi, niqj = idxi*ndof, idxi*ndof + ndof
 
                 # note that .results is a column vector
-                return self.results[niqi:niqj, 0]
+                return Reactions.Result(*self.results[niqi:niqj, 0])
             except:
                 raise ValueError("node is not in results array")
 
@@ -326,15 +335,17 @@ class Forces:
 
     .. code-block: python
 
-        >>> r1.forces[pt10]          # returns all comps
-        >>> r1.forces[pt10][0:3]     # returns dx, dy, dz
-        >>> r1.forces[pt10][3:6]     # returns rx, ry, rz
+        >>> r1.forces[pt10]         # returns all comps
+        >>> r1.forces[pt10][0:3]    # returns fx, fy, fz
+        >>> r1.forces[pt10][3:6]    # returns mx, my, mz
+        >>> r1.forces[pt10].fx      # return fx
+        >>> r1.forces[pt10].mz      # returns mz
 
     Slices with strides can also be used such as:
 
     .. code-block: python
 
-        >>> r1.forces[pt10][::2]     # returns dx, dz, ry
+        >>> r1.forces[pt10][::2]     # returns fx, fz, my
 
     Data index and corresponding nodal force/moment.
 
@@ -345,6 +356,8 @@ class Forces:
     * 4 = my
     * 5 = mz
     """
+
+    Result = namedtuple("Result", "fx fy fz mx my mz")
 
     def __init__(self, app):
         self._app = app
@@ -361,7 +374,7 @@ class Forces:
                 niqi, niqj = idxi*ndof, idxi*ndof + ndof
 
                 # note that .results is a column vector
-                return self.results[niqi:niqj, 0]
+                return Forces.Result(*self.results[niqi:niqj, 0])
             except:
                 raise ValueError("node is not in results array")
 
@@ -445,10 +458,15 @@ class Sallow:
 
 
 class Stresses:
-    """A table of nodal stresses.
+    """A table of nodal stress results.
 
-    Each row of the table corresponds to a different node.
+    .. note::
+        Each row of the table corresponds to a different node.
     """
+
+    Result = namedtuple("Result", ["shoop", "sax", "stor", "slp", "slb", "sl",
+                                   "sifi", "sifo", "sallow", "sratio", "scode"
+                                   ])
 
     def __init__(self, app):
         self._app = app
@@ -471,8 +489,11 @@ class Stresses:
                 model = self._app.models.active_object
                 idxi = list(model.points).index(item)
 
-                # note that .results is a column vector
-                return self.results[idxi]
+                # note that .results is a table, each row corresponds to node
+                # the stress terms are in arrays because of units
+                shoop, sax, stor, slp, slb, sl, *others = self.results[idxi]
+                return Stresses.Result(shoop[0], sax[0], stor[0], slp[0],
+                                       slb[0], sl[0], *others)
             except:
                 raise ValueError("node is not in results array")
 
@@ -519,7 +540,7 @@ class Stresses:
 
 class BaseCase(Entity):
 
-    stypes = ["hrg", "hyd", "sus", "exp", "occ", "ope", "fat"]
+    stypes = ["hgr", "hyd", "sus", "exp", "occ", "ope", "fat"]
 
     def __init__(self, name, stype="sus"):
         super(BaseCase, self).__init__(name)

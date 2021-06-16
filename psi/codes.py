@@ -109,7 +109,7 @@ class Code(Entity, ActiveEntityMixin):
         with units.Units(user_units="code_english"):
             thermals = []
             for loadtype, opercase in zip(loadcase.loadtypes,
-                                            loadcase.opercases):
+                                          loadcase.opercases):
                 for load in element.loads:
                     if isinstance(load, Thermal) and load.opercase == opercase:
                         thermals.append(load)
@@ -139,7 +139,7 @@ class Code(Entity, ActiveEntityMixin):
             # maximum
             pressures = []
             for loadtype, opercase in zip(loadcase.loadtypes,
-                                            loadcase.opercases):
+                                          loadcase.opercases):
                 for load in element.loads:
                     if isinstance(load, Pressure) and load.opercase == opercase:
                         pressures.append(load)
@@ -179,8 +179,9 @@ class B311(Code):
     def __init__(self, name, year="1967"):
         super(B311, self).__init__(name)
         self.year = year
-        self.k = 1.15    # usage factor
-        self.f = 0.90    # fatigue reduction factor
+        self.k = 1.15   # usage factor
+        self.f = 0.90   # fatigue reduction factor
+        self.Y = 0.0    # hoop stress factor
 
     @property
     def label(self):
@@ -250,9 +251,18 @@ class B311(Code):
     def shoop(self, element, loadcase):
         """Hoop stress due to pressure.
 
-        Equal to two times the longitudinal stress due to pressure.
+        Conservatively equal to P*D/2t.
         """
-        return 2 * self.slp(element, loadcase)
+        with units.Units(user_units="code_english"):
+            sec = element.section
+            do = sec.od
+            thke = sec.thke
+            pload = self.poper(element, loadcase)
+
+            try:
+                return (pload.pres*do) / (2*thke)
+            except AttributeError:
+                return 0
 
     def slp(self, element, loadcase):
         """Longitudinal stress due to pressure.

@@ -119,9 +119,18 @@ supports for loads and all the "inactive" supports for displacement. When all
 displacement. A status change flag variable is used to indicate a support that
 that initially shows a (-Y) load but then starts to show an uplift.
 
+.. note::
+
+    A *static* nonlinear analysis is performed by iterating until the solution
+    converges.
+
 Friction
 --------
 ...
+.. note::
+
+    A *static* nonlinear analysis is performed by iterating until the solution
+    converges.
 
 Loading sequence and non-linear supports
 ----------------------------------------
@@ -598,12 +607,12 @@ def static(model):
 
     tqdm.info("*** Element code checking.")
     S = np.zeros((nn, 10, lc), dtype=np.float64)
-    C = []  # code per element node
-    for element in model.elements:
-        for i, loadcase in enumerate(model.loadcases):
+    for i, loadcase in enumerate(model.loadcases):
+        C = []  # code used at each node
+        for element in model.elements:
             element_codecheck(points, loadcase, element, S, i)
             C.extend(2 * [element.code.label])
-            loadcase.stresses.results = (S[:, :, i], C)
+        loadcase.stresses.results = (S[:, :, i], C)
 
     tqdm.info("*** Code checking complete.")
     tqdm.info("*** Analysis complete!\n")

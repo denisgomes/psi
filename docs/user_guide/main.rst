@@ -14,6 +14,11 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 .. toctree::
 
     overview
+    modeling
+    bcs
+    loadings
+    solvers
+    postprocess
 
 
 .. include:: ../links.rst

@@ -83,7 +83,7 @@ class Pipe(Section):
             Corrosion allowance.
 
         milltol : float
-            Mill tolerance.
+            Mill tolerance. Enter the percent value such as 12.5.
 
         fname : str
             Full path to the csv data file used to do the lookup.
@@ -170,7 +170,11 @@ class Pipe(Section):
 
             The specified mill tolerance is typically used to calculate the
             hoop stress of the pipe depending on the code and has not bearing
-            on the stiffeness calculation of the element
+            on the stiffeness calculation of the element.
+
+            Similarly to the corrosion allowable, the milltol is accounted for
+            when the minimum pipe wall calculations are performed. Therefore,
+            by default both the CA and milltol values are set to None.
 
         Example
         -------
@@ -207,9 +211,9 @@ class Pipe(Section):
         """
         nomthk = effthk = self.thk
 
-        # order matters, do mill tolerance reduction first
+        # do milltol first because it's a percentage
         if self.milltol:   # pos or neg
-            effthk -= (self.milltol/100.0) * nomthk
+            effthk -= ((abs(self.milltol)/100.0) * nomthk)
 
         if self.corra:
             effthk -= self.corra

@@ -233,7 +233,11 @@ class Pressure(Load):
     growth whereas a pipe bend wants to open up.
 
     A pressure dependent hoop stress can also be calculated and typically used
-    for pipe wall sizing based on code requirements.
+    for pipe wall sizing based on code requirements. The hoop stress is based
+    on the highest pressure the system is expected to have. The final wall
+    thickness is determined by adding the corrosion allowable, mill tolerance
+    and also accounting for reductions due to threads. The calculated value is
+    then added to the minimum thickess calculation and rounded up.
     """
 
     label = "P"
@@ -260,13 +264,17 @@ class Pressure(Load):
 
         Force causing axial elongation due to the system being pressurized and
         closed.
+
+        .. note::
+
+            The thrust force is based on the inner diameter of the pipe and the
+            pipe maximum internal pressure of the system.
         """
         pipe = element.section
 
-        od = pipe.od
-        id_ = pipe.od - 2*pipe.thk  # inner diameter
+        id_ = pipe.od - 2*pipe.thk  # nominal inner diameter
 
-        return self.pres * np.pi * (od - id_)**2 / 4
+        return (self.pres*np.pi*id_**2) / 4
 
     def bourdon(self, element):
         """The force due to Bourdon effect.
@@ -283,7 +291,7 @@ class Pressure(Load):
         nu = mat.nu.value
         area = pipe.area
 
-        return 2 * nu * self.pres * area * (id_**2 / (od**2-id_**2))
+        return 2 * nu * self.pres * area * (id_**2/(od**2-id_**2))
 
     def flocal(self, element):
         """If pressure thrust or bourdon effects are activated, a force is
@@ -308,8 +316,8 @@ class Pressure(Load):
         if self.app.models.active_object.settings.bourdon_effect:
             fb = self.bourdon(element)
 
-        f[:, 0] = [-ft+fb, 0, 0, 0, 0, 0,
-                   ft-fb, 0, 0, 0, 0, 0]
+        f[:, 0] = [(-ft+fb)/2, 0, 0, 0, 0, 0,
+                   (ft-fb)/2, 0, 0, 0, 0, 0]
 
         return f
 
@@ -404,78 +412,6 @@ class Thermal(Load):
                    fa, 0, 0, 0, 0, 0]
 
         return f
-
-
-@units.define(dx="length", dy="length", dz="length",
-              mx="rotation", my="rotation", mz="rotation",
-              translation_stiffness="translation_stiffness",
-              rotation_stiffness="rotation_stiffness")
-class Displacement(Load):
-    """A generic global displacement vector.
-
-    Displacements are applied similar to how supports are. Supports are in
-    essence a special case with 0 movement in the direction of stiffness.
-    Using the penalty approach, the stiffness and force terms in the global
-    system matrix are modified.
-
-    Displacements are associated to an operating case and typically used with a
-    thermal case.
-
-    TODO:
-
-    Add a way to specify a 'free' nonzero displacement; dx, dy etc for
-    example must be a number value so it is set to 0 by default otherwise
-    free.
-    """
-
-    label = "D"
-
-    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
-                 rx=0, ry=0, rz=0):
-        """Create a displacement support instance."""
-        super(Displacement, self).__init__(name, opercase)
-        self.point = point
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.rx = rx
-        self.ry = ry
-        self.rz = rz
-
-        model = self.app.models.active_object
-        with units.Units(user_units=DEFAULT_UNITS):
-            self.translation_stiffness = model.settings.translation_stiffness
-            self.rotation_stiffness = model.settings.rotation_stiffness
-
-    def kglobal(self, element):
-        k = np.zeros((12, 1), dtype=np.float64)
-
-        if self.point == element.from_point.name:
-            k[:3, 0] = [self.translation_stiffness] * 3
-            k[3:6, 0] = [self.rotation_stiffness] * 3
-
-        elif self.point == element.to_point.name:
-            k[6:9, 0] = [self.translation_stiffness] * 3
-            k[9:12, 0] = [self.rotation_stiffness] * 3
-
-        return k
-
-    def dglobal(self, element):
-        """Nodal displacements used for penalty method"""
-        a = np.zeros((12, 1), dtype=np.float64)
-
-        if self.point == element.from_point.name:
-            a[:6, 0] = [self.dx, self.dy, self.dz,
-                        self.rx, self.ry, self.rz]
-
-        elif self.point == element.to_point.name:
-            a[6:12, 0] = [self.dx, self.dy, self.dz,
-                          self.rx, self.ry, self.rz]
-
-        return a
-
-    def fglobal(self, element):
-        return self.kglobal() * self.dglobal()
 
 
 @units.define(rho="fluid_density", gfac="g_load")
@@ -586,6 +522,78 @@ class Force(Load):
             f[6:12, 0] = [fx, fy, fz, mx, my, mz]
 
         return f
+
+
+@units.define(dx="length", dy="length", dz="length",
+              mx="rotation", my="rotation", mz="rotation",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness")
+class Displacement(Load):
+    """A generic global displacement vector.
+
+    Displacements are applied similar to how supports are. Supports are in
+    essence a special case with 0 movement in the direction of stiffness.
+    Using the penalty approach, the stiffness and force terms in the global
+    system matrix are modified.
+
+    Displacements are associated to an operating case and typically used with a
+    thermal case.
+
+    TODO:
+
+    Add a way to specify a 'free' nonzero displacement; dx, dy etc for
+    example must be a number value so it is set to 0 by default otherwise
+    free.
+    """
+
+    label = "D"
+
+    def __init__(self, name, opercase, point, dx=0, dy=0, dz=0,
+                 rx=0, ry=0, rz=0):
+        """Create a displacement support instance."""
+        super(Displacement, self).__init__(name, opercase)
+        self.point = point
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+        model = self.app.models.active_object
+        with units.Units(user_units=DEFAULT_UNITS):
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
+
+    def kglobal(self, element):
+        k = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            k[:3, 0] = [self.translation_stiffness] * 3
+            k[3:6, 0] = [self.rotation_stiffness] * 3
+
+        elif self.point == element.to_point.name:
+            k[6:9, 0] = [self.translation_stiffness] * 3
+            k[9:12, 0] = [self.rotation_stiffness] * 3
+
+        return k
+
+    def dglobal(self, element):
+        """Nodal displacements used for penalty method"""
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            a[:6, 0] = [self.dx, self.dy, self.dz,
+                        self.rx, self.ry, self.rz]
+
+        elif self.point == element.to_point.name:
+            a[6:12, 0] = [self.dx, self.dy, self.dz,
+                          self.rx, self.ry, self.rz]
+
+        return a
+
+    def fglobal(self, element):
+        return self.kglobal() * self.dglobal()
 
 
 class Seismic(Weight):
