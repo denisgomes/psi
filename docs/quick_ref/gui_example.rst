@@ -1,4 +1,0 @@
-Example (GUI)
-=============
-
-Under Construction!

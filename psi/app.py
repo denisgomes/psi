@@ -136,13 +136,12 @@ class App(object):
                 # supports
                 "supports": self.supports,
                 "Anchor": self.supports.Anchor,
-                "GlobalX": self.supports.GlobalX,
-                "GlobalY": self.supports.GlobalY,
-                "GlobalZ": self.supports.GlobalZ,
-                "InLine": self.supports.LineStop,
-                "Guide": self.supports.Guide,
+                "X": self.supports.X,
+                "Y": self.supports.Y,
+                "Z": self.supports.Z,
                 "Spring": self.supports.Spring,
-                "Incline": self.supports.Incline,
+                "LineStop": self.supports.LineStop,
+                "Guide": self.supports.Guide,
                 "Displacement": self.supports.Displacement,
 
                 # codes

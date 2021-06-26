@@ -16,8 +16,8 @@ Some of the features of PSI are:
   Flanges
 * Ability to specify section and material data properties for different
   cross-sections
-* Access to a variety of different support types such as Anchors, GlobalX,
-  GlobalY, and GlobalZ including non-linear support capability
+* Access to a variety of different support types such as Anchors, global X,
+  global Y, and global Z including non-linear support capability
 * Assign loads such as Weight, Pressure, Thermal, Wind and Seismic
 * Linear combinations of loads and combinations of load cases
 * Stress evaluation based on B31.1 power piping code

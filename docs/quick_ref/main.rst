@@ -19,6 +19,5 @@ For license questions, please contact `Denis Gomes`_, the primary author.
     features
     codes
     example
-    gui_example
 
 .. include:: ../links.rst

@@ -24,7 +24,7 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
 from psi import units
 
 
-@units.define(rho="density", thk="length")
+@units.define(rho="insulation_density", thk="length")
 class Insulation(Entity, ActiveEntityMixin):
 
     def __init__(self, name, rho, thk):

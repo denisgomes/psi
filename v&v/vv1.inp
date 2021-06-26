@@ -15,7 +15,7 @@ run50 = Run(50, 0, 25*12)
 anc1 = Anchor('anc1', 10)
 anc1.apply([run20])
 
-guide1 = Incline('guide1', 40, dircos=(0, 1, 0))
+guide1 = X('guide1', 40, dircos=(0, 0.7071, 0.7071))
 guide1.apply([run40])
 
 anc2 = Anchor('anc2', 50)

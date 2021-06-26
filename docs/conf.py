@@ -95,7 +95,7 @@ master_doc = 'index'
 # for figure numbering
 # numfig = True
 
-mathjax_config = {
-    "jax": ["input/TeX","output/HTML-CSS"],
-    "displayAlign": "left"
-}
+# mathjax_config = {
+#     "jax": ["input/TeX","output/HTML-CSS"],
+#     "displayAlign": "left"
+# }

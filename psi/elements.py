@@ -864,6 +864,10 @@ class Bend(Run):
     def far_point(self):
         raise NotImplementedError("implement")
 
+    @property
+    def mid_point(self):
+        raise NotImplementedError("implement")
+
     def klocal(self, temp, sfac=1.0):
         # poluate the run list with temporary elements first
 

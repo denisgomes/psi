@@ -14,30 +14,30 @@ Anchor
   .. automethod:: apply
 
 
-GlobalX
--------
+X
+-
 
-.. autoclass:: GlobalX
-
-  .. rubric:: Methods
-  .. automethod:: __init__
-  .. automethod:: apply
-
-
-GlobalY
--------
-
-.. autoclass:: GlobalY
+.. autoclass:: X
 
   .. rubric:: Methods
   .. automethod:: __init__
   .. automethod:: apply
 
 
-GlobalZ
--------
+Y
+-
 
-.. autoclass:: GlobalZ
+.. autoclass:: Y
+
+  .. rubric:: Methods
+  .. automethod:: __init__
+  .. automethod:: apply
+
+
+Z
+-
+
+.. autoclass:: Z
 
   .. rubric:: Methods
   .. automethod:: __init__
@@ -49,6 +49,10 @@ LineStop
 
 .. autoclass:: LineStop
 
+    .. warning::
+
+        Implementation incomplete, do not use!
+
   .. rubric:: Methods
   .. automethod:: __init__
   .. automethod:: apply
@@ -59,15 +63,9 @@ Guide
 
 .. autoclass:: Guide
 
-  .. rubric:: Methods
-  .. automethod:: __init__
-  .. automethod:: apply
+    .. warning::
 
-
-Incline
--------
-
-.. autoclass:: Incline
+        Implementation incomplete, do not use!
 
   .. rubric:: Methods
   .. automethod:: __init__
