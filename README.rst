@@ -1,6 +1,5 @@
 Pipe Stress Infinity
 ====================
-
 Pipe Stress Infinity (PSI) is an engineering analysis and design software used
 to evaluate the structural behavior and stresses of piping systems to a variety
 of different codes and standards.

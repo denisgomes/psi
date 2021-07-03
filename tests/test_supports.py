@@ -129,6 +129,36 @@ def test_global_y(app):
     assert compare(L1.forces[pt15][5], -25000)
 
 
+def test_incline(app):
+
+    # get pipe objects
+    # pt10 = app.points(10)
+    # pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run10])
+
+    y15 = Y('y15', 20, dircos=(-0.7071, 0.7071, 0))
+    y15.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=-10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt20].fx, -5000)
+    assert compare(L1.reactions[pt20].fy, -5000)
+
+
 def test_displacement(app):
     """Cantilever beam with displacement support"""
 

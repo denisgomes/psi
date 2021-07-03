@@ -1,21 +1,28 @@
+=========
+TODO List
+=========
+
 0.1.0 Release
 =============
+
 Supports
-~~~~~~~~
+--------
+Debug inclined supports.
 Make imposed support displacment opercase dependent (solver.py).
 Refactor support.py, change GlobalX to X, etc.
 Implement spring supports and refactor supports.py
 Non-linear supports (+Y, gaps)
+Update support apply method
 
 Elements
-~~~~~~~~
+--------
 Implement bend and reducer element type
 Implement sifs for various components, especially for tees
 Implement tee element
 Remove dependence on topology.py
 
 Loadcase
-~~~~~~~~
+--------
 Update automatic default loadcase method
 
 Tests

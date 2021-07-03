@@ -15,8 +15,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Pipe Stress Infinity'
-copyright = '2019, Denis Gomes'
+project = 'Open Pipe Stress'
+copyright = '2021, Denis Gomes'
 author = 'Denis Gomes'
 
 # The full version, including alpha/beta/rc tags
@@ -29,7 +29,15 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['ablog',
+              'sphinx_comments',
 ]
+
+comments_config = {
+        'utterances': {
+            'repo': 'github-org/github-repo',
+            'optional': 'config',
+            }
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -60,13 +68,12 @@ html_sidebars = {
     '**': [
         'about.html',
         # 'recentposts.html',
+        'navigation.html',
         'categories.html',
-
-        'useful_links.html',
+        # 'useful_links.html',
         # 'relations.html',
         'donate.html',
         'searchbox.html',
-
     ]
 }
 
@@ -77,18 +84,18 @@ html_theme_options = {
     # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
-    'description': 'The pipe stress design and analysis software.',
-    # 'fixed_sidebar': True,
-    'github_banner': True,
-    # 'github_button': True,
+    'description': 'The pipe stress analysis and design blog.',
+    'fixed_sidebar': False,
+    # 'github_banner': True,
+    'github_button': True,
     'analytics_id': 'UA-155102137-1',
     'donate_url': 'https://github.com/denisgomes/psi',
-    'extra_nav_links':
-    {'Documentation': 'https://pipe-stress-infinity.readthedocs.io/en/latest',
-     'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
-     'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
-     'PSI at Discord': 'https://discord.gg/xnHnwbD',
-     'PSI at GitHub': 'https://github.com/denisgomes/psi',
-     'PSI at PyPI': 'https://pypi.org',
-    },
+    # 'extra_nav_links':
+    # {'Documentation': 'https://pipe-stress-infinity.readthedocs.io/en/latest',
+    #  'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
+    #  'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
+    #  'PSI at Discord': 'https://discord.gg/xnHnwbD',
+    #  'PSI at GitHub': 'https://github.com/denisgomes/psi',
+    #  'PSI at PyPI': 'https://pypi.org',
+    # },
 }
