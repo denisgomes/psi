@@ -1,4 +1,4 @@
-import sys, math, time
+import sys
 
 
 if sys.version_info[0] < 3:
@@ -13,9 +13,9 @@ import pyglet
 
 from pyglet.text import Label
 
-# this line is very important, we're tricking pyglet into thinking there is a context avalible
-# but we can't make it work with the shadow window that alows sharing of
-# object between contexts
+# this line is very important, we're tricking pyglet into thinking there is a
+# context avalible but we can't make it work with the shadow window that allows
+# sharing of object between contexts
 pyglet.options['shadow_window'] = False
 
 # now that that is set we can import gl and get on our way

@@ -1,4 +1,4 @@
-"""Primitive bounding volumes"""
+"""Primitive bounding volume"""
 
 from psi.utils.euclid import Vector3
 

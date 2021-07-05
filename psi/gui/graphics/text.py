@@ -1,10 +1,10 @@
-
 """Implementation of 2d text in a 3d environment"""
 
 from __future__ import division
 from pyglet.gl import *
 from pyglet import text
 from pyglet import graphics
+
 
 class _MVPGroup(graphics.Group):
     """Queries the modelview, projection and viewport transforms once every
@@ -129,14 +129,14 @@ class Label(text.Label):
         self._group = LabelGroup()
         self.x, self.y, self.z = pt    # follows self._group assignment
         super(Label, self).__init__(text=text,
-                 font_name=font_name, font_size=font_size, bold=bold,
-                 italic=italic, color=color+(255,),
-                 x=0, y=0,  # note x and y of base class set to 0
-                 width=width, height=height,
-                 anchor_x=anchor_x, anchor_y=anchor_y,
-                 align=align,
-                 multiline=multiline, dpi=dpi, batch=batch,
-                 group=self._group)
+                font_name=font_name, font_size=font_size, bold=bold,
+                italic=italic, color=color+(255,),
+                x=0, y=0,  # note x and y of base class set to 0
+                width=width, height=height,
+                anchor_x=anchor_x, anchor_y=anchor_y,
+                align=align,
+                multiline=multiline, dpi=dpi, batch=batch,
+                group=self._group)
 
     def _get_x(self):
         return self._x
