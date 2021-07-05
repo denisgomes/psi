@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
 from psi import units
 
 
-@units.define(rho="density", thk="length")
+@units.define(rho="insulation_density", thk="length")
 class Insulation(Entity, ActiveEntityMixin):
 
     def __init__(self, name, rho, thk):

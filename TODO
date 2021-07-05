@@ -1,24 +1,51 @@
-Units when dealing with settings options.
-Utility function for printing to screen for dubugging.
-Inclined supports.
-Spring supports.
-Imposed support displacements.
-Non-linear supports (+Y, gaps, and friction).
-Modal analysis
-Response spectra
-Time History
+=========
+TODO List
+=========
 
-TESTS, DOCS, WEBSITE!!!
+0.1.0 Release
+=============
+
+Supports
+--------
+Debug inclined supports.
+Make imposed support displacment opercase dependent (solver.py).
+Refactor support.py, change GlobalX to X, etc.
+Implement spring supports and refactor supports.py
+Non-linear supports (+Y, gaps)
+Update support apply method
+
+Elements
+--------
+Implement bend and reducer element type
+Implement sifs for various components, especially for tees
+Implement tee element
+Remove dependence on topology.py
+
+Loadcase
+--------
+Update automatic default loadcase method
+
+Tests
+-----
+Test loads
+Test supports
+Test piping components
+
+Docs
+----
+Add to user guide
+Add to application guide
+Add to V&V
+
+Website
+-------
+Add working donate button (github sponsors)
 
 
-Fixes
-=====
-Handling units and g loads. (FIXED)
-
-Changed the base units file to explicity use m/s**2. All other files will use
-the pint gravity unit.
-
-Operating cases. - each load has an opercase associated with it.
-
-Dealing with units and default positional and keyword arguments - units
-contextmanager.
+Future Releases
+===============
+Non-linear supports (friction)
+Implement bellows
+Refine modal analysis
+Implement Response spectra
+Implement Time History

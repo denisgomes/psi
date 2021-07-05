@@ -20,6 +20,7 @@ capabilities:
 * Static linear analysis of loadcases and combinations.
 * Stress evaluation based on B31.1 piping code.
 * Movements, support reactions and internal force results.
+* Open source and free to use.
 * And more to come...
 
 

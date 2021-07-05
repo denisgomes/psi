@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,8 @@ class Report(Entity, ActiveEntityMixin):
     def __init__(self, name, loadcases):
         super(Report, self).__init__(name)
         self.loadcases = loadcases
-        self.env = Environment(loader=FileSystemLoader(TEMPLATE_DIRECTORY))
+        self.env = Environment(loader=FileSystemLoader(TEMPLATE_DIRECTORY),
+                               extensions=["jinja2.ext.do"])
 
     @property
     def parent(self):
@@ -264,7 +265,7 @@ class Codes(Report):
                                             jobname=jobname,
                                             licensed_to="PSI Community",
                                             report_type=self.__class__.__name__,
-                                            report_desc="Codes Report",
+                                            report_desc="Code Stress Report",
                                             units=Quantity.user_units,
                                             loadcases=self.loadcases,
                                             zip=zip,     # pass zip

@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ class App(object):
 
     def __init__(self):
         """Initialize all managers and subsystems"""
+        Units._app = self
         self.units = Units()
 
         # pass app to class objects/containers
@@ -135,10 +136,12 @@ class App(object):
                 # supports
                 "supports": self.supports,
                 "Anchor": self.supports.Anchor,
-                "GlobalX": self.supports.GlobalX,
-                "GlobalY": self.supports.GlobalY,
-                "GlobalZ": self.supports.GlobalZ,
+                "X": self.supports.X,
+                "Y": self.supports.Y,
+                "Z": self.supports.Z,
                 "Spring": self.supports.Spring,
+                "LineStop": self.supports.LineStop,
+                "Guide": self.supports.Guide,
                 "Displacement": self.supports.Displacement,
 
                 # codes
@@ -156,7 +159,6 @@ class App(object):
                 "Hydro": self.loads.Hydro,
                 "Thermal": self.loads.Thermal,
                 "Fluid": self.loads.Fluid,
-                "Uniform": self.loads.Uniform,
                 "Wind": self.loads.Wind,
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,

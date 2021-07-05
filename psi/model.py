@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class Model(Entity, ActiveEntityMixin):
 
         # active model objects
         self._active_point = None
-        self._active_elements = None
+        self._active_elements = set()
         self._active_section = None
         self._active_material = None
         self._active_insulation = None
@@ -74,7 +74,6 @@ class Model(Entity, ActiveEntityMixin):
 
         super(Model, self).__init__(name)   # call last
         self.activate()     # activate on init
-
 
     @property
     def jobname(self):

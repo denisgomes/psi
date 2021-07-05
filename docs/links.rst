@@ -4,7 +4,7 @@
 .. _discord: https://discord.gg/xnHnwbD
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
-.. _Denis Gomes: denis.mp.gomes@gmail.com
+.. _Denis Gomes: denisgomes@consultant.com
 .. _GitHub: https://github.com/denisgomes/psi
 .. _xscode: https://xscode.com
 .. _PyPI: https://pypi.org

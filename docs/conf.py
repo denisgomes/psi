@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('./..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Pipe Stress Infinity'
-copyright = '2019, Denis Gomes'
+copyright = '2021, Denis Gomes'
 author = 'Denis Gomes'
 
 # The full version, including alpha/beta/rc tags
@@ -72,7 +72,7 @@ html_theme_options = {
     # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
-    'description': 'The pipe stress design and analysis software.',
+    'description': 'The pipe stress analysis and design software.',
     # 'fixed_sidebar': True,
     # 'github_banner': True,
     # 'github_button': True,
@@ -94,3 +94,8 @@ master_doc = 'index'
 
 # for figure numbering
 # numfig = True
+
+# mathjax_config = {
+#     "jax": ["input/TeX","output/HTML-CSS"],
+#     "displayAlign": "left"
+# }

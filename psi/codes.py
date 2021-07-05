@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ class Code(Entity, ActiveEntityMixin):
         """
         raise NotImplementedError("implement")
 
-    def Shoop(self, element, loadcase):
+    def shoop(self, element, loadcase):
         """Element hoop stress due to pressure"""
         raise NotImplementedError("implement")
 
@@ -91,7 +91,7 @@ class Code(Entity, ActiveEntityMixin):
         """Element torsional stress"""
         raise NotImplementedError("implement")
 
-    def sax(self, element, loadcase):
+    def sax(self, element, forces):
         """Element axial stress due to structural loading.
 
         F/A type stress.
@@ -179,11 +179,17 @@ class B311(Code):
     def __init__(self, name, year="1967"):
         super(B311, self).__init__(name)
         self.year = year
-        self.k = 1.15    # usage factor
-        self.f = 0.90    # fatigue reduction factor
+        self.k = 1.15   # usage factor
+        self.f = 0.90   # fatigue reduction factor
+        self.Y = 0.0    # hoop stress factor
+
+    @property
+    def label(self):
+        """Title used in report output"""
+        return "B31167"
 
     def h(self, element):
-        """Flexibility characterisitic for fittings per the code"""
+        """Flexibility characterisitic for fittings per the code."""
         if isinstance(element, Bend):
             # Per Appendix D of 1967 code
             R1 = element.radius                 # bend radius
@@ -204,7 +210,9 @@ class B311(Code):
             return h
 
     def sifi(self, element):
-        """In plane stress intensification factor for fittings"""
+        """In plane stress intensification factor for fittings. The sif must
+        be 1 or greater.
+        """
         if isinstance(element, Run):
             return 1.0
 
@@ -224,7 +232,7 @@ class B311(Code):
     sifo = sifi     # out of plane - same value
 
     def kfac(self, element):
-        """Code flexibility factor provided for fittings"""
+        """Code flexibility factor for fittings."""
         if isinstance(element, Run):
             return 1.0
 
@@ -243,9 +251,18 @@ class B311(Code):
     def shoop(self, element, loadcase):
         """Hoop stress due to pressure.
 
-        Equal to two times the longitudinal stress due to pressure.
+        Conservatively equal to P*D/2t.
         """
-        return 2 * self.slp(element, loadcase)
+        with units.Units(user_units="code_english"):
+            sec = element.section
+            do = sec.od
+            thke = sec.thke
+            pload = self.poper(element, loadcase)
+
+            try:
+                return (pload.pres*do) / (2*thke)
+            except AttributeError:
+                return 0
 
     def slp(self, element, loadcase):
         """Longitudinal stress due to pressure.
@@ -292,7 +309,7 @@ class B311(Code):
 
             return mx*do / (2*Ip)
 
-    def sax(self, element, loadcase, forces):
+    def sax(self, element, forces):
         """Axial stress due to mechanical loading.
 
         Axial stress can be included by user defined option. Force is zero by
@@ -319,7 +336,7 @@ class B311(Code):
         with units.Units(user_units="code_english"):
             slp = self.slp(element, loadcase)
             slb = self.slb(element, forces)
-            sax = self.sax(element, loadcase, forces)
+            sax = self.sax(element, forces)
             stor = self.stor(element, forces)
 
             if loadcase.stype == "sus" or loadcase.stype == "occ":

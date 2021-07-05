@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,13 +93,14 @@ The following items require extra attention:
 * Unit conversion should be disabled before the analysis is performed.
 """
 
-from math import cos, pi, sqrt
+from math import pi, sqrt
 from contextlib import redirect_stdout
 import sys
 
 import numpy as np
 import numpy.linalg as la
 from numpy.testing import assert_array_almost_equal
+from numpy import sin, cos, arccos, arctan
 
 from psi.entity import Entity, EntityContainer
 from psi import units
@@ -223,6 +224,25 @@ class Element(Entity):
 
     def is_active(self):
         return self.parent.is_active(self)
+
+    def angle(self, vector):
+        """Returns the sin and cos of theta where theta is the angle between
+        the element local x axis and an user vector.
+        """
+        a = (np.array(self.to_point.xyz, dtype=np.float64) -
+             np.array(self.from_point.xyz, dtype=np.float64))
+        b = np.array(vector, dtype=np.float64)
+        # c = np.cross(a, b)  # normal of plane
+
+        # angle element makes with vertical
+        theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
+
+        # theta = arctan(np.cross(a, b).dot(c) / a.dot(b))
+
+        sint = sin(theta)
+        cost = cos(theta)
+
+        return sint, cost
 
     def __repr__(self):
         return "%s(%s, %s)" % (self.type, self.from_point.name,
@@ -473,7 +493,7 @@ class Run(Piping):
 
     def dircos(self):
         """Return the direction cosine of the element in matrix form. The unit
-        vector components of the local coordinate axes of the element determine
+-        vector components of the local coordinate axes of the element determine
         the 3x3 transformation matrix.
 
         For straight elements, the local x axis is given by the direction from
@@ -498,24 +518,40 @@ class Run(Piping):
         to_vert = np.array(self.geometry.v2.co)
         local_x = to_vert - from_vert
 
-        try:
-            # check to see if local_x is parallel to global vertical
-            assert_array_almost_equal(local_x / la.norm(local_x),
-                                      local_y / la.norm(local_y),
-                                      decimal=5)
-            # redefine local_y if local_x is parallel to global y
+        if self.is_vertical:    # set to global x
             local_y = np.array([1., 0., 0.], dtype=np.float64)
-        except AssertionError:
-            pass
 
         local_z = np.cross(local_x, local_y)
 
         # recalculate local y so that it's orthogonal
         local_y = np.cross(local_z, local_x)
 
-        return np.array([local_x/la.norm(local_x),
-                         local_y/la.norm(local_y),
-                         local_z/la.norm(local_z)], dtype=np.float64)
+        dc = np.array([local_x/la.norm(local_x),
+                       local_y/la.norm(local_y),
+                       local_z/la.norm(local_z)], dtype=np.float64)
+
+        return dc
+
+    @property
+    def is_vertical(self):
+        up = self.app.models.active_object.settings.vertical
+        # note, local y is being set to a global direction
+        if up == "y":
+            vertical = np.array([0., 1., 0.], dtype=np.float64)
+        elif up == "z":
+            vertical = np.array([0., 0., 1.], dtype=np.float64)
+
+        from_vert = np.array(self.geometry.v1.co)
+        to_vert = np.array(self.geometry.v2.co)
+        local_x = to_vert - from_vert
+
+        try:
+            assert_array_almost_equal(np.abs(local_x) / la.norm(local_x),
+                                      np.abs(vertical) / la.norm(vertical),
+                                      decimal=5)
+            return True
+        except AssertionError:
+            return False
 
     def T(self):
         """Local to global transformation matrix"""
@@ -539,8 +575,8 @@ class Run(Piping):
         effectively making the element more flexible in the transverse bending
         directions. The torsional stiffness is not altered.
 
-        Stiffness matrix from 'Theory of Matrix Structural Analysis'
-        by J.S. Przemieniecki.
+        Stiffness matrix from 'Theory of Matrix Structural Analysis' by J.S.
+        Przemieniecki.
         """
         kmat = np.zeros((12, 12), dtype=np.float64)
 
@@ -552,51 +588,64 @@ class Run(Piping):
         # used for rigids
         self.section.thk *= sfac
 
-        A = self.section.area
         J = self.section.ixx
         Iy = self.section.iyy
         Iz = self.section.izz
 
+        A = self.section.area
+        Ay = 0  # shear area y
+        Az = 0  # shear area z
+        phi_y = 0
+        phi_z = 0
+        if self.app.models.active_object.settings.timoshenko:
+            if self.section.is_thin_wall:
+                Ay = Az = (1/2) * A     # pipe shear shape factors
+            else:
+                Ay = Az = (27/32) * A   # heavy wall shape factors
+
+            phi_y = (12*E*Iz) / (G*Ay*L**2)
+            phi_z = (12*E*Iy) / (G*Az*L**2)
+
         # flex factor
         kfac = self.code.kfac(self)
 
-        kmat[0, 0] = E*A / L
-        kmat[0, 6] = kmat[6, 0] = -E*A / L
+        kmat[0, 0] = (E*A) / L
+        kmat[0, 6] = kmat[6, 0] = (-E*A) / L
 
-        kmat[1, 1] = (12*E*Iz/L**3) / kfac
-        kmat[1, 5] = kmat[5, 1] = (6*E*Iz/L**2) / kfac
-        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz/L**3) / kfac
-        kmat[1, 11] = kmat[11, 1] = (6*E*Iz/L**2) / kfac
+        kmat[1, 1] = (12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[1, 5] = kmat[5, 1] = (6*E*Iz / (L**2*(1+phi_y))) / kfac
+        kmat[1, 7] = kmat[7, 1] = (-12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[1, 11] = kmat[11, 1] = (6*E*Iz / (L**2*(1+phi_y))) / kfac
 
-        kmat[2, 2] = (12*E*Iy/L**3) / kfac
-        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy/L**2) / kfac
-        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy/L**3) / kfac
-        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy/L**2) / kfac
+        kmat[2, 2] = (12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[2, 4] = kmat[4, 2] = (-6*E*Iy / (L**2*(1+phi_z))) / kfac
+        kmat[2, 8] = kmat[8, 2] = (-12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[2, 10] = kmat[10, 2] = (-6*E*Iy / (L**2*(1+phi_z))) / kfac
 
-        kmat[3, 3] = G*J / L
-        kmat[9, 3] = kmat[3, 9] = -G*J / L
+        kmat[3, 3] = (G*J) / L
+        kmat[9, 3] = kmat[3, 9] = (-G*J) / L
 
-        kmat[4, 4] = (4*E*Iy/L) / kfac
-        kmat[4, 8] = kmat[8, 4] = (6*E*Iy/L**2) / kfac
-        kmat[4, 10] = kmat[10, 4] = (2*E*Iy/L) / kfac
+        kmat[4, 4] = ((4+phi_z)*E*Iy / (L*(1+phi_z))) / kfac
+        kmat[4, 8] = kmat[8, 4] = (6*E*Iy / (L**2*(1+phi_z))) / kfac
+        kmat[4, 10] = kmat[10, 4] = ((2-phi_z)*E*Iy / (L*(1+phi_z))) / kfac
 
-        kmat[5, 5] = (4*E*Iz/L) / kfac
-        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz/L**2) / kfac
-        kmat[5, 11] = kmat[11, 5] = (2*E*Iz/L) / kfac
+        kmat[5, 5] = ((4+phi_y)*E*Iz / (L*(1+phi_y))) / kfac
+        kmat[5, 7] = kmat[7, 5] = (-6*E*Iz / (L**2*(1+phi_y))) / kfac
+        kmat[5, 11] = kmat[11, 5] = ((2-phi_y)*E*Iz / (L*(1+phi_y))) / kfac
 
-        kmat[6, 6] = E*A / L
+        kmat[6, 6] = (E*A) / L
 
-        kmat[7, 7] = (12*E*Iz/L**3) / kfac
-        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz/L**2) / kfac
+        kmat[7, 7] = (12*E*Iz / (L**3*(1+phi_y))) / kfac
+        kmat[7, 11] = kmat[11, 7] = (-6*E*Iz / (L**2*(1+phi_y))) / kfac
 
-        kmat[8, 8] = (12*E*Iy/L**3) / kfac
-        kmat[8, 10] = kmat[10, 8] = (6*E*Iy/L**2) / kfac
+        kmat[8, 8] = (12*E*Iy / (L**3*(1+phi_z))) / kfac
+        kmat[8, 10] = kmat[10, 8] = (6*E*Iy / (L**2*(1+phi_z))) / kfac
 
-        kmat[9, 9] = G*J / L
+        kmat[9, 9] = (G*J) / L
 
-        kmat[10, 10] = (4*E*Iy/L) / kfac
+        kmat[10, 10] = ((4+phi_z)*E*Iy / (L*(1+phi_z))) / kfac
 
-        kmat[11, 11] = (4*E*Iz/L) / kfac
+        kmat[11, 11] = ((4+phi_y)*E*Iz / (L*(1+phi_y))) / kfac
 
         # with redirect_stdout(sys.__stdout__):
         #     print(kmat)
@@ -813,6 +862,10 @@ class Bend(Run):
 
     @property
     def far_point(self):
+        raise NotImplementedError("implement")
+
+    @property
+    def mid_point(self):
         raise NotImplementedError("implement")
 
     def klocal(self, temp, sfac=1.0):
@@ -1147,18 +1200,22 @@ class ElementContainer(EntityContainer):
                     and val.to_point.name == to_point):
                 return val
 
-    def select(self, inst):
+    def select(self, inst=None):
         """Add the element instance to the active set"""
-        self._active_objects.update(inst)
+        if inst:
+            self._active_objects.add(inst)
+        else:
+            # select all elements
+            self._active_objects.update(self._objects.values())
 
-    def unselect(self, inst):
+    def unselect(self, inst=None):
         """Remove the element instance from the active set"""
-        self._active_objects.remove(inst)
+        if inst:
+            self._active_objects.remove(inst)
+        else:
+            # unselect all
+            self._active_objects.clear()
 
     def is_active(self, inst):
         """Check to see if the element is in the active set"""
         return inst in self._active_objects
-
-    def clear_active_objects(self):
-        """Clear the active set of elements"""
-        self._active_objects.clear()

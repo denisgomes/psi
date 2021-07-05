@@ -1,0 +1,43 @@
+
+mdl = Model('vv1')
+mdl.settings.vertical = 'z'
+
+Pipe.from_file('pipe1', '10', '40')
+Material.from_file('mat1', 'A53A', 'B31.1')
+B311('code1')
+
+Point(10)
+run20 = Run(20, 10*12, 10*12, 10*12)
+
+anc1 = Anchor('anc1', 10)
+anc1.apply([run20])
+
+elements.select()   # select all
+
+W1 = Weight('W1', 1)
+W1.apply()  # to selected elements
+
+T1 = Thermal('T1', 1, 900, 70)
+T1.apply()  # to selected elements
+
+S1 = Seismic('S1', 2, gx=1.0, gy=-1.0, gz=1.0)
+S1.apply()  # to selected elements
+
+L1 = LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
+L2 = LoadCase('L2', 'sus', [Weight], [1])
+L3 = LoadCase('L3', 'occ', [Seismic], [2])
+
+mdl.analyze()
+
+# reports
+disp = Movements('R1', [L2, L3])
+disp.to_screen()
+
+reac = Reactions('R2', [L2, L3])
+reac.to_screen()
+
+cod1 = Codes('R3', [L2, L3])
+cod1.to_screen()
+
+forc = Forces('R4', [L2])
+forc.to_screen()

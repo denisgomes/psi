@@ -2,7 +2,7 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-10s" | format(" ") }}{{ "---------------------- %-s (%s) ----------------------" | format("STRESSES", units.stress) | center(60) }}
+{{ "%-10s" | format(" ") }}{{ "                       %-s (%s)                       " | format("STRESSES", units.stress) | center(60) }}
 
 {{ "%-10s" | format("NODE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}
 

@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,8 +26,16 @@ To create a Thermal load for operating case 1, type:
 
 .. code-block:: python
 
-    >>> t1 = Thermal('t1', 1, 500)
+    >>> t1 = Thermal('T1', 1, 500)
     >>> t1.apply(element_list)
+
+Similarly, to add a deadweight load to all active elements corresponding to
+operating case 1, type:
+
+.. code-block:: python
+
+    >>> w1 = Weight('W1', 1)
+    >>> w1.apply()
 
 For multiple loads use the LoadContainer apply method:
 
@@ -35,28 +43,29 @@ For multiple loads use the LoadContainer apply method:
 
     >>> loads.apply([L1, L2, ..., LN], element_list)
 
-.. note::
-    An element can have multiple loads of the same type however each load must
-    be of a different operating case. This applies to loads that are operating
-    case dependent such as Thermal and Pressure. Forces on the other hand do
-    not have to be opercase dependent. This is not enforced by the program at
-    the moment so an element can have two Weight loads defined for the same
-    operating case, in which the effect of the weights will added together.
+.. warning::
+
+    An element can have multiple loads of the same type however each load
+    should be of a different operating case. This is not currently enforced by
+    the program so an element can have two Weight loads defined for the same
+    operating case in which case the weights will be added together.
 """
 
 from __future__ import division
 
 import csv
 from math import pi
-import sys
-from contextlib import redirect_stdout
+# import sys
+# from contextlib import redirect_stdout
 
 import numpy as np
 
 import psi
 from psi.entity import Entity, EntityContainer
 from psi.elements import Rigid
+from psi.sections import Pipe
 from psi import units
+from psi.units import DEFAULT_UNITS
 
 
 class Load(Entity):
@@ -96,7 +105,9 @@ class Load(Entity):
 class Weight(Load):
     """The element deadweight load.
 
-    Includes pipe, insulation, cladding and refractory.
+    Includes pipe, insulation, cladding and refractory weight. The weight load
+    is applied as an uniform load across the length of the entire element. The
+    direction of the load vector is always down with respect to the vertical.
     """
 
     label = "W"
@@ -147,7 +158,7 @@ class Weight(Load):
         try:
             return element.insulation_mass() * self.gfac
         except:
-            return 0.0
+            return 0
 
     def refractory(self, element):
         """Weight of refractory based on thickness"""
@@ -169,6 +180,12 @@ class Weight(Load):
                 self.cladding(element) + self.refractory(element))
 
     def flocal(self, element):
+        """The global force vector associated with the body load is transformed
+        to local coordinates and the typical textbook force and moment formulas
+        for a fixed beam with uniform loading is used to create the local force
+        vector. The returned local force vector is then transformed back to
+        global coordinates by multiplying by the transformation matrix.
+        """
         L = element.length
 
         # the vertical direction
@@ -177,23 +194,37 @@ class Weight(Load):
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
 
+        w = self.total(element) / L
         if vert == "y":
-            wy = -self.total(element) / L
-            wz = 0.0
-
+            # w transformed to local coord
+            wl = element.dircos() @ np.array([[0], [-w], [0]])
         elif vert == "z":
-            wz = -self.total(element) / L
-            wy = 0.0
+            # w transformed to local coord
+            wl = element.dircos() @ np.array([[0], [0], [-w]])
 
-        f[:, 0] = [0, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-                   0, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+        wxl, wyl, wzl = wl
+        f[:, 0] = [wxl*L/2, wyl*L/2, wzl*L/2, 0, -wzl*L**2/12, wyl*L**2/12,
+                   wxl*L/2, wyl*L/2, wzl*L/2, 0, wzl*L**2/12, -wyl*L**2/12]
 
         return f
 
 
 @units.define(pres="pressure")
 class Pressure(Load):
-    """Internal or external pressure.
+    """The element pressure load.
+
+    The calculated sustained stress in most piping codes uses the internal
+    pressure to calculate a primary longitudinal stress typically equal to
+    P*D/4*t which is added to the primary bending stress.
+
+    The pressure on capped ends due to the system being closed also has the
+    effect of pulling on the pipe axially and imparting a tensile thrust load.
+
+    .. note::
+
+        If the pressure stress per applicable piping code is accounted for,
+        the pressure due to capped ends need not be considered as doing so
+        will in effect double the pressure stress.
 
     The pressure can have a stiffening effect on the piping system called the
     Bourdon effect. For large D/t ratio pipe bends with large system pressures,
@@ -201,16 +232,12 @@ class Pressure(Load):
     straight pipe is pressurized it wants to shrink axially due to the radial
     growth whereas a pipe bend wants to open up.
 
-    The pressure on capped ends also has the effect of pulling on the pipe
-    axially. The sustained stress in most piping codes uses the internal
-    pressure to calculate a longitudinal stress which is added to the bending
-    stress. For B31.1 piping for example, the longitudinal stress due to
-    pressure is equal to P*D/4*t. If pressure stress per code is accounted for
-    the pressure due to capped ends need not be considered as doing so will in
-    effect double the pressure stress.
-
-    A hoop stress can also be calculated to determine if the pipe wall is sized
-    properly based on code requirements.
+    A pressure dependent hoop stress can also be calculated and typically used
+    for pipe wall sizing based on code requirements. The hoop stress is based
+    on the highest pressure the system is expected to have. The final wall
+    thickness is determined by adding the corrosion allowable, mill tolerance
+    and also accounting for reductions due to threads. The calculated value is
+    then added to the minimum thickess calculation and rounded up.
     """
 
     label = "P"
@@ -237,35 +264,46 @@ class Pressure(Load):
 
         Force causing axial elongation due to the system being pressurized and
         closed.
+
+        .. note::
+
+            The thrust force is based on the inner diameter of the pipe and the
+            pipe maximum internal pressure of the system.
         """
         pipe = element.section
 
-        od = pipe.od
-        id_ = pipe.od - 2*pipe.thk  # inner diameter
+        id_ = pipe.od - 2*pipe.thk  # nominal inner diameter
 
-        return self.pres * np.pi * (od - id_)**2 / 4
+        return (self.pres*np.pi*id_**2) / 4
 
     def bourdon(self, element):
-        """The force due to the Bourdon effect.
+        """The force due to Bourdon effect.
 
         The axial shortening of piping due to the internal pressure. This is a
-        byproduct of the poisson's ratio effect. This effect is present for
-        underground and unrestrained piping.
+        byproduct of the poisson's ratio effect. This effect is most apparent
+        in underground and unrestrained piping.
+
+        For steel piping the bourdon effect is negligible however it is more
+        apparent for plastic piping.
         """
         pipe = element.section
         mat = element.material
 
-        od = pipe.od
         id_ = pipe.od - 2*pipe.thk
         nu = mat.nu.value
-        area = pipe.area
 
-        return 2 * nu * self.pres * area * (id_**2 / (od**2-id_**2))
+        return 2 * nu * self.pres * (np.pi*id_**2)/4
 
     def flocal(self, element):
         """If pressure thrust or bourdon effects are activated, a force is
-        applied in the axial direction of the piping similar to how thermal
-        loads are applied.
+        applied in the axial (local x) direction of the piping.
+
+        The thrust force will put the element in tension and cause it to
+        elongate. On the other hand, the bourdon pressure has a compressive
+        shortening effect on the pipe length.
+
+        The local force vector shows the contribution of both forces on an
+        element.
         """
         f = np.zeros((12, 1), dtype=np.float64)
 
@@ -279,8 +317,8 @@ class Pressure(Load):
         if self.app.models.active_object.settings.bourdon_effect:
             fb = self.bourdon(element)
 
-        f[:, 0] = [-ft+fb, 0, 0, 0, 0, 0,
-                   ft-fb, 0, 0, 0, 0, 0]
+        f[:, 0] = [(-ft+fb)/2, 0, 0, 0, 0, 0,
+                   (ft-fb)/2, 0, 0, 0, 0, 0]
 
         return f
 
@@ -290,13 +328,32 @@ class Hydro(Pressure):
     """Hydro test pressure.
 
     Test pressure is typically 1.5 times the design pressure. Hydro testing is
-    performed to ensure there are no leaks. Pneumatic testing can also be used
-    along with RT (x-ray).
+    typically performed in the cold installed configuration to ensure there are
+    no leaks.
 
-    During hydrotesting, spring cans are locked using travel stops so that they
-    behave as full Y supports. Springs can bodies are designed to sustain any
-    additional deadweight load imposed during testing. Extra precaution should
-    be taken to ensure the loads are acceptable for very large piping.
+    During testing, spring cans are locked using travel stops so that they
+    behave as full Y supports. Spring can bodies are designed to support
+    additional deadweight loads imposed during testing. Extra precaution should
+    be taken to ensure these loads are acceptable for very large piping.
+
+    Pneumatic testing can also be used along with RT (x-ray) to avoid
+    overloading a system. The individual spool pieces can also be tested
+    on the factory floor by capping both ends with a blind flange and then
+    pumping it with water.
+
+    .. warning::
+
+        The hydro load only accounts for the sustained pressure stress due to
+        test pressure. A fluid weight load should also be added in conjunction
+        to account for the mechanical loading. See code below:
+
+        .. code-block::
+
+            >>> hp = Hydro('HP', 1, 200)
+            >>> fl = Fluid.from_file('F1', 1, "water")
+            >>> loads.apply([hp, fl])   # active elements
+            ...
+            >>> lc1 = LoadCase('L1', 'sus', [Hydro, Fluid], [1, 1])
     """
 
     label = "HP"
@@ -341,7 +398,6 @@ class Thermal(Load):
         alp = element.material.alp[self.temp]
         E = element.material.ymod[self.tref]
         A = element.section.area
-        L = element.length
 
         # thermal axial force causing displacement
         # larger E produces larger force and displacement
@@ -351,11 +407,6 @@ class Thermal(Load):
         if isinstance(element, Rigid) and not element.include_thermal:
             fa = 0
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(E)
-        #     print(delT)
-        #     print(alp)
-
         f = np.zeros((12, 1), dtype=np.float64)
 
         f[:, 0] = [-fa, 0, 0, 0, 0, 0,
@@ -364,7 +415,7 @@ class Thermal(Load):
         return f
 
 
-@units.define(rho="density", gfac="g_load")
+@units.define(rho="fluid_density", gfac="g_load")
 class Fluid(Load):
     """Contents load"""
 
@@ -388,7 +439,8 @@ class Fluid(Load):
         return self.mass(element) * self.gfac
 
     @classmethod
-    def from_file(cls, name, fluid, fname=None):
+    def from_file(cls, name, opercase, fluid="water", gfac=1.0, fname=None,
+                  default_units="english"):
         if fname is None:
             fname = psi.FLUID_DATA_FILE
 
@@ -398,26 +450,39 @@ class Fluid(Load):
             for row in reader:
                 if row["fluid"] == fluid:
                     rho = float(row["rho"])
-                    return cls(name, rho)
+
+                    with units.Units(user_units=default_units):
+                        return cls(name, opercase, rho, gfac)
             else:
                 return None
 
     def flocal(self, element):
         L = element.length
 
+        # the vertical direction
+        vert = self.app.models.active_object.settings.vertical
+
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
 
         # note that for riser piping the fluid weigth in the column can be
         # larger because the water does not stick to the pipe
-        wx = wy = wz = self.weight(element) / L
+        w = self.weight(element) / L
 
         # fluid weight effect turned off for rigids
         if isinstance(element, Rigid) and not element.include_fluid:
-            wx = wy = wx = 0
+            w = 0
 
-        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+        if vert == "y":
+            # w transformed to local coord
+            wl = element.dircos() @ np.array([[0], [-w], [0]])
+        elif vert == "z":
+            # w transformed to local coord
+            wl = element.dircos() @ np.array([[0], [0], [-w]])
+
+        wxl, wyl, wzl = wl
+        f[:, 0] = [wxl*L/2, wyl*L/2, wzl*L/2, 0, -wzl*L**2/12, wyl*L**2/12,
+                   wxl*L/2, wyl*L/2, wzl*L/2, 0, wzl*L**2/12, -wyl*L**2/12]
 
         return f
 
@@ -460,37 +525,30 @@ class Force(Load):
         return f
 
 
-@units.define(ux="uniform_load", uy="uniform_load", uz="uniform_load")
-class Uniform(Load):
-    """Generic uniform load"""
-
-    label = "U"
-
-    def __init__(self, name, opercase, ux=0, uy=0, uz=0):
-        super(Uniform, self).__init__(name, opercase)
-        self.ux = ux
-        self.uy = uy
-        self.uz = uz
-
-    def flocal(self, element):
-        L = element.length
-
-        # apply the weight as an uniform load
-        f = np.zeros((12, 1), dtype=np.float64)
-
-        wx = self.ux
-        wy = self.uy
-        wz = self.uz
-
-        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
-
-        return f
-
-
-@units.define(gx="g_load", gy="g_load", gz="g_load")
 class Seismic(Weight):
-    """Three directional seismic load applied as an uniform g load"""
+    """Three directional seismic loading applied as a gravity (g) factor in
+    global coordinates.
+
+    Parameters
+    ----------
+    name : str
+        Unique name for load.
+
+    opercase : int
+        Operating case the load belongs to.
+
+    gx : float
+        Seismic g load factor in the global x direction. Defaults to 0.
+
+    gy : float
+        Seismic g load factor in the global y direction. Defaults to 0.
+
+    gz : float
+        Seismic g load factor in the global z direction. Defaults to 0.
+
+    gfac: float
+        Gravity factor with 1 being earth gravity. Defaults to 1.
+    """
 
     label = "S"
 
@@ -510,29 +568,231 @@ class Seismic(Weight):
         # apply the weight as an uniform load
         f = np.zeros((12, 1), dtype=np.float64)
 
-        # the gfac is 1 by default for earth gravity
+        # gx, gy, and gz are fractions of earth gravity
         wx = (self.total(element)*self.gx) / L
         wy = (self.total(element)*self.gy) / L
         wz = (self.total(element)*self.gz) / L
 
-        f[:, 0] = [wx*L/2, wy*L/2, wz*L/2, 0, -wz*L**2/12, wy*L**2/12,
-                   -wx*L/2, wy*L/2, wz*L/2, 0, wz*L**2/12, -wy*L**2/12]
+        # w transformed to local coord
+        wl = element.dircos() @ np.array([[wx], [wy], [wz]])
+
+        wxl, wyl, wzl = wl
+        f[:, 0] = [wxl*L/2, wyl*L/2, wzl*L/2, 0, -wzl*L**2/12, wyl*L**2/12,
+                   wxl*L/2, wyl*L/2, wzl*L/2, 0, wzl*L**2/12, -wyl*L**2/12]
 
         return f
 
 
-class Wind(Uniform):
-    """Wind load applied as an uniform load.
+@units.define(gelev="elevation")
+class Wind(Load):
+    """Wind force applied as uniform loading.
 
     The pressure due to wind is applied as a uniform force. It is a function
-    of the pipe elevation.
+    of the pipe elevation. A pressure profile versus elevation table is used
+    to determine the pressure at node i and j of a piping element. Then the
+    computed average of the two pressures is applied over the entire element
+    projected length as an uniform load.
+
+    .. note::
+        For more accurate results make sure to create a node anywhere the
+        piping system crosses the ground elevation.
+
+        If the pipe elevation at a node is less than the ground elevation the
+        pressure contribution from that node is 0. If both from and to point
+        elevations are less than ground, both pressures are 0 and thus the
+        average pressure is also 0.
+
+    Parameters
+    ----------
+    name : str
+        Unique name for load.
+
+    opercase : int
+        Operating case the load belongs to.
+
+    profile : list of tuples
+        Wind pressure profile.
+
+        List of elevation versus pressure tuples given in the format [(elev1,
+        pres1), (elev2, pres2), ... (elevn, presn)] with respect to the ground
+        elevation.
+
+        .. note::
+            The first elevation (elev1) corresponds to the ground elevation and
+            must be set to zero. In other words, the 0 reference of the profile
+            is located at ground elevation. Use the Wind.gelev attribute to set
+            the global vertical position of ground.
+
+    shape : float
+        The element wind shape factor. Set to a typical default value of 0.7.
+
+    dirvec : tuple
+        The wind vector direction given in global coordinates (x, y, z).
+
+    gelev : float
+        The ground elevation with respect to global coordinates.  Elevation
+        below which the wind pressure is zero.  Default is set to 0.
+
+    is_projected : bool
+        If true, the load is applied over the projected length of the element
+        in the respective global direction. Default is set to True.
     """
 
-    label = "W"
+    label = "WIN"
+
+    @units.define(_keys="elevation", _values="wind_load")
+    class Profile(object):
+        """Tabular wind profile data given in list of (key, value) pairs."""
+
+        def __init__(self, data):
+            self._keys = []
+            self._values = []
+            self.table = data
+
+        @property
+        def _data(self):
+            return list(zip(self._keys, self._values))
+
+        @_data.setter
+        def _data(self, data):
+            self._keys, self._values = list(zip(*data))
+
+        @property
+        def table(self):
+            """Return tabular list of (key, value) pairs"""
+            return self._data
+
+        @table.setter
+        def table(self, data):
+            """Set tabular list of (key, value) pairs"""
+            self._data = sorted(data, key=lambda val: val[0])
+
+        def __getitem__(self, item):
+            """Key based value interpolation"""
+            tvals = self._data  # keys vs. vals
+
+            if len(tvals) == 1:
+                # only one elevation entered
+                return tvals[0][1]
+            elif len(tvals) > 1:
+                # interpolate
+                sorted(tvals, key=lambda p: p[0])   # by key
+                keys, vals = zip(*tvals)
+
+                # user not expected to enter key with 6 digits
+                # of precision
+                keys = [round(key, 6) for key in keys]
+
+                # pick top or bottom limit
+                # if item is out of bounds
+                minkey = min(keys)
+                maxkey = max(keys)
+                if item < minkey:
+                    return vals[0]
+                elif item > maxkey:
+                    return vals[-1]
+
+                # find bounding indices and interpolate
+                for idx, key in enumerate(keys):
+                    if key >= item:
+                        uidx = idx
+                        lidx = uidx - 1
+                        break
+
+                if key == item:    # exact match
+                    return vals[uidx]
+                else:
+                    x1, y1 = keys[lidx], vals[lidx]
+                    x2, y2 = keys[uidx], vals[uidx]
+
+                    try:
+                        return y1 - (y2-y1)/(x2-x1) * (x1-item)
+                    except TypeError:   # None value
+                        raise ValueError("pressure interpolation failed")
+            else:
+                raise ValueError("pressure undetermined")
+
+        def clear(self):
+            self._keys = []
+            self._values = []
+
+        def __repr__(self):
+            if len(self._data) == 1:
+                return str(self._data[0][1])
+
+            return str(self.table)
+
+    def __init__(self, name, opercase, profile=[], dirvec=(1, 0, 0),
+                 shape=0.7, gelev=0, is_projected=True):
+        super(Wind, self).__init__(name, opercase)
+        self.profile = Wind.Profile(profile)
+        self.dirvec = dirvec
+        self.shape = shape
+        self.gelev = gelev
+        self.is_projected = is_projected
 
     @classmethod
-    def from_ASCE7(cls, name, **kwargs):
+    def from_ASCE7(cls, name, opercase, **kwargs):
+        """Generate a profile and define shape factor based on ASCE criteria.
+        """
         raise NotImplementedError
+
+    def flocal(self, element):
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        L = element.length
+
+        # wind unit direction
+        d = np.array(self.dirvec, dtype=np.float64)
+        du = d / np.linalg.norm(d)  # wind unit vector
+
+        # take average pressure from node i and j
+        vert = self.app.models.active_object.settings.vertical
+        if vert == "y":
+            elev1 = element.from_point.y
+            elev2 = element.to_point.y
+        elif vert == "z":
+            elev1 = element.from_point.z
+            elev2 = element.to_point.z
+        # round to avoid difference from unit conversion
+        # when doing floating point comparison
+        elev1, elev2 = round(elev1, 6), round(elev2, 6)
+        gelev = round(self.gelev, 6)
+        # profile pressure taken with respect to ground elevation
+        pres1 = 0 if elev1 <= gelev else self.profile[elev1-gelev]
+        pres2 = 0 if elev2 <= gelev else self.profile[elev2-gelev]
+        pavg = (pres1+pres2) / 2    # magnitude
+
+        # with redirect_stdout(sys.__stdout__):
+        #     print(elev1, self.gelev, pres1)
+        #     print(elev2, self.gelev, pres2)
+
+        # pipe and insulation diameter exposed to wind
+        if type(element.section) is Pipe:
+            dp = element.section.od
+            if element.insulation:
+                dp += (2*element.insulation.thk)
+
+        if self.is_projected:
+            sint, _ = element.angle(du)
+            Ap = dp*L*sint
+        else:   # normal direction
+            Ap = dp*L
+
+        # vector force due to wind
+        fw = (Ap*self.shape*pavg) * du
+
+        # force applied over element length
+        fwx, fwy, fwz = fw / L
+
+        # fw transformed to local coord
+        wl = element.dircos() @ np.array([[fwx], [fwy], [fwz]])
+
+        wxl, wyl, wzl = wl
+        f[:, 0] = [wxl*L/2, wyl*L/2, wzl*L/2, 0, -wzl*L**2/12, wyl*L**2/12,
+                   wxl*L/2, wyl*L/2, wzl*L/2, 0, wzl*L**2/12, -wyl*L**2/12]
+
+        return f
 
 
 class LoadContainer(EntityContainer):
@@ -545,7 +805,6 @@ class LoadContainer(EntityContainer):
         self.Thermal = Thermal
         self.Fluid = Fluid
         self.Force = Force
-        self.Uniform = Uniform
         self.Seismic = Seismic
         self.Wind = Wind
 

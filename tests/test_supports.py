@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, GlobalX, GlobalY, GlobalZ
+from psi.supports import Anchor, X, Y, Z, Displacement
 from psi.loads import Force
 from psi.loadcase import LoadCase
 
@@ -70,15 +70,15 @@ def test_anchor(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert compare(L1.reactions[pt10][1], 10000)
-    assert compare(L1.reactions[pt10][5], 100000)
+    assert compare(L1.reactions[pt10][1], -10000)
+    assert compare(L1.reactions[pt10][5], -100000)
 
     # check reaction due to fx
-    assert compare(L2.reactions[pt10][0], 10000)
+    assert compare(L2.reactions[pt10][0], -10000)
 
     # check reaction due to fz
-    assert compare(L3.reactions[pt10][2], 10000)
-    assert compare(L3.reactions[pt10][4], -100000)
+    assert compare(L3.reactions[pt10][2], -10000)
+    assert compare(L3.reactions[pt10][4], 100000)
 
 
 def test_global_y(app):
@@ -93,23 +93,23 @@ def test_global_y(app):
     run20 = app.elements(15, 20)
 
     # supports
-    gblx10 = GlobalX('GblX10', 10)
+    gblx10 = X('GblX10', 10)
     gblx10.apply([run10])
 
-    gbly10 = GlobalY('GblY10', 10)
+    gbly10 = Y('GblY10', 10)
     gbly10.apply([run10])
 
-    gblz10 = GlobalZ('GblZ10', 10)
+    gblz10 = Z('GblZ10', 10)
     gblz10.apply([run10])
 
     # constrain torsion
-    gblrotx10 = GlobalX('GblRotX10', 10, is_rotational=True)
+    gblrotx10 = X('GblRotX10', 10, is_rotational=True)
     gblrotx10.apply([run10])
 
-    gbly20 = GlobalY('GblY20', 20)
+    gbly20 = Y('GblY20', 20)
     gbly20.apply([run20])
 
-    gblz20 = GlobalZ('GblZ20', 20)
+    gblz20 = Z('GblZ20', 20)
     gblz20.apply([run20])
 
     # loads
@@ -122,8 +122,67 @@ def test_global_y(app):
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert compare(L1.reactions[pt10][1], 5000)
-    assert compare(L1.reactions[pt20][1], 5000)
+    assert compare(L1.reactions[pt10][1], -5000)
+    assert compare(L1.reactions[pt20][1], -5000)
 
     # check max moment at the middle
     assert compare(L1.forces[pt15][5], -25000)
+
+
+def test_incline(app):
+
+    # get pipe objects
+    # pt10 = app.points(10)
+    # pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run10])
+
+    y15 = Y('y15', 20, dircos=(-0.7071, 0.7071, 0))
+    y15.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=-10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt20].fx, -5000)
+    assert compare(L1.reactions[pt20].fy, -5000)
+
+
+def test_displacement(app):
+    """Cantilever beam with displacement support"""
+
+    # get pipe objects
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # support
+    anc1 = Anchor('A1', 10)
+    anc1.apply([run10])
+
+    disp1 = Displacement('D1', 1, 20, dx=1)
+    disp1.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, fy=-10000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force, Displacement], [1, 1])
+
+    app.models('simple').analyze()
+
+    # check dy at 10
+    assert compare(L1.movements[pt20].dx, 1)

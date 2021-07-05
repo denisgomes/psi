@@ -15,5 +15,6 @@ For license questions, please contact `Denis Gomes`_, the primary author.
 
     overview
     whats_new
+    programming.rst
 
 .. include:: ../links.rst

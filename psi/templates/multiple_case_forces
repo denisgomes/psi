@@ -10,12 +10,7 @@
 {% block body %}
 {%- for i, point in enumerate(loadcases[0].points) -%}
 
-{%- set FX = 0 -%}
-{%- set FY = 0 -%}
-{%- set FZ = 0 -%}
-{%- set MX = 0 -%}
-{%- set MY = 0 -%}
-{%- set MZ = 0 -%}
+{%- set ns = namespace(FX=0, FY=0, FZ=0, MX=0, MY=0, MZ=0) -%}
 
 {%- for loadcase in loadcases -%}
 
@@ -27,29 +22,29 @@
 {%- set my = results[4][0] -%}
 {%- set mz = results[5][0] -%}
 
-{%- if abs(fx) > abs(FX) -%}
-    {%- set FX = fx -%}
+{%- if abs(fx) > abs(ns.FX) -%}
+    {%- set ns.FX = fx -%}
 {% endif -%}
-{%- if abs(fy) > abs(FY) -%}
-    {%- set FY = fy -%}
+{%- if abs(fy) > abs(ns.FY) -%}
+    {%- set ns.FY = fy -%}
 {% endif -%}
-{%- if abs(fz) > abs(FZ) -%}
-    {%- set FZ = fz -%}
+{%- if abs(fz) > abs(ns.FZ) -%}
+    {%- set ns.FZ = fz -%}
 {% endif -%}
-{%- if abs(mx) > abs(MX) -%}
-    {%- set MX = mx -%}
+{%- if abs(mx) > abs(ns.MX) -%}
+    {%- set ns.MX = mx -%}
 {% endif -%}
-{%- if abs(my) > abs(MY) -%}
-    {%- set MY = my -%}
+{%- if abs(my) > abs(ns.MY) -%}
+    {%- set ns.MY = my -%}
 {% endif -%}
-{%- if abs(mz) > abs(MZ) -%}
-    {%- set MZ = mz -%}
+{%- if abs(mz) > abs(ns.MZ) -%}
+    {%- set ns.MZ = mz -%}
 {% endif %}
 {% if loop.first -%}
 {{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- elif loop.last -%}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(FX) }}{{ "% 10.1f" | format(FY) }}{{ "% 10.1f" | format(FZ) }}{{ "% 10.1f" | format(MX) }}{{ "% 10.1f" | format(MY) }}{{ "% 10.1f" | format(MZ) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(ns.FX) }}{{ "% 10.1f" | format(ns.FY) }}{{ "% 10.1f" | format(ns.FZ) }}{{ "% 10.1f" | format(ns.MX) }}{{ "% 10.1f" | format(ns.MY) }}{{ "% 10.1f" | format(ns.MZ) }}
 {%- else -%}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(fx) }}{{ "% 10.1f" | format(fy) }}{{ "% 10.1f" | format(fz) }}{{ "% 10.1f" | format(mx) }}{{ "% 10.1f" | format(my) }}{{ "% 10.1f" | format(mz) }}
 {%- endif -%}

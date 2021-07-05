@@ -2,7 +2,7 @@
 
 {% block header %}
 {{ super() }}
-{{ "%-10s" | format(" ") }}{{ "----- %-s (%s) -----" | format("TRANSLATIONS", units.length) | center(30) }}     {{ "------- %-s (%s) -------" | format("ROTATIONS", units.rotation) | center(30) }}
+{{ "%-10s" | format(" ") }}{{ "      %-s (%s)      " | format("TRANSLATIONS", units.length) | center(30) }}     {{ "        %-s (%s)        " | format("ROTATIONS", units.rotation) | center(30) }}
 
 {{ "%-10s" | format("NODE") }}{{ "%10s" | format("DX") }}{{ "%10s" | format("DY") }}{{ "%10s" | format("DZ") }}     {{ "%10s" | format("RX") }}{{ "%10s" | format("RY") }}{{ "%10s" | format("RZ") }}
 {% endblock -%}

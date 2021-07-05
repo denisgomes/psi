@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ def main():
             null = open(os.devnull, "w")
             bar = tqdm(fp, total=num_lines)
 
-            header = ("PSI Design and Analysis\n"
+            header = ("PSI Analysis and Design\n"
                       "Version: %s \n"
                       "Design Codes: All Codes\n\n"
                       "Input File: %s \n" %

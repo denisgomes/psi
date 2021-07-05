@@ -1,0 +1,67 @@
+
+mdl = Model('vv1')
+mdl.settings.vertical = "z"
+
+Pipe.from_file('pipe1', '10', '40')
+Material.from_file('mat1', 'A53A', 'B31.1')
+B311('code1')
+
+Point(10)
+run20 = Run(20, 0, 0, 10*12)
+run30 = Run(30, 0, 15*12)
+run40 = Run(40, 0, 0, -50*12)
+run50 = Run(50, 0, 25*12)
+
+anc1 = Anchor('anc1', 10)
+anc1.apply([run20])
+
+guide1 = X('guide1', 40)
+guide1.apply([run40])
+
+anc2 = Anchor('anc2', 50)
+anc2.apply([run50])
+
+elements.select()   # select all
+
+W1 = Weight('W1', 1)
+W1.apply()  # to selected elements
+
+FL1 = Fluid.from_file('FL1', 1, "water")
+FL1.apply()
+
+T1 = Thermal('T1', 1, 900, 70)
+T1.apply()  # to selected elements
+
+S1 = Seismic('S1', 2, gx=1.0)
+S1.apply()
+
+WIN1 = Wind('WIN1', 3, profile=[(0, 10), (50, 100)], dirvec=(1, 0, 0),
+            shape=0.65, gelev=-40)
+WIN1.apply()
+
+L1 = LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
+L2 = LoadCase('L2', 'sus', [Weight], [1])
+L3 = LoadComb('L3', 'exp', 'algebraic', [L1, L2], [1, -1])
+L4 = LoadCase('L4', 'ope', [Seismic], [2])
+L5 = LoadCase('L5', 'ope', [Wind], [3])
+
+mdl.analyze()
+
+# reports
+disp = Movements('R1', [L2])
+disp.to_screen()
+
+reac = Reactions('R2', [L1, L2, L3])
+reac.to_screen()
+
+cod1 = Codes('R3', [L1, L2, L3])
+cod1.to_screen()
+
+forc = Forces('R4', [L2])
+forc.to_screen()
+
+disp2 = Movements('R5', [L4, L5])
+disp2.to_screen()
+
+reac = Reactions('R6', [L4, L5])
+reac.to_screen()

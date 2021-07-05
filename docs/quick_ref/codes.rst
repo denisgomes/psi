@@ -17,7 +17,7 @@ Equation                                            Allowable                   
 -------------------------------------------------------------------------------------------------------------------
 |S_l| = |S_lp| + (|S_b2| + 4 |S_t2|)\ :sup:`1/2`    < |S_h|                                             Sustained
 
-(|S_b2| + 4 |S_t2|)\ :sup:`1/2`                     < f[1.25 |S_c| + 0.25 |S_h| + (|S_h| - |S_l|)]        Expansion
+(|S_b2| + 4 |S_t2|)\ :sup:`1/2`                     < f[1.25 |S_c| + 0.25 |S_h| + (|S_h| - |S_l|)]      Expansion
 
 |S_lp| + (|S_b2| + 4 |S_t2|)\ :sup:`1/2`            < k |S_h|                                           Occasional
 
@@ -35,7 +35,7 @@ Where:
 * P - Pressure
 
 * |S_lp| - Longitudinal pressure stress
-* |S_l| - Longitudinal stress (pressure + moment)
+* |S_l| - Longitudinal stress (pressure + bending)
 * |S_b| - Bending stress
 * |S_t| - Torsional stress
 
@@ -44,6 +44,7 @@ Where:
 
 * E - Material Young's Modulus
 * f - Fatigue cycle reduction factor
+* k - Cumulative usage factor
 
 
 International

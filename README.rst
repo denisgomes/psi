@@ -1,6 +1,5 @@
 Pipe Stress Infinity
 ====================
-
 Pipe Stress Infinity (PSI) is an engineering analysis and design software used
 to evaluate the structural behavior and stresses of piping systems to a variety
 of different codes and standards.
@@ -16,8 +15,8 @@ Some of the features of PSI are:
   Flanges
 * Ability to specify section and material data properties for different
   cross-sections
-* Access to a variety of different support types such as Anchors, GlobalX,
-  GlobalY, and GlobalZ including non-linear support capability
+* Access to a variety of different support types such as Anchors, global X,
+  global Y, and global Z including non-linear support capability
 * Assign loads such as Weight, Pressure, Thermal, Wind and Seismic
 * Linear combinations of loads and combinations of load cases
 * Stress evaluation based on B31.1 power piping code
@@ -100,7 +99,7 @@ force at the anchor:
 
 .. code:: sh
 
-    $ psi demo.py > demo.out        # run demo.py and redirect to demo.out
+    $ psi demo.inp > demo.out        # run demo.py and redirect to demo.out
 
 Inspect the demo.out file to view the output:
 
@@ -111,7 +110,7 @@ switch:
 
 .. code:: sh
 
-    $ psi -i demo.py > demo.out     # start the PSI interpreter
+    $ psi -i demo.inp > demo.out     # start the PSI interpreter
 
 
 Contribution
@@ -193,4 +192,4 @@ check out the project links below.
 .. _discord: https://discord.gg/xnHnwbD
 .. _mailing list: https://groups.google.com/group/pipestressinfinity-users
 .. _issue tracker: https://github.com/denisgomes/psi/issues
-.. _Denis Gomes: denis.mp.gomes@gmail.com
+.. _Denis Gomes: denisgomes@consultant.com

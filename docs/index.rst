@@ -14,7 +14,6 @@ Pipe Stress Infinity: Documentation
     preface/main
     quick_ref/main
     user_guide/main
-    prog_guide/main
     app_guide/main
     api_ref/main
     dev_guide/main
@@ -48,19 +47,13 @@ The PSI User Guide contains general roadmaps, much of the theory behind the
 program and other user related topics.
 
 
-:doc:`prog_guide/main`
-======================
-
-The PSI Programming Guide provides in-depth documentation for writing
-applications using PSI. Many topics described here reference the PSI API
-reference, which is listed below.
-
-
 :doc:`app_guide/main`
 =====================
 
 The PSI Application Guide consists of tutorials, examples and various modeling
-and analysis techniques.
+and analysis techniques. It also provides in-depth documentation for writing
+applications using PSI. Many topics described here reference the PSI API
+reference, which is listed below.
 
 
 :doc:`api_ref/main`

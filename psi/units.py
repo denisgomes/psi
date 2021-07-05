@@ -1,5 +1,5 @@
-# Pipe Stress Infinity (PSI) - The pipe stress design and analysis software.
-# Copyright (c) 2019 Denis Gomes
+# Pipe Stress Infinity (PSI) - The pipe stress analysis and design software.
+# Copyright (c) 2021 Denis Gomes <denisgomes@consultant.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,18 +26,16 @@ finally analyzed in base units.
 """
 
 import os
-import sys
 import csv
-from contextlib import redirect_stdout
+#from contextlib import redirect_stdout
 
 from pint import UnitRegistry
 
 from psi import UNITS_DIRECTORY
-# from psi.settings import options
+
 
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
-
 
 DEFAULT_UNITS = "english"
 
@@ -56,6 +54,8 @@ class Quantity(object):
     is_active : bool
         If classmethod is set to True, unit conversion is set active.
     """
+
+    units_stack = []
 
     base_units = {}
     user_units = {}
@@ -110,38 +110,7 @@ class Quantity(object):
                     raise e
 
 
-class UnitsContextManagerMixin(object):
-    """Allows for any units to be used within a specific code section.
-
-    For object attributes that are defined using the units.define decorator,
-    this manager allows for redefining those attributes using any other unit
-    system in the units directory.
-
-    .. note::
-        An active model must already be set before this context manger can be
-        used.
-    """
-
-    def __enter__(self):
-        """Save the current active units being used and change units to new
-        system.
-        """
-        try:
-            self.__user_units = self.app.models.active_object.settings.units
-            self.app.models.active_object.settings.units = self.user_units
-        except AttributeError:
-            self.__user_units = DEFAULT_UNITS
-
-    def __exit__(self, type, value, traceback):
-        """Restore the previous system of units"""
-        try:
-            self.set_user_units(self.__user_units)
-            self.app.models.active_object.settings.units = self.__user_units
-        except AttributeError:
-            pass
-
-
-class Units(UnitsContextManagerMixin):
+class Units(object):
     """Allows for units to be defined for managed attributes"""
 
     _app = None
@@ -149,6 +118,36 @@ class Units(UnitsContextManagerMixin):
     def __init__(self, base_units="base", user_units="english"):
         self.set_base_units(base_units)
         self.set_user_units(user_units)
+
+    def __enter__(self):
+        """Allows for any units to be used within a specific code section.
+
+        For object attributes that are defined using the units.define
+        decorator, this manager allows for redefining those attributes using
+        any other unit system in the units directory.
+
+        .. note::
+            An active model must already be set before this context manager can
+            be used.
+        """
+
+        try:
+            # with redirect_stdout(sys.__stdout__):
+            #     print(Quantity.units_stack)
+                # print(self.app)
+            Quantity.units_stack.append(self.app.models.active_object.settings.units)
+            self.app.models.active_object.settings.units = self.user_units
+        except AttributeError:
+            Quantity.units_stack.append(DEFAULT_UNITS)
+
+    def __exit__(self, *args):
+        """Restore the previous system of units"""
+        try:
+            user_units = Quantity.units_stack.pop()
+            self.set_user_units(user_units)
+            self.app.models.active_object.settings.units = user_units
+        except AttributeError:
+            pass
 
     @property
     def app(self):

@@ -1,0 +1,5 @@
+LICENSE
+README.rst
+tests/test*.py
+include examples/*.inp
+include CREDITS

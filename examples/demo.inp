@@ -27,8 +27,6 @@ p1.apply([run20])
 
 # define a loadcase
 l1 = LoadCase('l1', 'sus', [Weight, Pressure], [1, 1])
-l2 = LoadCase('l2', 'sus', [Weight, Pressure], [1, 1])
-l3 = LoadComb('l3', 'sus', 'srss', [l1, l2], [1, 1])
 
 # code
 b311 = B311('B31.1')
@@ -36,20 +34,13 @@ b311.apply([run20])
 
 # run the analysis
 mdl.analyze()
-# mdl.settings.units = 'si'
 
 # postprocess
-disp = Movements('r1', [l1, l2, l3])
+disp = Movements('r1', [l1])
 disp.to_screen()
 
-forc = Forces('r2', [l1, l2, l3])
-forc.to_screen()
-
-reac = Reactions('r3', [l1, l2, l3])
+reac = Reactions('r2', [l1])
 reac.to_screen()
 
-str1 = Stresses('r4', [l1, l2])
-str1.to_screen()
-
-cod1 = Codes('r6', [l1, l2])
-cod1.to_screen()
+stress = Stresses('r3', [l1])
+stress.to_screen()

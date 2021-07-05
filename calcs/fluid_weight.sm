@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?application progid="SMath Studio Desktop" version="0.99.7610.506"?>
+<worksheet xmlns="http://smath.info/schemas/worksheet/1.0">
+  <settings ppi="96">
+    <identity>
+      <id>3987802a-b5f8-4c55-bff3-79430e4cecfe</id>
+      <revision>2</revision>
+    </identity>
+    <calculation>
+      <precision>4</precision>
+      <exponentialThreshold>5</exponentialThreshold>
+      <trailingZeros>false</trailingZeros>
+      <significantDigitsMode>false</significantDigitsMode>
+      <roundingMode>0</roundingMode>
+      <fractions>decimal</fractions>
+    </calculation>
+    <pageModel active="false" viewMode="2" printGrid="false" printAreas="true" simpleEqualsOnly="false" printBackgroundImages="true">
+      <paper id="0" orientation="Portrait" width="850" height="1100" />
+      <margins left="39" right="39" top="49" bottom="49" />
+      <header alignment="Center" color="#a9a9a9">&amp;[DATE] &amp;[TIME] - &amp;[FILENAME]</header>
+      <footer alignment="Center" color="#a9a9a9">&amp;[PAGENUM] / &amp;[COUNT]</footer>
+      <backgrounds />
+    </pageModel>
+    <dependencies>
+      <assembly name="SMath Studio Desktop" version="0.99.7610.506" guid="a37cba83-b69c-4c71-9992-55ff666763bd" />
+      <assembly name="Math Region" version="0.99.7610.506" guid="02f1ab51-215b-466e-a74d-5d8b1cf85e8d" />
+      <assembly name="TextRegion" version="1.11.7610.506" guid="485d28c5-349a-48b6-93be-12a35a1c1e39" />
+    </dependencies>
+  </settings>
+  <regions type="content">
+    <region left="0" top="0" width="53" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Inputs </p>
+      </text>
+    </region>
+    <region left="0" top="36" width="105" height="32" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">d.o</e>
+          <e type="operand">10.75</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region left="270" top="36" width="126" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Pipe outer diameter</p>
+      </text>
+    </region>
+    <region left="0" top="72" width="105" height="32" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">t.p</e>
+          <e type="operand">0.365</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region left="270" top="72" width="99" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Pipe thickness</p>
+      </text>
+    </region>
+    <region left="0" top="108" width="81" height="32" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">L.p</e>
+          <e type="operand">10</e>
+          <e type="operand" style="unit">ft</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region left="270" top="108" width="78" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Pipe length</p>
+      </text>
+    </region>
+    <region left="0" top="144" width="143" height="50" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">rho.p</e>
+          <e type="operand">0.0361</e>
+          <e type="operand" style="unit">lbf</e>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">3</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">/</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+      </math>
+    </region>
+    <region left="270" top="144" width="107" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Density of water</p>
+      </text>
+    </region>
+    <region left="0" top="234" width="88" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Calculations </p>
+      </text>
+    </region>
+    <region left="0" top="270" width="187" height="32" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">d.i</e>
+          <e type="operand">d.o</e>
+          <e type="operand">2</e>
+          <e type="operand">t.p</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">-</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">10.02</e>
+        </result>
+      </math>
+    </region>
+    <region left="270" top="270" width="118" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Pipe inner diamter</p>
+      </text>
+    </region>
+    <region left="0" top="306" width="195" height="42" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">A.f</e>
+          <e type="operand">π</e>
+          <e type="operand">4</e>
+          <e type="operator" args="2">/</e>
+          <e type="operand">d.i</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">in</e>
+          <e type="operand">2</e>
+          <e type="operator" args="2">^</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">78.8543</e>
+        </result>
+      </math>
+    </region>
+    <region left="270" top="315" width="70" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Fluid area</p>
+      </text>
+    </region>
+    <region left="0" top="360" width="238" height="32" color="#000000" fontSize="10">
+      <math>
+        <input>
+          <e type="operand">m.p</e>
+          <e type="operand">L.p</e>
+          <e type="operand">rho.p</e>
+          <e type="operator" args="2">*</e>
+          <e type="operand">A.f</e>
+          <e type="operator" args="2">*</e>
+          <e type="operator" args="2">:</e>
+        </input>
+        <contract>
+          <e type="operand" style="unit">lbf</e>
+        </contract>
+        <result action="numeric">
+          <e type="operand">341.5968</e>
+        </result>
+      </math>
+    </region>
+    <region left="270" top="360" width="95" height="25" color="#000000" fontSize="10">
+      <text lang="eng">
+        <p fontName="Arial">Mass of water</p>
+      </text>
+    </region>
+  </regions>
+</worksheet>

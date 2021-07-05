@@ -9,12 +9,7 @@
 {% block body %}
 {%- for i, point in enumerate(loadcases[0].points) -%}
 
-{%- set STRESS = 0 -%}
-{%- set ALLOW = 0 -%}
-{%- set SIFi = 0 -%}
-{%- set SIFo = 0 -%}
-{%- set RATIO = 0 -%}
-{%- set CODE = "" -%}
+{%- set ns = namespace(STRESS=0, ALLOW=0, SIFi=0, SIFo=0, RATIO=0, CODE=0) -%}
 
 {%- for loadcase in loadcases -%}
 
@@ -26,26 +21,26 @@
 {%- set ratio = results[9] -%}
 {%- set code = results[10] -%}
 
-{%- if abs(stress) > abs(STRESS) -%}
-    {%- set STRESS = stress -%}
+{%- if abs(stress) > abs(ns.STRESS) -%}
+    {%- set ns.STRESS = stress -%}
 {% endif %}
-{%- if abs(allow) > abs(ALLOW) -%}
-    {%- set ALLOW = allow -%}
+{%- if abs(allow) > abs(ns.ALLOW) -%}
+    {%- set ns.ALLOW = allow -%}
 {% endif %}
-{%- if abs(sifi) > abs(SIFi) -%}
-    {%- set SIFi = sifi -%}
+{%- if abs(sifi) > abs(ns.SIFi) -%}
+    {%- set ns.SIFi = sifi -%}
 {% endif %}
-{%- if abs(sifo) > abs(SIFo) -%}
-    {%- set SIFo = sifo -%}
+{%- if abs(sifo) > abs(ns.SIFo) -%}
+    {%- set ns.SIFo = sifo -%}
 {% endif %}
-{%- if abs(ratio) > abs(RATIO) -%}
-    {%- set RATIO = ratio -%}
+{%- if abs(ratio) > abs(ns.RATIO) -%}
+    {%- set ns.RATIO = ratio -%}
 {% endif %}
 {% if loop.first -%}
 {{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}{{ "%10s" | format(code) }}
 {%- elif loop.last -%}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
-{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(STRESS) }}{{ "% 10.1f" | format(ALLOW) }}{{ "% 10.2f" | format(SIFi) }}{{ "% 10.2f" | format(SIFo) }}{{ "% 10.2f" | format(RATIO) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(ns.STRESS) }}{{ "% 10.1f" | format(ns.ALLOW) }}{{ "% 10.2f" | format(ns.SIFi) }}{{ "% 10.2f" | format(ns.SIFo) }}{{ "% 10.2f" | format(ns.RATIO) }}
 {%- else -%}
 {{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}
 {%- endif -%}
