@@ -4,3 +4,4 @@ Pint==0.9
 tqdm==4.36.1
 pyglet==1.5.7
 pyopengltk==0.0.3
+tksheet==5.0.27
