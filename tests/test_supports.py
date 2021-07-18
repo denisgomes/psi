@@ -10,7 +10,7 @@ from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
 from psi.supports import Anchor, X, Y, Z, Displacement
-from psi.loads import Force
+from psi.loads import Force, Weight
 from psi.loadcase import LoadCase
 
 from .utils import compare
@@ -132,31 +132,38 @@ def test_global_y(app):
 def test_incline(app):
 
     # get pipe objects
-    # pt10 = app.points(10)
+    pt10 = app.points(10)
     # pt15 = app.points(15)
     pt20 = app.points(20)
 
-    run10 = app.elements(10, 15)
+    run15 = app.elements(10, 15)
     run20 = app.elements(15, 20)
 
     anc10 = Anchor('anc10', 10)
-    anc10.apply([run10])
+    anc10.apply([run15])
 
-    y15 = Y('y15', 20, dircos=(-0.7071, 0.7071, 0))
-    y15.apply([run20])
+    y20 = Y('y20', 20, dircos=(-0.7071, 0.7071, 0))
+    # y20 = Y('y20', 20, dircos=(0, 1, 0))
+    y20.apply([run20])
 
     # loads
     F1 = Force('F1', 1, 15, fy=-10000)
-    F1.apply([run10])
+    F1.apply([run15])
+
+    W1 = Weight('W1', 1)
+    W1.apply([run15, run20])
 
     # loadcase
-    L1 = LoadCase('L1', 'ope', [Force], [1])
+    L1 = LoadCase('L1', 'ope', [Weight, Force], [1, 1])
 
     app.models('simple').analyze()
 
     # check reactions due to fy
-    assert compare(L1.reactions[pt20].fx, -5000)
-    assert compare(L1.reactions[pt20].fy, -5000)
+    assert compare(L1.reactions[pt10].fy, -7108.9)
+    assert compare(L1.reactions[pt10].mz, -19067.105)
+
+    assert compare(L1.reactions[pt20].fx, 3295.48)
+    assert compare(L1.reactions[pt20].fy, -3295.48)
 
 
 def test_displacement(app):

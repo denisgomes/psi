@@ -23,6 +23,8 @@ stiffness matrix has shown to produce good results.
 """
 
 import warnings
+import sys
+from contextlib import redirect_stdout
 
 import numpy as np
 
@@ -82,6 +84,8 @@ class Support(Entity):
 
     def kglobal(self, element):
         raise NotImplementedError("implement")
+
+    cglobal = kglobal
 
     def dglobal(self, element):
         """Nodal displacements used for penalty method.
@@ -152,8 +156,8 @@ class RigidSupport(Support):
         Rotational supports do not have friction.
     """
 
-    def __init__(self, name, point, direction="", mu=0.0, is_rotational=False,
-                 is_snubber=False, gap=0.0, dircos=None):
+    def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
+                 is_rotational=False, is_snubber=False, dircos=None):
         """Create a support instance at a node point.
 
         Parameters
@@ -165,8 +169,8 @@ class RigidSupport(Support):
             Point instance where support is located.
 
         direction : str
-            Support direction. Default is empty string. "+" and "-" is used to
-            specify a directional support.
+            Support direction. Default is None. "+" and "-" is used to
+            specify a directional support (non-linear).
 
         mu : float
             Support friction (non-linear).
@@ -202,6 +206,18 @@ class RigidSupport(Support):
             self.gap = gap
 
         self.dircos = dircos
+
+    @property
+    def direction(self):
+        return ("" if self._direction is None else self._direction)
+
+    @direction.setter
+    def direction(self, value):
+        self._direction = "" if value is None else value
+
+    @property
+    def is_inclined(self):
+        return self.dircos is not None
 
     @property
     def is_rotational(self):
@@ -246,31 +262,52 @@ class RigidSupport(Support):
         return _type
 
     def kglobal(self, element):
-        k = np.zeros((12, 1), dtype=np.float64)
+        k = np.zeros((12, 12), dtype=np.float64)
+        a, b, c = self.dircos
+        B1 = a
+        B2 = b
+        B3 = c
 
-        cosx, cosy, cosz = self.dircos
+        B = np.array([[B1], [B2], [B3]], dtype=np.float64) @  \
+            np.array([[B1, B2, B3]], dtype=np.float64)
+
+        if self.is_rotational is False:
+            k_trans = self.translation_stiffness * B
+
+            if self.point == element.from_point.name:
+                k[:3, :3] = k_trans[:, :]
+            elif self.point == element.to_point.name:
+                k[6:9, 6:9] = k_trans[:, :]
+
+        else:
+            k_rot = self.rotation_stiffness * B
+
+            if self.point == element.from_point.name:
+                k[3:6, 3:6] = k_rot[:, :]
+            elif self.point == element.to_point.name:
+                k[9:12, 9:12] = k_rot[:, :]
+
+        return k
+
+    def cglobal(self, element):
+        c = np.zeros((12, 1), dtype=np.float64)
 
         if self.is_rotational is False:
             if self.point == element.from_point.name:
-                k[0, 0] = self.translation_stiffness * cosx
-                k[1, 0] = self.translation_stiffness * cosy
-                k[2, 0] = self.translation_stiffness * cosz
+                c[:3, 0] = [self.translation_stiffness if dc != 0 else 0
+                            for dc in self.dircos]
             elif self.point == element.to_point.name:
-                k[6, 0] = self.translation_stiffness * cosx
-                k[7, 0] = self.translation_stiffness * cosy
-                k[8, 0] = self.translation_stiffness * cosz
-
+                c[6:9, 0] = [self.translation_stiffness if dc != 0 else 0
+                             for dc in self.dircos]
         else:
             if self.point == element.from_point.name:
-                k[3, 0] = self.rotation_stiffness * cosx
-                k[4, 0] = self.rotation_stiffness * cosy
-                k[5, 0] = self.rotation_stiffness * cosz
+                c[3:6, 0] = [self.rotation_stiffness if dc != 0 else 0
+                             for dc in self.dircos]
             elif self.point == element.to_point.name:
-                k[9, 0] = self.rotation_stiffness * cosx
-                k[10, 0] = self.rotation_stiffness * cosy
-                k[11, 0] = self.rotation_stiffness * cosz
+                c[9:12, 0] = [self.rotation_stiffness if dc != 0 else 0
+                              for dc in self.dircos]
 
-        return k
+        return c
 
 
 class X(RigidSupport):
