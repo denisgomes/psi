@@ -465,9 +465,6 @@ def static(model):
         Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
         Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(Ks)
-
         for support in element.supports:
             if isinstance(support, RigidSupport) and support.is_inclined:
                 ksup = support.kglobal(element)
@@ -484,21 +481,14 @@ def static(model):
                 Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]     # 2nd
                 Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]   # 4th
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(Ks)
-
         # iterate each loadcase adding loads
         for i, loadcase in enumerate(model.loadcases):
-            # with redirect_stdout(sys.__stdout__):
-            #     print(loadcase)
-
             # sum of all loads in a primary/primitive loadcase
             if isinstance(loadcase, LoadCase):
                 feg = np.zeros((en*ndof, 1), dtype=np.float64)
 
                 for loadtype, opercase in zip(loadcase.loadtypes,
                                               loadcase.opercases):
-
                     for load in element.loads:
                         if (type(load) == loadtype and
                                 load.opercase == opercase):
@@ -516,7 +506,6 @@ def static(model):
             # NOTE: this only applies to Displacement supports, for all
             # others dsup is 0 and so added stiffness is also 0
             for support in element.supports:
-
                 if isinstance(support, RigidSupport) and support.is_inclined:
                     csup = support.cglobal(element)
                     dsup = support.dglobal(element)     # support displacement
@@ -530,11 +519,7 @@ def static(model):
                     Fs[niqi:niqj, i] += (ksup[:6, 0] * dsup[:6, 0])
                     Fs[njqi:njqj, i] += (ksup[6:12, 0] * dsup[6:12, 0])
 
-    # with redirect_stdout(sys.__stdout__):
-    #     print(Ks)
-
     tqdm.info("*** Solving system equations for displacements.")
-
     if model.settings.weak_springs:
         tqdm.info("*** Turning on weak springs.")
 
@@ -561,9 +546,6 @@ def static(model):
             raise np.linagl.LinAlgError("solver error, make sure the model",
                                         "has no error.")
 
-    # with redirect_stdout(sys.__stdout__):
-    #     print(X)
-
     tqdm.info("*** Post processing elements...")
     R = np.zeros((nn*ndof, lc), dtype=np.float64)   # reactions
     Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
@@ -589,10 +571,7 @@ def static(model):
                 if isinstance(support, RigidSupport) and support.is_inclined:
                     csup = support.cglobal(element)
                     dsup = support.dglobal(element)     # support displacement
-                    a, b, c = support.dircos
-                    B1 = a
-                    B2 = b
-                    B3 = c
+                    B1, B2, B3 = support.dircos
                     B = np.array([[B1, B2, B3]], dtype=np.float64)
                     B2 = np.append(B, B)
 
@@ -601,7 +580,6 @@ def static(model):
                     R[njqi:njqj, i] += (-(csup[6:12, 0]*B2) *
                         ((X[njqi:njqj, i].dot(B2)) - dsup[6:12, 0]))
                 else:
-
                     ksup = support.kglobal(element)
                     dsup = support.dglobal(element)     # support displacement
 

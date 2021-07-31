@@ -14,12 +14,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Different types of pipe supports.
+"""Implementation of different types of theoritical pipe supports.
 
 Supports are implemented using the penalty approach where the global system
-stiffness and force matrices are modified by the support stiffness value. A
-stiffness value of 1000*K, where K is the largest stiffness in the global
-stiffness matrix has shown to produce good results.
+stiffness and force matrices are modified by the support stiffness value and
+displacement respectively.
+
+Axis aligned supports directly scale the diagonal elements of the global
+stiffness matrix. Inclined or skewed supports are implemented using constraint
+equations and modify more than the diagonal terms as the displacements are
+coupled via the direction cosines.
+
+For support displacements, the support displacement vector is multiplied by the
+support stiffness and added to the corresponding force vector. Refer to
+"Introduction to Finite Elements in Engineering" by Chandrupatla and Belegundu
+for additional details.
+
+A stiffness value of 1000*K, where K is the largest stiffness in the global
+stiffness matrix has shown to produce good results based on textbook examples.
+Reasonable default values for translation and rotation stiffness are specified
+for each support. The user can change the default values via model settings.
+
+X, Y and Z supports are inherited from Inclined supports and can take several
+different forms. They can be snubbers (only active in occasional load cases),
+single or bi-directional, translational or rotational and/or define friction
+and gaps.
 """
 
 import warnings
@@ -38,7 +57,7 @@ from psi.units import DEFAULT_UNITS
 class Support(Entity):
 
     def __init__(self, name, point):
-        """Create an support instance at a node point.
+        """Create a support instance at a node point.
 
         Parameters
         ----------
@@ -52,13 +71,13 @@ class Support(Entity):
             Stiffness in the translational directions.
 
             .. note::
-               The default value is based on imperial units.
+               The default value is based on english units.
 
         rotation_stiffness : float
             Stiffness in the rotational directions.
 
             .. note::
-               The default value is based on imperial units.
+               The default value is based on english units.
         """
         super(Support, self).__init__(name)
         self.point = point
@@ -75,6 +94,18 @@ class Support(Entity):
         ----------
         element : Element
             An element object.
+
+        Supports are applied to an element at a node on the element.
+
+        Example
+        -------
+        Create a support at node 20 of run element 20.
+
+        .. code-block:: python
+
+            >>> run20 = elements(10, 20)
+            >>> anc = Anchor("anc20", 20)
+            >>> anc.apply([run20])
         """
         self.parent.apply([self], element)
 
@@ -83,14 +114,34 @@ class Support(Entity):
         return self.app.supports
 
     def kglobal(self, element):
+        """The support stiffness matrix used to modify the system stiffness
+        matrix.
+
+        .. note::
+
+            kglobal is a matrix. For axis aligned supports only the diagonal
+            terms consist of the penalty terms. This is not the case for
+            skewed supports which modify more than just the diagonal elements.
+        """
         raise NotImplementedError("implement")
 
-    cglobal = kglobal
+    def cglobal(self, element):
+        """The support penalty vector consisting of translation and rotation
+        terms. The first 6 DOFs apply to node i and last 6 to node j. The
+        first 3 DOFs are translational DOFs for node i.
+
+        .. note::
+
+            The cglobal vector is similar to the kglobal matrix when the
+            support is axis aligned.
+        """
+        return self.kglobal(element)
 
     def dglobal(self, element):
-        """Nodal displacements used for penalty method.
+        """Nodal displacement vector used for penalty method.
 
-        By default all supports are assumed to have 0 displacements.
+        By default all supports except for the Displacement support are assumed
+        to have 0 displacements.
         """
         a = np.zeros((12, 1), dtype=np.float64)
 
@@ -135,21 +186,20 @@ class Anchor(Support):
 
 @units.define(gap="length")
 class RigidSupport(Support):
-    """A generic rigid support type, with various different configurations
-    controlled by boolean flags.
+    """A generic rigid support with different configurations.
 
-    1. Translational or rotational (X, Y, Z, RX, RY, RZ)
-    2. Single of double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
-    3. Gap and friction,
-    4. Snubber (+/-) (XSNB, YSNB, ZSNB).
+        1. Translational or rotational (X, Y, Z, RX, RY, RZ)
+        2. Single of double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
+        3. Gap and friction,
+        4. Snubber (+/-) (XSNB, YSNB, ZSNB).
 
     The default support is a rigid double-acting translational support with no
-    gap.
+    friction or gap, in other words a linear support.
 
     .. note::
 
         Snubbers are translational linear supports, so gaps and friction are
-        not valid.
+        not valid. They are active only for occasional cases.
 
     .. note::
 
@@ -263,11 +313,7 @@ class RigidSupport(Support):
 
     def kglobal(self, element):
         k = np.zeros((12, 12), dtype=np.float64)
-        a, b, c = self.dircos
-        B1 = a
-        B2 = b
-        B3 = c
-
+        B1, B2, B3 = self.dircos
         B = np.array([[B1], [B2], [B3]], dtype=np.float64) @  \
             np.array([[B1, B2, B3]], dtype=np.float64)
 
@@ -385,7 +431,7 @@ class Z(RigidSupport):
             return super(Z, self).kglobal(element)
 
 
-class LineStop(Support):
+class LineStop(RigidSupport):
     """Support aligned with the axial direction of the pipe.
 
     LineStop supports are used to redirect thermal movement. They are commonly
@@ -414,9 +460,13 @@ class LineStop(Support):
         """Transform such that support is always inline with respect to the
         element coordinate system.
         """
-        T = element.T()
+        if self.dircos is None:
+            T = element.T()
 
-        return T.transpose() @ self.klocal(element)
+            return T.transpose() @ self.klocal(element)
+
+        else:
+            return super(LineStop, self).kglobal(element)
 
 
 class Guide(Support):
@@ -469,7 +519,7 @@ class Displacement(Support):
     .. note::
 
         If a displacement is not explicitly defined for a particular direction,
-        the pipe is free to move in that direction.
+        (i.e. None) the pipe is free to move in that direction.
     """
 
     def __init__(self, name, opercase, point, dx=None, dy=None, dz=None,
@@ -557,7 +607,9 @@ class Displacement(Support):
         return k
 
     def dglobal(self, element):
-        """Nodal displacements used for penalty method"""
+        """Nodal displacements are multiplied by the support stiffness and
+        added to the force vector.
+        """
         a = np.zeros((12, 1), dtype=np.float64)
 
         if self.point == element.from_point.name:

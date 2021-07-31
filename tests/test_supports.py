@@ -9,8 +9,8 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, X, Y, Z, Displacement
-from psi.loads import Force, Weight
+from psi.supports import Anchor, X, Y, Z, Displacement, LineStop
+from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
 from .utils import compare
@@ -69,14 +69,14 @@ def test_anchor(app):
 
     app.models('simple').analyze()
 
-    # check reactions due to fy
+    # check reactions due to fy, mz
     assert compare(L1.reactions[pt10][1], -10000)
     assert compare(L1.reactions[pt10][5], -100000)
 
     # check reaction due to fx
     assert compare(L2.reactions[pt10][0], -10000)
 
-    # check reaction due to fz
+    # check reaction due to fz, fy
     assert compare(L3.reactions[pt10][2], -10000)
     assert compare(L3.reactions[pt10][4], 100000)
 
@@ -125,7 +125,7 @@ def test_global_y(app):
     assert compare(L1.reactions[pt10][1], -5000)
     assert compare(L1.reactions[pt20][1], -5000)
 
-    # check max moment at the middle
+    # check max moment at the middle, mz
     assert compare(L1.forces[pt15][5], -25000)
 
 
@@ -143,7 +143,6 @@ def test_incline(app):
     anc10.apply([run15])
 
     y20 = Y('y20', 20, dircos=(-0.7071, 0.7071, 0))
-    # y20 = Y('y20', 20, dircos=(0, 1, 0))
     y20.apply([run20])
 
     # loads
@@ -158,10 +157,11 @@ def test_incline(app):
 
     app.models('simple').analyze()
 
-    # check reactions due to fy
+    # check reactions due to fy, mx
     assert compare(L1.reactions[pt10].fy, -7108.9)
     assert compare(L1.reactions[pt10].mz, -19067.105)
 
+    # check reactions due to fx, fy
     assert compare(L1.reactions[pt20].fx, 3295.48)
     assert compare(L1.reactions[pt20].fy, -3295.48)
 
@@ -191,5 +191,32 @@ def test_displacement(app):
 
     app.models('simple').analyze()
 
-    # check dy at 10
+    # check dx at 10
     assert compare(L1.movements[pt20].dx, 1)
+
+
+def test_linestop(app):
+
+    # get pipe objects
+    pt20 = app.points(20)
+
+    run15 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run15])
+
+    lim20 = LineStop('lim20', 20)
+    lim20.apply([run20])
+
+    # loads
+    T1 = Thermal('T1', 1, 500, 70)
+    T1.apply([run15, run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Thermal], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fx
+    assert compare(L1.reactions[pt20].fx, 1002348.1)
