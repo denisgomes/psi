@@ -153,7 +153,7 @@ from functools import partial
 import numpy as np
 from scipy.sparse import linalg as splinalg
 
-from psi.supports import RigidSupport
+from psi.supports import Inclined
 from psi.loadcase import LoadCase, LoadComb
 from psi import units
 
@@ -456,30 +456,23 @@ def static(model):
         # element stiffness at room temp, conservative stresses
         keg = element.kglobal(model.settings.tref)
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(keg)
-
         # assemble global stiffness matrix, quadrant 1 to 4
         Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 2nd
         Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 1st
         Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
         Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
+        # with redirect_stdout(sys.__stdout__):
+        #     print(Ks)
+
         for support in element.supports:
-            if isinstance(support, RigidSupport) and support.is_inclined:
-                ksup = support.kglobal(element)
+            # modify diagonal elements, penalty method, by adding large
+            # stiffnesses to the diagonals where a support is located
+            # if support is skewed other elements are modified as well
+            ksup = support.kglobal(element)
 
-                Ks[niqi:niqj, niqi:niqj] += ksup[:6, :6]        # 2nd
-                Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]    # 4th
-            else:
-                # modify diagonal elements, penalty method, by adding large
-                # stiffnesses to the diagonals where a support is located
-                di = np.diag_indices(6)     # diagonal indices for 6x6 matrix
-                ksup = support.kglobal(element)
-
-                # assign to diagonal elements of system matrix
-                Ks[niqi:niqj, niqi:niqj][di] += ksup[:6, 0]     # 2nd
-                Ks[njqi:njqj, njqi:njqj][di] += ksup[6:12, 0]   # 4th
+            Ks[niqi:niqj, niqi:niqj] += ksup[:6, :6]        # 2nd
+            Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]    # 4th
 
         # iterate each loadcase adding loads
         for i, loadcase in enumerate(model.loadcases):
@@ -506,18 +499,11 @@ def static(model):
             # NOTE: this only applies to Displacement supports, for all
             # others dsup is 0 and so added stiffness is also 0
             for support in element.supports:
-                if isinstance(support, RigidSupport) and support.is_inclined:
-                    csup = support.cglobal(element)
-                    dsup = support.dglobal(element)     # support displacement
+                csup = support.cglobal(element)
+                dsup = support.dglobal(element)     # support displacement
 
-                    Fs[niqi:niqj, i] += (csup[:6, 0] * dsup[:6, 0])
-                    Fs[njqi:njqj, i] += (csup[6:12, 0] * dsup[6:12, 0])
-                else:
-                    ksup = support.kglobal(element)
-                    dsup = support.dglobal(element)     # support displacement
-
-                    Fs[niqi:niqj, i] += (ksup[:6, 0] * dsup[:6, 0])
-                    Fs[njqi:njqj, i] += (ksup[6:12, 0] * dsup[6:12, 0])
+                Fs[niqi:niqj, i] += (csup[:6, 0] * dsup[:6, 0])
+                Fs[njqi:njqj, i] += (csup[6:12, 0] * dsup[6:12, 0])
 
     tqdm.info("*** Solving system equations for displacements.")
     if model.settings.weak_springs:
@@ -568,7 +554,7 @@ def static(model):
         for i, loadcase in enumerate(model.loadcases):
             # reaction forces and moments
             for support in element.supports:
-                if isinstance(support, RigidSupport) and support.is_inclined:
+                if isinstance(support, Inclined):
                     csup = support.cglobal(element)
                     dsup = support.dglobal(element)     # support displacement
                     B1, B2, B3 = support.dircos
@@ -580,12 +566,12 @@ def static(model):
                     R[njqi:njqj, i] += (-(csup[6:12, 0]*B2) *
                         ((X[njqi:njqj, i].dot(B2)) - dsup[6:12, 0]))
                 else:
-                    ksup = support.kglobal(element)
+                    csup = support.cglobal(element)
                     dsup = support.dglobal(element)     # support displacement
 
-                    R[niqi:niqj, i] += (-ksup[:6, 0] * (X[niqi:niqj, i] -
+                    R[niqi:niqj, i] += (-csup[:6, 0] * (X[niqi:niqj, i] -
                                                         dsup[:6, 0]))
-                    R[njqi:njqj, i] += (-ksup[6:12, 0] * (X[njqi:njqj, i] -
+                    R[njqi:njqj, i] += (-csup[6:12, 0] * (X[njqi:njqj, i] -
                                                           dsup[6:12, 0]))
 
             # calculate element local forces and moments using the local

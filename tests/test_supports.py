@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, X, Y, Z, Displacement, LineStop
+from psi.supports import Anchor, X, Y, Z, Displacement, LineStop, Inclined
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
@@ -142,7 +142,7 @@ def test_incline(app):
     anc10 = Anchor('anc10', 10)
     anc10.apply([run15])
 
-    y20 = Y('y20', 20, dircos=(-0.7071, 0.7071, 0))
+    y20 = Inclined('y20', 20, dircos=(-0.7071, 0.7071, 0))
     y20.apply([run20])
 
     # loads

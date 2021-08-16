@@ -136,6 +136,7 @@ class App(object):
                 # supports
                 "supports": self.supports,
                 "Anchor": self.supports.Anchor,
+                "Inclined": self.supports.Inclined,
                 "X": self.supports.X,
                 "Y": self.supports.Y,
                 "Z": self.supports.Z,
