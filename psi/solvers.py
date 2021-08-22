@@ -154,6 +154,7 @@ import numpy as np
 from scipy.sparse import linalg as splinalg
 
 from psi.supports import Inclined
+from psi.loads import Thermal
 from psi.loadcase import LoadCase, LoadComb
 from psi import units
 
@@ -163,7 +164,7 @@ def order_of_mag(n):
     return math.floor(math.log10(n))
 
 
-def element_codecheck(points, loadcase, element, S, lcasenum):
+def element_codecheck(points, loadcase, element, S):
     """Perform element code checking based on the assigned code for primitive
     load cases and load combinations.
     """
@@ -399,13 +400,13 @@ def element_codecheck(points, loadcase, element, S, lcasenum):
 
         # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
         # take the worst code stress at node
-        if sratioi > S[idxi, -1, lcasenum]:
-            S[idxi, :10, lcasenum] = (shoop, saxi, stori, slp, slbi, sli,
-                                      sifi, sifo, sallowi, sratioi)
+        if sratioi > S[idxi, -1]:
+            S[idxi, :10] = (shoop, saxi, stori, slp, slbi, sli,
+                            sifi, sifo, sallowi, sratioi)
 
-        if sratioj > S[idxj, -1, lcasenum]:
-            S[idxj, :10, lcasenum] = (shoop, saxj, storj, slp, slbj, slj,
-                                      sifi, sifo, sallowj, sratioj)
+        if sratioj > S[idxj, -1]:
+            S[idxj, :10] = (shoop, saxj, storj, slp, slbj, slj,
+                            sifi, sifo, sallowj, sratioj)
 
         # TODO : Implement Ma, Mb and Mc calculation loads
         # for each loadcase where Ma is for sustained, Mb is
@@ -430,129 +431,124 @@ def static(model):
 
     ndof = 6    # nodal degrees of freedom
     en = 2      # number of nodes per element
-    nn = len(model.points)
-    lc = len(model.loadcases)
 
     # similar to nodal dof matrix
     points = list(model.points)
+    nn = len(model.points)
 
-    # global system stiffness matrix
-    Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
+    # iterate each basic loadcase
+    loadcases = [lc for lc in model.loadcases if isinstance(lc, LoadCase)]
 
-    # global system force matrix, one loadcase per column
-    # a loadcase consists of one or more loads
-    Fs = np.zeros((nn*ndof, lc), dtype=np.float64)
+    for i, loadcase in enumerate(loadcases):
+        # global system stiffness matrix
+        tqdm.info("*** Solving loadcase %s" % loadcase.name)
 
-    # pre-processing elements
-    for element in model.elements:
-        idxi = points.index(element.from_point)
-        idxj = points.index(element.to_point)
+        # global system stiffness matrix
+        Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
 
-        # node and corresponding dof (start, finish), used to define the
-        # elements of the system stiffness and force matrices
-        niqi, niqj = idxi*ndof, idxi*ndof + ndof
-        njqi, njqj = idxj*ndof, idxj*ndof + ndof
+        # global system force matrix consisting of one or more loads
+        Fs = np.zeros((nn*ndof, 1), dtype=np.float64)
 
-        # element stiffness at room temp, conservative stresses
-        keg = element.kglobal(model.settings.tref)
+        # solution matrices for all primary load cases
+        R = np.zeros((nn*ndof, 1), dtype=np.float64)    # reactions
+        Fi = np.zeros((nn*ndof, 1), dtype=np.float64)   # internal forces
+        S = np.zeros((nn, 10), dtype=np.float64)        # stresses
 
-        # assemble global stiffness matrix, quadrant 1 to 4
-        Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 2nd
-        Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 1st
-        Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
-        Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
+        # pre-processing elements
+        for element in model.elements:
+            idxi = points.index(element.from_point)
+            idxj = points.index(element.to_point)
 
-        # with redirect_stdout(sys.__stdout__):
-        #     print(Ks)
+            # node and corresponding dof (start, finish), used to define the
+            # elements of the system stiffness and force matrices
+            niqi, niqj = idxi*ndof, idxi*ndof + ndof
+            njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
-        for support in element.supports:
-            # modify diagonal elements, penalty method, by adding large
-            # stiffnesses to the diagonals where a support is located
-            # if support is skewed other elements are modified as well
-            ksup = support.kglobal(element)
+            # element stiffness at room temp, conservative stresses
+            keg = element.kglobal(model.settings.tref)
 
-            Ks[niqi:niqj, niqi:niqj] += ksup[:6, :6]        # 2nd
-            Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]    # 4th
+            # assemble global stiffness matrix, quadrant 1 to 4
+            Ks[niqi:niqj, niqi:niqj] += keg[:6, :6]         # 2nd
+            Ks[niqi:niqj, njqi:njqj] += keg[:6, 6:12]       # 1st
+            Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
+            Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
-        # iterate each loadcase adding loads
-        for i, loadcase in enumerate(model.loadcases):
-            # sum of all loads in a primary/primitive loadcase
-            if isinstance(loadcase, LoadCase):
-                feg = np.zeros((en*ndof, 1), dtype=np.float64)
-
-                for loadtype, opercase in zip(loadcase.loadtypes,
-                                              loadcase.opercases):
-                    for load in element.loads:
-                        if (type(load) == loadtype and
-                                load.opercase == opercase):
-                            feg += load.fglobal(element)
-                        else:
-                            pass
-                            # otherwise print a warning
-
-                # assemble global system force matrix per loadcase
-                Fs[niqi:niqj, i] += feg[:6, 0]
-                Fs[njqi:njqj, i] += feg[6:12, 0]
-
-            # large stiffness added to each force matrix component with
-            # non-zero support displacements, again per loadcase
-            # NOTE: this only applies to Displacement supports, for all
-            # others dsup is 0 and so added stiffness is also 0
+            # stiffness matrix and force vector modified at nodes with supports
             for support in element.supports:
+                # modify diagonal elements, penalty method, by adding large
+                # stiffnesses to the diagonals where a support is located
+                # if support is skewed off diagonal elements are modified too
+                ksup = support.kglobal(element)
+
+                Ks[niqi:niqj, niqi:niqj] += ksup[:6, :6]        # 2nd
+                Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]    # 4th
+
+                # large stiffness added to each force matrix component with
+                # non-zero support displacements, again per loadcase
+                # NOTE: this only applies to Displacement supports, for all
+                # others dsup is 0 and so added stiffness is also 0
                 csup = support.cglobal(element)
                 dsup = support.dglobal(element)     # support displacement
 
-                Fs[niqi:niqj, i] += (csup[:6, 0] * dsup[:6, 0])
-                Fs[njqi:njqj, i] += (csup[6:12, 0] * dsup[6:12, 0])
+                Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
+                Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
 
-    tqdm.info("*** Solving system equations for displacements.")
-    if model.settings.weak_springs:
-        tqdm.info("*** Turning on weak springs.")
+            # force vector modified at nodes with forces, forces are combined
+            feg = np.zeros((en*ndof, 1), dtype=np.float64)
+            for loadtype, opercase in zip(loadcase.loadtypes, loadcase.opercases):
+                for load in element.loads:
+                    if (type(load) == loadtype and load.opercase == opercase):
+                        feg += load.fglobal(element)
+                    else:
+                        pass
+                        # otherwise print a warning
+            # assemble global system force matrix per loadcase
+            Fs[niqi:niqj, 0] += feg[:6, 0]
+            Fs[njqi:njqj, 0] += feg[6:12, 0]
 
-        di = np.diag_indices_from(Ks)   # Ks is square
+        tqdm.info("    --> Solving system equations for displacements.")
+        if model.settings.weak_springs:
+            tqdm.info("    --> Turning on weak springs.")
 
-        # support stiffness is reduced by 75% order of magnitude
-        trans_order = order_of_mag(model.settings.translation_stiffness) * 0.75
-        rota_order = order_of_mag(model.settings.rotation_stiffness) * 0.75
+            di = np.diag_indices_from(Ks)   # Ks is square
 
-        weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
-        weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order
-        weak_spring_arr[3::3] = model.settings.rotation_stiffness * 10**-rota_order
+            # support stiffness is reduced by 75% order of magnitude
+            trans_order = order_of_mag(model.settings.translation_stiffness) * 0.75
+            rota_order = order_of_mag(model.settings.rotation_stiffness) * 0.75
 
-        # apply small stiffness to diagonals for numerical stability
-        Ks[di] += weak_spring_arr
+            weak_spring_arr = np.zeros(Ks.shape[0], dtype=np.float64)
+            weak_spring_arr[::3] = model.settings.translation_stiffness * 10**-trans_order
+            weak_spring_arr[3::3] = model.settings.rotation_stiffness * 10**-rota_order
 
-    try:
-        X = np.linalg.solve(Ks, Fs)
-    except np.linalg.LinAlgError:
-        if not model.settings.weak_springs:
-            raise np.linalg.LinAlgError("solver error, try turning on",
-                                        "weak springs.")
-        else:
-            raise np.linagl.LinAlgError("solver error, make sure the model",
-                                        "has no error.")
+            # apply small stiffness to diagonals for numerical stability
+            Ks[di] += weak_spring_arr
 
-    tqdm.info("*** Post processing elements...")
-    R = np.zeros((nn*ndof, lc), dtype=np.float64)   # reactions
-    Fi = np.zeros((nn*ndof, lc), dtype=np.float64)  # internal forces
+        try:
+            Xs = np.linalg.solve(Ks, Fs)
+        except np.linalg.LinAlgError:
+            if not model.settings.weak_springs:
+                raise np.linalg.LinAlgError("a solver error occured, ",
+                                            "try turning on weak springs.")
+            else:
+                raise np.linagl.LinAlgError("a solver error occured, ",
+                                            "check model for errors.")
 
-    tqdm.info("*** Calculating support reactions and internal forces.")
-    for element in model.elements:
-        idxi = points.index(element.from_point)
-        idxj = points.index(element.to_point)
+        tqdm.info("    --> Post processing elements...")
 
-        # node and corresponding dof (start, finish)
-        niqi, niqj = idxi*ndof, idxi*ndof + ndof
-        njqi, njqj = idxj*ndof, idxj*ndof + ndof
+        tqdm.info("    --> Calculating support reactions and internal forces""")
+        for element in model.elements:
+            idxi = points.index(element.from_point)
+            idxj = points.index(element.to_point)
 
-        # element local stiffness and transformation matrix
-        kel = element.klocal(model.settings.tref)
+            # node and corresponding dof (start, finish)
+            niqi, niqj = idxi*ndof, idxi*ndof + ndof
+            njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
-        T = element.T()
+            # element local stiffness and transformation matrix
+            kel = element.klocal(model.settings.tref)
+            T = element.T()
 
-        # nodal displacement vector per loadcase
-        for i, loadcase in enumerate(model.loadcases):
-            # reaction forces and moments
+            # nodal displacement vector per loadcase
             for support in element.supports:
                 if isinstance(support, Inclined):
                     csup = support.cglobal(element)
@@ -561,53 +557,49 @@ def static(model):
                     B = np.array([[B1, B2, B3]], dtype=np.float64)
                     B2 = np.append(B, B)
 
-                    R[niqi:niqj, i] += (-(csup[:6, 0]*B2) *
-                        ((X[niqi:niqj, i].dot(B2)) - dsup[:6, 0]))
-                    R[njqi:njqj, i] += (-(csup[6:12, 0]*B2) *
-                        ((X[njqi:njqj, i].dot(B2)) - dsup[6:12, 0]))
+                    R[niqi:niqj, 0] += (-(csup[:6, 0]*B2) *
+                        ((Xs[niqi:niqj, 0].dot(B2)) - dsup[:6, 0]))
+                    R[njqi:njqj, 0] += (-(csup[6:12, 0]*B2) *
+                        ((Xs[njqi:njqj, 0].dot(B2)) - dsup[6:12, 0]))
                 else:
                     csup = support.cglobal(element)
                     dsup = support.dglobal(element)     # support displacement
 
-                    R[niqi:niqj, i] += (-csup[:6, 0] * (X[niqi:niqj, i] -
+                    R[niqi:niqj, 0] += (-csup[:6, 0] * (Xs[niqi:niqj, 0] -
                                                         dsup[:6, 0]))
-                    R[njqi:njqj, i] += (-csup[6:12, 0] * (X[njqi:njqj, i] -
+                    R[njqi:njqj, 0] += (-csup[6:12, 0] * (Xs[njqi:njqj, 0] -
                                                           dsup[6:12, 0]))
 
             # calculate element local forces and moments using the local
             # element stiffness matrix and fi = kel*x where x is the local
             # displacement vector given by (T * _x)
             _x = np.zeros((12, 1), dtype=np.float64)
-            _x[:6, 0] = X[niqi:niqj, i]
-            _x[6:12, 0] = X[njqi:njqj, i]
+            _x[:6, 0] = Xs[niqi:niqj, 0]
+            _x[6:12, 0] = Xs[njqi:njqj, 0]
 
             # x is the element local displacements
             fi = kel @ (T @ _x)
 
             # internal force and moment matrix at node i and j
-            Fi[niqi:niqj, i] = fi[:6, 0]
-            Fi[njqi:njqj, i] = fi[6:12, 0]
+            Fi[niqi:niqj, 0] = fi[:6, 0]
+            Fi[njqi:njqj, 0] = fi[6:12, 0]
 
-    tqdm.info("*** Writing loadcase results data.")
-    for i, loadcase in enumerate(model.loadcases):
-        # load combs are combined later
-        if isinstance(loadcase, LoadCase):
-            # X[:, i], R[:, i] and Fi[:, i] return row vectors
-            loadcase.movements.results = X[:, i]
-            loadcase.reactions.results = -R[:, i]   # action force on support
-            loadcase.forces.results = Fi[:, i]
+        tqdm.info("    --> Writing loadcase results data.")
+        # X[:, 0], R[:, 0] and Fi[:, 0] return row vectors
+        loadcase.movements.results = Xs[:, 0]
+        loadcase.reactions.results = -R[:, 0]   # action force on support
+        loadcase.forces.results = Fi[:, 0]
 
     # switch back to user units - analysis is complete
     model.app.units.enable()
 
-    tqdm.info("*** Element code checking.")
-    S = np.zeros((nn, 10, lc), dtype=np.float64)
-    for i, loadcase in enumerate(model.loadcases):
+    tqdm.info("*** Performing element code checking.")
+    for i, loadcase in enumerate(loadcases):
         C = []  # code used at each node
         for element in model.elements:
-            element_codecheck(points, loadcase, element, S, i)
+            element_codecheck(points, loadcase, element, S)
             C.extend(2 * [element.code.label])
-        loadcase.stresses.results = (S[:, :, i], C)
+        loadcase.stresses.results = (S[:, :], C)
 
     tqdm.info("*** Code checking complete.")
     tqdm.info("*** Analysis complete!\n")

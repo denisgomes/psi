@@ -56,7 +56,7 @@ reac.to_screen()
 disp = Movements('R2', [L1])
 disp.to_screen()
 
-forc = Forces('R3', [L3])
+forc = Forces('R3', [L1])
 forc.to_screen()
 
 str1 = Stresses('S1', [L2])

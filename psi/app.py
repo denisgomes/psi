@@ -163,6 +163,7 @@ class App(object):
                 "Wind": self.loads.Wind,
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,
+                # "Displacement": self.loads.Displacement,
 
                 # loadcases
                 "loadcases": self.loadcases,

@@ -400,7 +400,7 @@ class Thermal(Load):
         A = element.section.area
 
         # thermal axial force causing displacement
-        # larger E produces larger force and displacement
+        # larger E produces larger force
         fa = (E*A) * (alp*delT)
 
         # thermal effect turned off for rigids
@@ -795,6 +795,136 @@ class Wind(Load):
         return f
 
 
+@units.define(_dx="length", _dy="length", _dz="length",
+              _mx="rotation", _my="rotation", _mz="rotation")
+class Displacement(Load):
+    """A displacement load.
+
+    A displacement can be defined for a node with or without a support. If
+    a support exists at the node, the prescribed displacement will only act
+    in the direction(s) of the support stiffness.
+
+    Displacements are applied to a stiffness matrix similar to supports. Using
+    the penalty approach, the stiffness matrix and force vector terms in the
+    global system matrices are modified. Supports are in essence a special case
+    with 0 displacement in the direction of stiffness.
+
+    Support displacements are associated with an operating case and typically
+    used with a thermal case to model equipment nozzle movements.
+
+    .. note::
+
+        If a displacement is not explicitly defined for a particular direction,
+        (i.e. None) the pipe is free to move in that direction.
+
+    Note that the forces associated with a displacement are output as a support
+    reaction.
+    """
+
+    def __init__(self, name, opercase, point, dx=None, dy=None, dz=None,
+                 rx=None, ry=None, rz=None):
+        """Create a displacement support instance."""
+        super(Displacement, self).__init__(name, opercase)
+        self.opercase = opercase
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+    @property
+    def dx(self):
+        return (None if self._dx is np.nan else self._dx)
+
+    @dx.setter
+    def dx(self, value):
+        self._dx = np.nan if value is None else value
+
+    @property
+    def dy(self):
+        return (None if self._dy is np.nan else self._dy)
+
+    @dy.setter
+    def dy(self, value):
+        self._dy = np.nan if value is None else value
+
+    @property
+    def dz(self):
+        return (None if self._dz is np.nan else self._dz)
+
+    @dz.setter
+    def dz(self, value):
+        self._dz = np.nan if value is None else value
+
+    @property
+    def rx(self):
+        return (None if self._rx is np.nan else self._rx)
+
+    @rx.setter
+    def rx(self, value):
+        self._rx = np.nan if value is None else value
+
+    @property
+    def ry(self):
+        return (None if self._ry is np.nan else self._ry)
+
+    @ry.setter
+    def ry(self, value):
+        self._ry = np.nan if value is None else value
+
+    @property
+    def rz(self):
+        return (None if self._rz is np.nan else self._rz)
+
+    @rz.setter
+    def rz(self, value):
+        self._rz = np.nan if value is None else value
+
+    def cglobal(self, element):
+        c = np.zeros((12, 1), dtype=np.float64)
+        disp = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            c[:3, 0] = [self.translation_stiffness] * 3
+            c[3:6, 0] = [self.rotation_stiffness] * 3
+
+            disp[:6, 0] = [self._dx, self._dy, self._dz,
+                           self._rx, self._ry, self._rz]
+
+        elif self.point == element.to_point.name:
+            c[6:9, 0] = [self.translation_stiffness] * 3
+            c[9:12, 0] = [self.rotation_stiffness] * 3
+
+            disp[6:12, 0] = [self._dx, self._dy, self._dz,
+                             self._rx, self._ry, self._rz]
+
+        # zero out stiffness with corresponding 'nan' displacement, i.e
+        # a free DOF
+        c[np.isnan(disp)] = 0
+
+        return c
+
+    def dglobal(self, element):
+        """Nodal displacements are multiplied by the support stiffness and
+        added to the force vector.
+        """
+        a = np.zeros((12, 1), dtype=np.float64)
+
+        if self.point == element.from_point.name:
+            a[:6, 0] = [self._dx, self._dy, self._dz,
+                        self._rx, self._ry, self._rz]
+
+        elif self.point == element.to_point.name:
+            a[6:12, 0] = [self._dx, self._dy, self._dz,
+                          self._rx, self._ry, self._rz]
+
+        # zero out 'nan' displacement
+        a[np.isnan(a)] = 0
+
+        return a
+
+
 class LoadContainer(EntityContainer):
 
     def __init__(self):
@@ -804,6 +934,7 @@ class LoadContainer(EntityContainer):
         self.Hydro = Hydro
         self.Thermal = Thermal
         self.Fluid = Fluid
+        self.Displacement = Displacement
         self.Force = Force
         self.Seismic = Seismic
         self.Wind = Wind

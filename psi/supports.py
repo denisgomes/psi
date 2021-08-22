@@ -191,8 +191,13 @@ class Anchor(Support):
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
 
-        c[:3, 0] = c[6:9, 0] = [self.translation_stiffness] * 3
-        c[3:6, 0] = c[9:12, 0] = [self.rotation_stiffness] * 3
+        if self.point == element.from_point.name:
+            c[:3, 0] = [self.translation_stiffness] * 3
+            c[3:6, 0] = [self.rotation_stiffness] * 3
+
+        elif self.point == element.to_point.name:
+            c[6:9, 0] = [self.translation_stiffness] * 3
+            c[9:12, 0] = [self.rotation_stiffness] * 3
 
         return c
 

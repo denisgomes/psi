@@ -1,29 +1,38 @@
-=========
-TODO List
-=========
+========
+Releases
+========
 
-0.1.0 Release
-=============
+0.1.0
+=====
 
 Supports
 --------
-Debug inclined supports.
-Make imposed support displacment opercase dependent (solver.py).
-Refactor support.py, change GlobalX to X, etc.
+Debug inclined supports
+Make imposed support displacment opercase dependent (solver.py)
+Refactor support.py, change GlobalX to X, etc
 Implement spring supports and refactor supports.py
-Non-linear supports (+Y, gaps)
 Update support apply method
 
 Elements
 --------
 Implement bend and reducer element type
 Implement sifs for various components, especially for tees
-Implement tee element
+Implement tee element stiffness
 Remove dependence on topology.py
+
+Loads
+-----
+Fix thermal load internal force reaction report, should be 0 if not restrained
+axially
 
 Loadcase
 --------
 Update automatic default loadcase method
+
+Settings
+--------
+Implement axial force setting
+Implement stress case corroded setting
 
 Tests
 -----
@@ -39,11 +48,13 @@ Add to V&V
 
 Website
 -------
+Convert website to pipe stress blog with github comments
 Add working donate button (github sponsors)
 
 
-Future Releases
-===============
+Future
+======
+Non-linear supports (+Y, gaps)
 Non-linear supports (friction)
 Implement bellows
 Refine modal analysis
