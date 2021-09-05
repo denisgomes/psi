@@ -81,6 +81,7 @@ class Support(Entity):
         """
         super(Support, self).__init__(name)
         self.point = point
+        self.elememt = None
 
         model = self.app.models.active_object
         with units.Units(user_units=DEFAULT_UNITS):
@@ -222,6 +223,16 @@ class RigidSupport(Support):    # Abstract Base Class
     .. note::
 
         Rotational supports do not have friction.
+
+    X, Y, Z - support for friction
+
+    +X, +Y, +Z, +RX, +RY, +RZ - support for gaps
+    +X, +Y, +Z - support for friction
+
+    -X, -Y, -Z, -RX, -RY, -RZ - support for gaps
+    -x, -Y, -Z - support for friction
+
+    (+/-) SNB - linear support
     """
 
     def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
@@ -271,14 +282,6 @@ class RigidSupport(Support):    # Abstract Base Class
             self.gap = gap
 
     @property
-    def direction(self):
-        return ("" if self._direction is None else self._direction)
-
-    @direction.setter
-    def direction(self, value):
-        self._direction = "" if value is None else value
-
-    @property
     def is_rotational(self):
         return self._is_rotational
 
@@ -303,15 +306,24 @@ class RigidSupport(Support):    # Abstract Base Class
 
     @property
     def is_nonlinear(self):
-        return ("+" in self.direction or "-" in self.direction or
-                self.mu > 0.0 or self.gap > 0.0)
+        return self.has_friction or self.has_gap or not self.is_snubber
+
+    @property
+    def has_friction(self):
+        return self.mu > 0.0
+
+    @property
+    def has_gap(self):
+        return self.gap > 0.0 or str(self.direction) in "+-"
 
     @property
     def type(self):
+        supdir = self.direction if self.direction else ""
+
         if self.is_snubber:
-            _type = self.direction + super(RigidSupport, self).type + "SNB"
+            _type = supdir + super(RigidSupport, self).type + "SNB"
         elif self.is_rotational:
-            _type = self.direction + "R" + super(RigidSupport, self).type
+            _type = supdir + "R" + super(RigidSupport, self).type
         else:
             _type = super(RigidSupport, self).type
 
@@ -319,7 +331,17 @@ class RigidSupport(Support):    # Abstract Base Class
 
 
 class Inclined(RigidSupport):
-    """A skewed roller support not aligned with a global axis"""
+    """A skewed roller support not aligned with a global axis.
+
+    Parameters
+    ----------
+    dircos : tuple
+        Support direction cosine. Also pointing in the positive support
+        direction.
+
+        .. note::
+            The support direction gives the sense of the support, "+" or "-".
+    """
 
     def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
                  is_rotational=False, is_snubber=False, dircos=None):
@@ -377,10 +399,12 @@ class Inclined(RigidSupport):
 
     @property
     def type(self):
+        supdir = self.direction if self.direction else ""
+
         if self.is_snubber:
-            _type = self.direction + "I" + "SNB"
+            _type = supdir + "I" + "SNB"
         elif self.is_rotational:
-            _type = self.direction + "R" + "I"
+            _type = supdir + "R" + "I"
         else:
             _type = "I"
 
@@ -392,6 +416,10 @@ class Inclined(RigidSupport):
 
 class X(RigidSupport):
     """Support aligned with the global x direction."""
+
+    @property
+    def dircos(self):
+        return (1, 0, 0)
 
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
@@ -414,6 +442,10 @@ class X(RigidSupport):
 class Y(RigidSupport):
     """Support aligned with the global y direction."""
 
+    @property
+    def dircos(self):
+        return (0, 1, 0)
+
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
 
@@ -434,6 +466,10 @@ class Y(RigidSupport):
 
 class Z(RigidSupport):
     """Support aligned with the global z direction."""
+
+    @property
+    def dircos(self):
+        return (0, 0, 1)
 
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
@@ -459,6 +495,20 @@ class LineStop(RigidSupport):
     LineStop supports are used to redirect thermal movement. They are commonly
     used for rack piping with expansion loops.
     """
+
+    _dircos = None
+
+    @property
+    def dircos(self):
+        return self._dircos
+
+    def apply(self, element):
+        super(LineStop, self).apply(element)
+
+        # dircos depends on element direction
+        r = (np.array(self.element.to_point.xyz, dtype=np.float64) -
+             np.array(self.element.from_point.xyz, dtype=np.float64))
+        self._dircos = tuple(r / np.linalg.norm(r))
 
     def clocal(self, element):
         """The local element x direction is the inline/axial direction"""
@@ -494,24 +544,57 @@ class Guide(RigidSupport):
     the horizontal plane.
     """
 
+    _dir1 = True
+    _dircos1 = None
+    _dircos2 = None
+
+    @property
+    def toggle(self):
+        if self._dir1:
+            self._dir1 = False
+        else:
+            self._dir1 = True
+
+    @property
+    def dircos(self):
+        if self._dir1:
+            return self._dircos1
+        else:
+            return self._dircos2
+
+    def apply(self, element):
+        super(Guide, self).apply(element)
+
+        dc = self.element.dircos()  # element dircos
+        self._dircos1 = tuple(dc[:, 1])
+        self._dircos2 = tuple(dc[:, 2])
+
     def clocal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
 
         if self.is_rotational is False:
             if self.point == element.from_point.name:
-                c[1, 0] = self.translation_stiffness
-                c[2, 0] = self.translation_stiffness
+                if self._dir1:
+                    c[1, 0] = self.translation_stiffness
+                else:
+                    c[2, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                c[7, 0] = self.translation_stiffness
-                c[8, 0] = self.translation_stiffness
+                if self._dir1:
+                    c[7, 0] = self.translation_stiffness
+                else:
+                    c[8, 0] = self.translation_stiffness
 
         else:
             if self.point == element.from_point.name:
-                c[4, 0] = self.rotation_stiffness
-                c[5, 0] = self.rotation_stiffness
+                if self._dir1:
+                    c[4, 0] = self.rotation_stiffness
+                else:
+                    c[5, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                c[10, 0] = self.rotation_stiffness
-                c[11, 0] = self.rotation_stiffness
+                if self._dir1:
+                    c[10, 0] = self.rotation_stiffness
+                else:
+                    c[11, 0] = self.rotation_stiffness
 
         return c
 
@@ -713,25 +796,21 @@ class SupportContainer(EntityContainer):
         self.Spring = Spring
         self.Displacement = Displacement
 
-    def apply(self, supports=[], elements=None):
+    def apply(self, supports=[], elements=[]):
         """Apply supports to elements.
 
-        A copy of the support is attached to each element, where each copy
-        shares the same name.
+        A reference of the support is attached to each element, a one to one
+        assignment.
 
         Parameters
         ----------
         supports : list
             A list of supports
+
         elements : list
             A list of elements. If elements is None, loads are applied to all
             elements.
         """
-        if elements is None:
-            elements = []
-
-            for element in self.app.elements.active_objects:
-                elements.append(element)
-
-        for element in elements:
-            element.supports.update(supports)
+        for support, element in zip(supports, elements):
+            support.element = element
+            element.supports.add(support)

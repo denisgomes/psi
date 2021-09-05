@@ -142,7 +142,7 @@ step, ie. the model mesh is modified to incorporate the new point locations.
 As a result the system stiffness matrix is updated each iteration.
 """
 
-from collections import defaultdict, Counter
+from collections import defaultdict
 from itertools import zip_longest
 import math
 import sys
@@ -152,9 +152,9 @@ from functools import partial
 
 import numpy as np
 from scipy.sparse import linalg as splinalg
+from tqdm import trange
 
-from psi.supports import Inclined
-from psi.loads import Thermal
+from psi.supports import Inclined, RigidSupport
 from psi.loadcase import LoadCase, LoadComb
 from psi import units
 
@@ -533,9 +533,135 @@ def static(model):
                 raise np.linagl.LinAlgError("a solver error occured, ",
                                             "check model for errors.")
 
-        tqdm.info("    --> Post processing elements...")
+        # initially all supports are assumed linear
+        # directional, have gap and/or friction is nonlinear
+        nonlinear = {support: "active" for support in model.supports
+                     if isinstance(support, RigidSupport)
+                     and support.has_gap}   # partial nonlinear support
+        if nonlinear:
+            converge_status = [False] * len(nonlinear)
 
+            # stiffness matrix and force vector modified at nodes with supports
+            t = trange(model.settings.nonlinear_iteration)
+            for _ in t:
+                t.set_description("Iterating %s..." % loadcase.name)
+                t.refresh()
+
+                # iterate non-linear supports to determine final state
+                for i, support in enumerate(nonlinear.keys()):
+                    element = support.element
+
+                    idxi = points.index(element.from_point)
+                    idxj = points.index(element.to_point)
+
+                    # node and corresponding dof (start, finish), used to
+                    # define the elements of the system stiffness and force
+                    # matrices
+                    niqi, niqj = idxi*ndof, idxi*ndof + ndof
+                    njqi, njqj = idxj*ndof, idxj*ndof + ndof
+
+                    # calculated support reactions for non-linear supports
+                    if isinstance(support, Inclined):
+                        csup = support.cglobal(element)     # stiffness
+                        dsup = support.dglobal(element)     # displacement
+                        B1, B2, B3 = support.dircos
+                        B = np.array([[B1, B2, B3]], dtype=np.float64)
+                        B2 = np.append(B, B)
+
+                        R[niqi:niqj, 0] += (-(csup[:6, 0]*B2) *
+                                            ((Xs[niqi:niqj, 0].dot(B2)) -
+                                                dsup[:6, 0]))
+                        R[njqi:njqj, 0] += (-(csup[6:12, 0]*B2) *
+                                            ((Xs[njqi:njqj, 0].dot(B2)) -
+                                                dsup[6:12, 0]))
+                    else:
+                        csup = support.cglobal(element)     # stiffness
+                        dsup = support.dglobal(element)     # displacement
+
+                        R[niqi:niqj, 0] += (-csup[:6, 0] *
+                                            (Xs[niqi:niqj, 0] - dsup[:6, 0]))
+                        R[njqi:njqj, 0] += (-csup[6:12, 0] *
+                                            (Xs[njqi:njqj, 0] - dsup[6:12, 0]))
+
+                    # extract reaction and displacement
+                    suppsign = support.direction    # may be +, -
+                    suppdir = np.array(support.dircos, dtype=np.float64)
+
+                    # the default dircos also stands for a "+" sense support
+                    if suppsign == "-":
+                        suppdir *= -1   # negate for "-" sense
+
+                    if support.point == element.from_point.name:
+                        if support.is_rotational is False:
+                            reac = -R[niqi:niqj, 0][:3]
+                            disp = Xs[niqi:niqj, 0][:3]
+                        else:
+                            reac = -R[niqi:niqj, 0][3:6]
+                            disp = Xs[niqi:niqj, 0][3:6]
+                    elif support.point == element.to_point.name:
+                        if support.is_rotational is False:
+                            reac = -R[njqi:njqj, 0][:3]
+                            disp = Xs[njqi:njqj, 0][:3]
+                        else:
+                            reac = -R[njqi:njqj, 0][3:6]
+                            disp = Xs[njqi:njqj, 0][3:6]
+                    # component in support direction
+                    reacmag = np.dot(reac, suppdir)
+                    dispmag = np.dot(disp, suppdir)
+
+                    # check support reaction
+                    if nonlinear[support] == "active":
+                        if reacmag < 0:
+                            nonlinear[support] = "active"
+                            converge_status[i] = True
+                        else:
+                            # remove inactive support
+                            nonlinear[support] = "inactive"
+                            converge_status[i] = False
+
+                            ksup = support.kglobal(element)
+                            Ks[niqi:niqj, niqi:niqj] -= ksup[:6, :6]      # 2nd
+                            Ks[njqi:njqj, njqi:njqj] -= ksup[6:12, 6:12]  # 4th
+
+                            csup = support.cglobal(element)
+                            dsup = support.dglobal(element)
+                            Fs[niqi:niqj, 0] -= (csup[:6, 0] * dsup[:6, 0])
+                            Fs[njqi:njqj, 0] -= (csup[6:12, 0] * dsup[6:12, 0])
+
+                    # check support displacement
+                    elif nonlinear[support] == "inactive":
+                        if dispmag > 0:
+                            nonlinear[support] = "inactive"
+                            converge_status[i] = True
+                        else:
+                            # add active support
+                            nonlinear[support] = "active"
+                            converge_status[i] = False
+
+                            ksup = support.kglobal(element)
+                            Ks[niqi:niqj, niqi:niqj] += ksup[:6, :6]      # 2nd
+                            Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]  # 4th
+
+                            csup = support.cglobal(element)
+                            dsup = support.dglobal(element)
+                            Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
+                            Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
+
+                if all(converge_status):    # check convergence
+                    break
+
+                try:
+                    R[:, 0] = 0                     # R cleared
+                    Xs = np.linalg.solve(Ks, Fs)    # Ks and Fs modified
+                except np.linalg.LinAlgError:
+                    raise np.linagl.LinAlgError("a solver error occured, ",
+                                                "check model for errors.")
+            else:
+                tqdm.info("    --> Loadcase %s failed to converge." % loadcase.name)
+
+        tqdm.info("    --> Post processing elements...")
         tqdm.info("    --> Calculating support reactions and internal forces""")
+        R[:, 0] = 0     # reset reaction vector
         for element in model.elements:
             idxi = points.index(element.from_point)
             idxj = points.index(element.to_point)
@@ -548,27 +674,33 @@ def static(model):
             kel = element.klocal(model.settings.tref)
             T = element.T()
 
-            # nodal displacement vector per loadcase
             for support in element.supports:
-                if isinstance(support, Inclined):
-                    csup = support.cglobal(element)
-                    dsup = support.dglobal(element)     # support displacement
-                    B1, B2, B3 = support.dircos
-                    B = np.array([[B1, B2, B3]], dtype=np.float64)
-                    B2 = np.append(B, B)
+                if support not in nonlinear or nonlinear[support] == "active":
+                    if isinstance(support, Inclined):
+                        csup = support.cglobal(element)     # stiffness
+                        dsup = support.dglobal(element)     # displacement
+                        B1, B2, B3 = support.dircos
+                        B = np.array([[B1, B2, B3]], dtype=np.float64)
+                        B2 = np.append(B, B)
 
-                    R[niqi:niqj, 0] += (-(csup[:6, 0]*B2) *
-                        ((Xs[niqi:niqj, 0].dot(B2)) - dsup[:6, 0]))
-                    R[njqi:njqj, 0] += (-(csup[6:12, 0]*B2) *
-                        ((Xs[njqi:njqj, 0].dot(B2)) - dsup[6:12, 0]))
+                        R[niqi:niqj, 0] += (-(csup[:6, 0]*B2) *
+                                            ((Xs[niqi:niqj, 0].dot(B2)) -
+                                                dsup[:6, 0]))
+                        R[njqi:njqj, 0] += (-(csup[6:12, 0]*B2) *
+                                            ((Xs[njqi:njqj, 0].dot(B2)) -
+                                                dsup[6:12, 0]))
+                    else:
+                        csup = support.cglobal(element)     # stiffness
+                        dsup = support.dglobal(element)     # displacement
+
+                        R[niqi:niqj, 0] += (-csup[:6, 0] *
+                                            (Xs[niqi:niqj, 0] - dsup[:6, 0]))
+                        R[njqi:njqj, 0] += (-csup[6:12, 0] *
+                                            (Xs[njqi:njqj, 0] - dsup[6:12, 0]))
                 else:
-                    csup = support.cglobal(element)
-                    dsup = support.dglobal(element)     # support displacement
-
-                    R[niqi:niqj, 0] += (-csup[:6, 0] * (Xs[niqi:niqj, 0] -
-                                                        dsup[:6, 0]))
-                    R[njqi:njqj, 0] += (-csup[6:12, 0] * (Xs[njqi:njqj, 0] -
-                                                          dsup[6:12, 0]))
+                    # inactive nonlinear support
+                    R[niqi:niqj, 0] += 0
+                    R[njqi:njqj, 0] += 0
 
             # calculate element local forces and moments using the local
             # element stiffness matrix and fi = kel*x where x is the local
@@ -753,7 +885,7 @@ def modal(model, nmodes=3):
 
     # remove the trivial results in the front
     eigvals = eigvals[total_fixed_dofs:]
-    eigvectmat = eigvecmat[:, total_fixed_dofs:]
+    eigvecmat = eigvecmat[:, total_fixed_dofs:]
 
     with redirect_stdout(sys.__stdout__):
         # print(total_fixed_dofs)

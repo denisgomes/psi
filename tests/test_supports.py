@@ -130,6 +130,7 @@ def test_global_y(app):
 
 
 def test_incline(app):
+    """Skewed support test"""
 
     # get pipe objects
     pt10 = app.points(10)
@@ -196,6 +197,7 @@ def test_displacement(app):
 
 
 def test_linestop(app):
+    """Limit stop test"""
 
     # get pipe objects
     pt20 = app.points(20)
@@ -220,3 +222,90 @@ def test_linestop(app):
 
     # check reactions due to fx
     assert compare(L1.reactions[pt20].fx, 1002348.1)
+
+
+def test_plus_y_negative_load(app):
+    """Simply supported beam with central concentrated force and a nonlinear
+    +Y support.
+    """
+
+    # get pipe objects
+    pt10 = app.points(10)
+    pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    gblx10 = X('GblX10', 10)
+    gblx10.apply([run10])
+
+    gbly10 = Y('GblY10', 10)
+    gbly10.apply([run10])
+
+    gblz10 = Z('GblZ10', 10)
+    gblz10.apply([run10])
+
+    # constrain torsion
+    gblrotx10 = X('GblRotX10', 10, is_rotational=True)
+    gblrotx10.apply([run10])
+
+    # nonlinear +Y
+    gbly20 = Y('GblY20', 20, direction="+")
+    gbly20.apply([run20])
+
+    gblz20 = Z('GblZ20', 20)
+    gblz20.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=-10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt10][1], -5000)
+    assert compare(L1.reactions[pt20][1], -5000)
+    assert compare(L1.movements[pt20][1], 0)
+
+
+def test_plus_y_positive_load(app):
+    """Simply supported beam with central concentrated force and a nonlinear
+    +Y support.
+    """
+
+    # get pipe objects
+    pt10 = app.points(10)
+    pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    anc10 = Anchor('Anc10', 10)
+    anc10.apply([run10])
+
+    # nonlinear +Y
+    gbly20 = Y('GblY20', 20, direction="+")
+    gbly20.apply([run20])
+
+    gblz20 = Z('GblZ20', 20)
+    gblz20.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt10][1], 10000)
+    assert compare(L1.reactions[pt20][1], 0)

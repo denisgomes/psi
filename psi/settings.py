@@ -61,6 +61,9 @@ class Configuration:
     weak_springs : bool
         Include weak springs for numerical stability.
 
+    nonlinear_iterations : int
+        Number of iterations for non-linear supports per loadcase.
+
     translation_stiffness : float
         Support stiffness used in the translation directions.
 
@@ -96,6 +99,7 @@ class Configuration:
             self.pressure_thrust = False
             self.liberal_stress = False
             self.weak_springs = False
+            self.nonlinear_iteration = 1000
             self.translation_stiffness = 10**10
             self.rotation_stiffness = 10**12
             self.axial_force = False
