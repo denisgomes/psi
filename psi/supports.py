@@ -28,14 +28,17 @@ coupled via the direction cosines.
 For support displacements, the support displacement vector is multiplied by the
 support stiffness and added to the corresponding force vector. Refer to
 "Introduction to Finite Elements in Engineering" by Chandrupatla and Belegundu
-for additional details.
+for additional details. The user specified global support displacement is
+projected in the support direction to determine the displacement components. If
+a compoment is 0, the support will not be active along that axis, and the pipe
+will be able to move in that direction.
 
 A stiffness value of 1000*K, where K is the largest stiffness in the global
 stiffness matrix has shown to produce good results based on textbook examples.
 Reasonable default values for translation and rotation stiffness are specified
 for each support. The user can change the default values via model settings.
 
-X, Y and Z supports are inherited from Inclined supports and can take several
+X, Y and Z supports are inherited from RigidSupport and can take several
 different forms. They can be snubbers (only active in occasional load cases),
 single or bi-directional, translational or rotational and/or define friction
 and gaps.
@@ -47,8 +50,9 @@ from contextlib import redirect_stdout
 
 import numpy as np
 
-from psi.entity import Entity, EntityContainer
 from psi import units
+from psi.entity import Entity, EntityContainer
+from psi.loads import Displacement
 from psi.units import DEFAULT_UNITS
 
 
@@ -137,16 +141,10 @@ class Support(Entity):
 
         return k
 
-    def fglobal(self, element):
-        """The support force required to produce a prescribed displacement at a
-        node.
-        """
-        pass
-
     def cglobal(self, element):
         """The support penalty vector consisting of translation and rotation
-        terms. The first 6 DOFs apply to node i and last 6 to node j. The
-        first 3 DOFs are translational DOFs for node i. DOFs 3 to 6 are the
+        terms. The first 6 DOFs apply to node i and last 6 to node j. The first
+        3 DOFs are translational DOFs for node i. DOFs 3 to 6 are the
         rotational DOFs for node i.
 
         .. note::
@@ -156,13 +154,25 @@ class Support(Entity):
         """
         raise NotImplementedError("implement")
 
-    def dglobal(self, element):
+    def dglobal(self, element, loadcase):
         """Nodal displacement vector used for penalty method.
 
-        By default all supports except for the Displacement support are assumed
-        to have 0 imposed displacement.
+        By default all supports except for a support with displacement load is
+        assumed to have 0 imposed displacement.
+
+        The displacement is given as a vector given with dx, dy, dz, rx, ry and
+        rz at the support node.
         """
         a = np.zeros((12, 1), dtype=np.float64)
+
+        disps = [disp for disp in element.loads if isinstance(disp,
+                 Displacement)]
+        for disp in disps:
+            if disp in loadcase and self.element.from_point == disp.point:
+                a[:6, 0] += disp.to_list()
+
+            elif disp in loadcase and self.element.to_point == disp.point:
+                a[6:12, 0] += disp.to_list()
 
         return a
 
@@ -604,129 +614,6 @@ class Guide(RigidSupport):
         return T.transpose() @ self.clocal(element)
 
 
-@units.define(_dx="length", _dy="length", _dz="length",
-              _mx="rotation", _my="rotation", _mz="rotation")
-class Displacement(Support):
-    """A displacement support.
-
-    Displacements are applied to a stiffness matrix similar to how supports
-    are. Supports are in essence a special case with 0 movement in the
-    direction of stiffness. Using the penalty approach, the stiffness and force
-    terms in the global system matrix are modified.
-
-    Support displacements are associated to an operating case and typically
-    used with a thermal case to model equipment nozzle movements.
-
-    .. note::
-
-        If a displacement is not explicitly defined for a particular direction,
-        (i.e. None) the pipe is free to move in that direction.
-    """
-
-    def __init__(self, name, opercase, point, dx=None, dy=None, dz=None,
-                 rx=None, ry=None, rz=None):
-        """Create a displacement support instance."""
-        Support.__init__(self, name, point)
-        self.opercase = opercase
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.rx = rx
-        self.ry = ry
-        self.rz = rz
-
-    @property
-    def dx(self):
-        return (None if self._dx is np.nan else self._dx)
-
-    @dx.setter
-    def dx(self, value):
-        self._dx = np.nan if value is None else value
-
-    @property
-    def dy(self):
-        return (None if self._dy is np.nan else self._dy)
-
-    @dy.setter
-    def dy(self, value):
-        self._dy = np.nan if value is None else value
-
-    @property
-    def dz(self):
-        return (None if self._dz is np.nan else self._dz)
-
-    @dz.setter
-    def dz(self, value):
-        self._dz = np.nan if value is None else value
-
-    @property
-    def rx(self):
-        return (None if self._rx is np.nan else self._rx)
-
-    @rx.setter
-    def rx(self, value):
-        self._rx = np.nan if value is None else value
-
-    @property
-    def ry(self):
-        return (None if self._ry is np.nan else self._ry)
-
-    @ry.setter
-    def ry(self, value):
-        self._ry = np.nan if value is None else value
-
-    @property
-    def rz(self):
-        return (None if self._rz is np.nan else self._rz)
-
-    @rz.setter
-    def rz(self, value):
-        self._rz = np.nan if value is None else value
-
-    def cglobal(self, element):
-        c = np.zeros((12, 1), dtype=np.float64)
-        disp = np.zeros((12, 1), dtype=np.float64)
-
-        if self.point == element.from_point.name:
-            c[:3, 0] = [self.translation_stiffness] * 3
-            c[3:6, 0] = [self.rotation_stiffness] * 3
-
-            disp[:6, 0] = [self._dx, self._dy, self._dz,
-                           self._rx, self._ry, self._rz]
-
-        elif self.point == element.to_point.name:
-            c[6:9, 0] = [self.translation_stiffness] * 3
-            c[9:12, 0] = [self.rotation_stiffness] * 3
-
-            disp[6:12, 0] = [self._dx, self._dy, self._dz,
-                             self._rx, self._ry, self._rz]
-
-        # zero out stiffness with corresponding 'nan' displacement, i.e
-        # a free DOF
-        c[np.isnan(disp)] = 0
-
-        return c
-
-    def dglobal(self, element):
-        """Nodal displacements are multiplied by the support stiffness and
-        added to the force vector.
-        """
-        a = np.zeros((12, 1), dtype=np.float64)
-
-        if self.point == element.from_point.name:
-            a[:6, 0] = [self._dx, self._dy, self._dz,
-                        self._rx, self._ry, self._rz]
-
-        elif self.point == element.to_point.name:
-            a[6:12, 0] = [self._dx, self._dy, self._dz,
-                          self._rx, self._ry, self._rz]
-
-        # zero out 'nan' displacement
-        a[np.isnan(a)] = 0
-
-        return a
-
-
 @units.define(spring_rate="translation_stiffness", cold_load="force")
 class Spring(Support):
 
@@ -794,7 +681,6 @@ class SupportContainer(EntityContainer):
         self.LineStop = LineStop
         self.Guide = Guide
         self.Spring = Spring
-        self.Displacement = Displacement
 
     def apply(self, supports=[], elements=[]):
         """Apply supports to elements.

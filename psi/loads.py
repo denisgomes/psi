@@ -796,7 +796,9 @@ class Wind(Load):
 
 
 @units.define(_dx="length", _dy="length", _dz="length",
-              _mx="rotation", _my="rotation", _mz="rotation")
+              _mx="rotation", _my="rotation", _mz="rotation",
+              translation_stiffness="translation_stiffness",
+              rotation_stiffness="rotation_stiffness")
 class Displacement(Load):
     """A displacement load.
 
@@ -821,17 +823,25 @@ class Displacement(Load):
     reaction.
     """
 
+    label = "D"
+
     def __init__(self, name, opercase, point, dx=None, dy=None, dz=None,
                  rx=None, ry=None, rz=None):
         """Create a displacement support instance."""
         super(Displacement, self).__init__(name, opercase)
         self.opercase = opercase
+        self.point = point
         self.dx = dx
         self.dy = dy
         self.dz = dz
         self.rx = rx
         self.ry = ry
         self.rz = rz
+
+        model = self.app.models.active_object
+        with units.Units(user_units=DEFAULT_UNITS):
+            self.translation_stiffness = model.settings.translation_stiffness
+            self.rotation_stiffness = model.settings.rotation_stiffness
 
     @property
     def dx(self):
@@ -881,6 +891,23 @@ class Displacement(Load):
     def rz(self, value):
         self._rz = np.nan if value is None else value
 
+    def to_list(self):
+        return [self.dx, self.dy, self.dz, self.rx, self.ry, self.rz]
+
+    def kglobal(self, element):
+        k = np.zeros((12, 12), dtype=np.float64)
+
+        c = self.cglobal(element)   # penalty vector
+        di = np.diag_indices(6)
+
+        if self.point == element.from_point.name:
+            k[:6, :6][di] = c[:6, 0]
+
+        elif self.point == element.to_point.name:
+            k[6:12, 6:12][di] = c[6:12, 0]
+
+        return k
+
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
         disp = np.zeros((12, 1), dtype=np.float64)
@@ -923,6 +950,9 @@ class Displacement(Load):
         a[np.isnan(a)] = 0
 
         return a
+
+    def fglobal(self, element):
+        return self.cglobal(element) * self.dglobal(element)
 
 
 class LoadContainer(EntityContainer):

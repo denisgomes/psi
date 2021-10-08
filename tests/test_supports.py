@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, X, Y, Z, Displacement, LineStop, Inclined
+from psi.supports import Anchor, X, Y, Z, LineStop, Inclined
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
@@ -167,35 +167,6 @@ def test_incline(app):
     assert compare(L1.reactions[pt20].fy, -3295.48)
 
 
-def test_displacement(app):
-    """Cantilever beam with displacement support"""
-
-    # get pipe objects
-    pt10 = app.points(10)
-    pt20 = app.points(20)
-    run10 = app.elements(10, 15)
-    run20 = app.elements(15, 20)
-
-    # support
-    anc1 = Anchor('A1', 10)
-    anc1.apply([run10])
-
-    disp1 = Displacement('D1', 1, 20, dx=1)
-    disp1.apply([run20])
-
-    # loads
-    F1 = Force('F1', 1, 20, fy=-10000)
-    F1.apply([run20])
-
-    # loadcase
-    L1 = LoadCase('L1', 'ope', [Force, Displacement], [1, 1])
-
-    app.models('simple').analyze()
-
-    # check dx at 10
-    assert compare(L1.movements[pt20].dx, 1)
-
-
 def test_linestop(app):
     """Limit stop test"""
 
@@ -308,4 +279,42 @@ def test_plus_y_positive_load(app):
 
     # check reactions due to fy
     assert compare(L1.reactions[pt10][1], 10000)
+    assert compare(L1.reactions[pt20][1], 0)
+
+
+def test_minus_y_negative_load(app):
+    """Simply supported beam with central concentrated force and a nonlinear
+    -Y support.
+    """
+
+    # get pipe objects
+    pt10 = app.points(10)
+    pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    anc10 = Anchor('Anc10', 10)
+    anc10.apply([run10])
+
+    # nonlinear -Y
+    gbly20 = Y('GblY20', 20, direction="-")
+    gbly20.apply([run20])
+
+    gblz20 = Z('GblZ20', 20)
+    gblz20.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=-10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt10][1], -10000)
     assert compare(L1.reactions[pt20][1], 0)

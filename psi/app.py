@@ -143,7 +143,7 @@ class App(object):
                 "Spring": self.supports.Spring,
                 "LineStop": self.supports.LineStop,
                 "Guide": self.supports.Guide,
-                "Displacement": self.supports.Displacement,
+                # "Displacement": self.supports.Displacement,
 
                 # codes
                 "codes": self.codes,
@@ -163,7 +163,7 @@ class App(object):
                 "Wind": self.loads.Wind,
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,
-                # "Displacement": self.loads.Displacement,
+                "Displacement": self.loads.Displacement,
 
                 # loadcases
                 "loadcases": self.loadcases,

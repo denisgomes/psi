@@ -594,18 +594,23 @@ class LoadCase(BaseCase):
 
     def __init__(self, name, stype="sus", loadtypes=[], opercases=[]):
         super(LoadCase, self).__init__(name, stype)
-        self._loads = OrderedSet()
+        # self._loads = OrderedSet()
         self._loadtypes = loadtypes
         self._opercases = opercases
 
-        for load in zip(loadtypes, opercases):
-            self._loads.add(load)
+        # for load in zip(loadtypes, opercases):
+        #     self._loads.add(load)
 
         # results objects
         self._movements = Movements(self.app)
         self._reactions = Reactions(self.app)
         self._forces = Forces(self.app)
         self._stresses = Stresses(self.app)
+
+    def __contains__(self, load):
+        """Check load in loadcase"""
+        return (load.__class__ in self.loadtypes and
+                load.opercase in self.opercases)
 
     @property
     def loadtypes(self):

@@ -10,7 +10,8 @@ from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
 from psi.supports import Anchor
-from psi.loads import Weight, Thermal, Pressure, Fluid, Hydro, Seismic, Wind
+from psi.loads import (Weight, Thermal, Pressure, Fluid, Hydro, Seismic, Wind,
+                       Force, Displacement)
 from psi.loadcase import LoadCase
 from .utils import compare
 
@@ -40,6 +41,31 @@ def app():
     app.elements.select()   # select all
 
     return app
+
+
+@pytest.fixture()
+def app2():
+    # parameter
+    L = 10*12
+
+    app = App()
+    Model('simple')
+
+    # properties
+    Pipe.from_file('PIPE1', '10', '40')
+    Material.from_file('MAT1', 'A53A', 'B31.1')
+
+    # geometry
+    Point(10)
+    run15 = Run(15, L/2)
+    run20 = Run(20, L/2)
+
+    # code
+    b311 = B311('B311')
+    b311.apply([run15, run20])
+
+    return app
+
 
 
 def test_deadweight(app):
@@ -165,9 +191,33 @@ def test_force(app):
     pass
 
 
-def test_displacement(app):
-    """Check displacement due to applied displacement."""
-    pass
+def test_displacement(app2):
+    """Cantilever beam with displacement support"""
+
+    # get pipe objects
+    pt10 = app2.points(10)
+    pt20 = app2.points(20)
+    run10 = app2.elements(10, 15)
+    run20 = app2.elements(15, 20)
+
+    # support
+    anc1 = Anchor('A1', 10)
+    anc1.apply([run10])
+
+    disp1 = Displacement('D1', 1, 20, dx=1)
+    disp1.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, fy=-10000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force, Displacement], [1, 1])
+
+    app2.models('simple').analyze()
+
+    # check dx at 10
+    assert compare(L1.movements[pt20].dx, 1)
 
 
 def test_seismic_x(app):

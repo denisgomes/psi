@@ -156,6 +156,7 @@ from tqdm import trange
 
 from psi.supports import Inclined, RigidSupport
 from psi.loadcase import LoadCase, LoadComb
+from psi.loads import Displacement
 from psi import units
 
 
@@ -421,8 +422,8 @@ def static(model):
     tqdm.info("*** Preprocessing, initializing analysis...")
 
     # Note: All internal object data is stored in SI once loaded from an
-    # external files, disabling unit consersion allows for working with
-    # only SI
+    # external files, disabling unit conversion allows for working with
+    # consistent SI
     model.app.units.disable()
     tqdm.info("*** Switching to base units.")
 
@@ -436,20 +437,19 @@ def static(model):
     points = list(model.points)
     nn = len(model.points)
 
-    # iterate each basic loadcase
+    # iterate each primary loadcase
     loadcases = [lc for lc in model.loadcases if isinstance(lc, LoadCase)]
 
     for i, loadcase in enumerate(loadcases):
-        # global system stiffness matrix
         tqdm.info("*** Solving loadcase %s" % loadcase.name)
 
         # global system stiffness matrix
         Ks = np.zeros((nn*ndof, nn*ndof), dtype=np.float64)
 
-        # global system force matrix consisting of one or more loads
+        # global system force matrix consisting of summation of loads
         Fs = np.zeros((nn*ndof, 1), dtype=np.float64)
 
-        # solution matrices for all primary load cases
+        # solution matrices for primary load cases
         R = np.zeros((nn*ndof, 1), dtype=np.float64)    # reactions
         Fi = np.zeros((nn*ndof, 1), dtype=np.float64)   # internal forces
         S = np.zeros((nn, 10), dtype=np.float64)        # stresses
@@ -473,7 +473,8 @@ def static(model):
             Ks[njqi:njqj, niqi:niqj] += keg[6:12, :6]       # 3rd
             Ks[njqi:njqj, njqi:njqj] += keg[6:12, 6:12]     # 4th
 
-            # stiffness matrix and force vector modified at nodes with supports
+            # stiffness matrix modified at nodes with supports
+            # supports with displacments also modify global force vector
             for support in element.supports:
                 # modify diagonal elements, penalty method, by adding large
                 # stiffnesses to the diagonals where a support is located
@@ -484,24 +485,30 @@ def static(model):
                 Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]    # 4th
 
                 # large stiffness added to each force matrix component with
-                # non-zero support displacements, again per loadcase
-                # NOTE: this only applies to Displacement supports, for all
-                # others dsup is 0 and so added stiffness is also 0
+                # non-zero support displacements based on loadcase
+                # NOTE: this only applies to supports with displacement, for
+                # all others dsup is 0 and so added equivalent force is also 0
                 csup = support.cglobal(element)
-                dsup = support.dglobal(element)     # support displacement
+                dsup = support.dglobal(element, loadcase)   # support disp
 
                 Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
                 Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
 
-            # force vector modified at nodes with forces, forces are combined
+            # load vector summed at nodes with forces
             feg = np.zeros((en*ndof, 1), dtype=np.float64)
-            for loadtype, opercase in zip(loadcase.loadtypes, loadcase.opercases):
-                for load in element.loads:
-                    if (type(load) == loadtype and load.opercase == opercase):
-                        feg += load.fglobal(element)
-                    else:
-                        pass
-                        # otherwise print a warning
+            for load in element.loads:
+                if load in loadcase:
+                    feg += load.fglobal(element)
+
+                    # modify stiffness matrix for nodal displacement
+                    if isinstance(load, Displacement):
+                        kforc = load.kglobal(element)
+
+                        Ks[niqi:niqj, niqi:niqj] += kforc[:6, :6]
+                        Ks[njqi:njqj, njqi:njqj] += kforc[6:12, 6:12]
+                else:
+                    # otherwise print a warning
+                    pass
             # assemble global system force matrix per loadcase
             Fs[niqi:niqj, 0] += feg[:6, 0]
             Fs[njqi:njqj, 0] += feg[6:12, 0]
@@ -533,8 +540,8 @@ def static(model):
                 raise np.linagl.LinAlgError("a solver error occured, ",
                                             "check model for errors.")
 
-        # initially all supports are assumed linear
-        # directional, have gap and/or friction is nonlinear
+        # all supports are initially assumed linear - directional, gap and/or
+        # friction is nonlinear
         nonlinear = {support: "active" for support in model.supports
                      if isinstance(support, RigidSupport)
                      and support.has_gap}   # partial nonlinear support
@@ -563,7 +570,7 @@ def static(model):
                     # calculated support reactions for non-linear supports
                     if isinstance(support, Inclined):
                         csup = support.cglobal(element)     # stiffness
-                        dsup = support.dglobal(element)     # displacement
+                        dsup = support.dglobal(element, loadcase)   # displacement
                         B1, B2, B3 = support.dircos
                         B = np.array([[B1, B2, B3]], dtype=np.float64)
                         B2 = np.append(B, B)
@@ -576,7 +583,7 @@ def static(model):
                                                 dsup[6:12, 0]))
                     else:
                         csup = support.cglobal(element)     # stiffness
-                        dsup = support.dglobal(element)     # displacement
+                        dsup = support.dglobal(element, loadcase)   # displacement
 
                         R[niqi:niqj, 0] += (-csup[:6, 0] *
                                             (Xs[niqi:niqj, 0] - dsup[:6, 0]))
@@ -587,7 +594,8 @@ def static(model):
                     suppsign = support.direction    # may be +, -
                     suppdir = np.array(support.dircos, dtype=np.float64)
 
-                    # the default dircos also stands for a "+" sense support
+                    # the default dircos also stands for full and "+" sense
+                    # support
                     if suppsign == "-":
                         suppdir *= -1   # negate for "-" sense
 
@@ -606,12 +614,14 @@ def static(model):
                             reac = -R[njqi:njqj, 0][3:6]
                             disp = Xs[njqi:njqj, 0][3:6]
                     # component in support direction
-                    reacmag = np.dot(reac, suppdir)
-                    dispmag = np.dot(disp, suppdir)
+                    reac = np.dot(reac, suppdir)
+                    disp = np.dot(disp, suppdir)
+
+                    # TODO: gaps, warning not converge, set np.nan for output
 
                     # check support reaction
                     if nonlinear[support] == "active":
-                        if reacmag < 0:
+                        if reac < 0:
                             nonlinear[support] = "active"
                             converge_status[i] = True
                         else:
@@ -624,13 +634,13 @@ def static(model):
                             Ks[njqi:njqj, njqi:njqj] -= ksup[6:12, 6:12]  # 4th
 
                             csup = support.cglobal(element)
-                            dsup = support.dglobal(element)
+                            dsup = support.dglobal(element, loadcase)
                             Fs[niqi:niqj, 0] -= (csup[:6, 0] * dsup[:6, 0])
                             Fs[njqi:njqj, 0] -= (csup[6:12, 0] * dsup[6:12, 0])
 
                     # check support displacement
                     elif nonlinear[support] == "inactive":
-                        if dispmag > 0:
+                        if disp >= 0:
                             nonlinear[support] = "inactive"
                             converge_status[i] = True
                         else:
@@ -643,7 +653,7 @@ def static(model):
                             Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]  # 4th
 
                             csup = support.cglobal(element)
-                            dsup = support.dglobal(element)
+                            dsup = support.dglobal(element, loadcase)
                             Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
                             Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
 
@@ -678,7 +688,7 @@ def static(model):
                 if support not in nonlinear or nonlinear[support] == "active":
                     if isinstance(support, Inclined):
                         csup = support.cglobal(element)     # stiffness
-                        dsup = support.dglobal(element)     # displacement
+                        dsup = support.dglobal(element, loadcase)   # displacement
                         B1, B2, B3 = support.dircos
                         B = np.array([[B1, B2, B3]], dtype=np.float64)
                         B2 = np.append(B, B)
@@ -691,7 +701,7 @@ def static(model):
                                                 dsup[6:12, 0]))
                     else:
                         csup = support.cglobal(element)     # stiffness
-                        dsup = support.dglobal(element)     # displacement
+                        dsup = support.dglobal(element, loadcase)   # displacement
 
                         R[niqi:niqj, 0] += (-csup[:6, 0] *
                                             (Xs[niqi:niqj, 0] - dsup[:6, 0]))

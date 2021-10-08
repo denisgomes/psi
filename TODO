@@ -12,6 +12,12 @@ Supports
 *Refactor support.py, change GlobalX to X, etc
 *Implement spring supports and refactor supports.py
 *Update support apply method
+*Implement fglobal for supports.
+*Implement support displacement.
+*Fix LineStop and Guide Supports directions. Support direction cosine, function
+or property?
+*Should supports have element reference?
+*Guide support should be pointed in the vertical direction.
 
 Elements
 --------
@@ -24,8 +30,8 @@ Loads
 -----
 *Fix thermal load internal force reaction report, should be 0 if not restrained
 axially
-*Distinguish betweeen Nodal displacement (loads.Displacement) and support
-movement (supports.Movement)
+*Distinguish betweeen Nodal displacement (loads.Displacement). Be able to
+apply a displacement to a support.
 
 Loadcase
 --------
@@ -35,6 +41,11 @@ Settings
 --------
 *Implement axial force setting
 *Implement stress case corroded setting
+
+Solver
+------
+1. Implement support prescribed displacement for nonlinear suppports.
+2. Refactor with fglobal for supports.
 
 Tests
 -----
