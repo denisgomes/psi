@@ -242,7 +242,7 @@ class RigidSupport(Support):    # Abstract Base Class
     -X, -Y, -Z, -RX, -RY, -RZ - support for gaps
     -x, -Y, -Z - support for friction
 
-    (+/-) SNB - linear support
+    SNB - linear support
     """
 
     def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
@@ -297,8 +297,10 @@ class RigidSupport(Support):    # Abstract Base Class
 
     @is_rotational.setter
     def is_rotational(self, value):
+        assert isinstance(value, bool), "must be boolean"
+
+        self.is_rotational = value
         if value is True:
-            self._is_rotational = True
             self._is_snubber = False
             self.mu = 0.0
 
@@ -308,15 +310,18 @@ class RigidSupport(Support):    # Abstract Base Class
 
     @is_snubber.setter
     def is_snubber(self, value):
+        assert isinstance(value, bool), "must be boolean"
+
+        self._is_snubber = value
         if value is True:
-            self._is_snubber = True
             self._is_rotational = False
+            self.direction = None
             self.mu = 0.0
             self.gap = 0.0
 
     @property
     def is_nonlinear(self):
-        return self.has_friction or self.has_gap or not self.is_snubber
+        return (self.has_friction or self.has_gap) and not self.is_snubber
 
     @property
     def has_friction(self):
@@ -506,19 +511,14 @@ class LineStop(RigidSupport):
     used for rack piping with expansion loops.
     """
 
-    _dircos = None
-
     @property
     def dircos(self):
-        return self._dircos
-
-    def apply(self, element):
-        super(LineStop, self).apply(element)
-
         # dircos depends on element direction
         r = (np.array(self.element.to_point.xyz, dtype=np.float64) -
              np.array(self.element.from_point.xyz, dtype=np.float64))
-        self._dircos = tuple(r / np.linalg.norm(r))
+        dc = tuple(r / np.linalg.norm(r))
+
+        return dc
 
     def clocal(self, element):
         """The local element x direction is the inline/axial direction"""
@@ -550,16 +550,24 @@ class LineStop(RigidSupport):
 class Guide(RigidSupport):
     """Support perpendicular to the pipe run direction.
 
-    An exceptional case is a guided riser support which restricts movement in
-    the horizontal plane.
+    The support direction can be toggled between the two local element lateral
+    directions of the pipe.
+
+    .. note::
+        If a pipe is horizontal, there is only one lateral direction. Any other
+        configuration will result in two lateral directions (perpendicular to
+        the pipe run direction), including for skewed piping.
     """
 
     _dir1 = True
-    _dircos1 = None
-    _dircos2 = None
 
-    @property
-    def toggle(self):
+    def flip(self):
+        """Select alternate support lateral direction.
+
+        .. note::
+            This method does not affect the support direction for a support on
+            horizontal piping.
+        """
         if self._dir1:
             self._dir1 = False
         else:
@@ -567,41 +575,63 @@ class Guide(RigidSupport):
 
     @property
     def dircos(self):
+        vert = self.app.models.active_object.settings.vertical
+        dc = self.element.dircos()
+
+        dc1 = tuple(dc[1, :])
+        dc2 = tuple(dc[2, :])
+
+        local_x = dc[0, :]
+        if vert == "y":
+            up = np.array([[0], [1], [0]], dtype=np.float32)
+
+            if np.dot(local_x, up) == 0:
+                dc1 = dc2 = tuple(dc[2, :])
+
+        elif vert == "z":
+            up = np.array([[0], [0], [1]], dtype=np.float32)
+
+            if np.dot(local_x, up) == 0:
+                dc1 = dc2 = tuple(dc[1, :])
+
         if self._dir1:
-            return self._dircos1
+            return dc1
         else:
-            return self._dircos2
-
-    def apply(self, element):
-        super(Guide, self).apply(element)
-
-        dc = self.element.dircos()  # element dircos
-        self._dircos1 = tuple(dc[:, 1])
-        self._dircos2 = tuple(dc[:, 2])
+            return dc2
 
     def clocal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)
 
         if self.is_rotational is False:
             if self.point == element.from_point.name:
-                if self._dir1:
+                if element.is_horizontal:
+                    # element local y is always aligned with global y
+                    # for horizontal elements, thus lateral in local z
+                    c[2, 0] = self.translation_stiffness
+                elif self._dir1:
                     c[1, 0] = self.translation_stiffness
                 else:
                     c[2, 0] = self.translation_stiffness
             elif self.point == element.to_point.name:
-                if self._dir1:
+                if element.is_horizontal:
+                    c[8, 0] = self.translation_stiffness
+                elif self._dir1:
                     c[7, 0] = self.translation_stiffness
                 else:
                     c[8, 0] = self.translation_stiffness
 
         else:
             if self.point == element.from_point.name:
-                if self._dir1:
+                if element.is_horizontal:
+                    c[5, 0] = self.rotation_stiffness
+                elif self._dir1:
                     c[4, 0] = self.rotation_stiffness
                 else:
                     c[5, 0] = self.rotation_stiffness
             elif self.point == element.to_point.name:
-                if self._dir1:
+                if element.is_horizontal:
+                    c[11, 0] = self.rotation_stiffness
+                elif self._dir1:
                     c[10, 0] = self.rotation_stiffness
                 else:
                     c[11, 0] = self.rotation_stiffness

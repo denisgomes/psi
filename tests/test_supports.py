@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, X, Y, Z, LineStop, Inclined
+from psi.supports import Anchor, X, Y, Z, LineStop, Inclined, Guide
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
@@ -195,6 +195,47 @@ def test_linestop(app):
     assert compare(L1.reactions[pt20].fx, 1002348.1)
 
 
+def test_guide(app):
+    # get pipe objects
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+    run15 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    gblx10 = X('GblX10', 10)
+    gblx10.apply([run15])
+
+    gbly10 = Y('GblY10', 10)
+    gbly10.apply([run15])
+
+    gblz10 = Z('GblZ10', 10)
+    gblz10.apply([run15])
+
+    gblrotx10 = X('GblRotX10', 10, is_rotational=True)
+    gblrotx10.apply([run15])
+
+    guide20 = Guide('guide20', 20)
+    guide20.apply([run20])
+    guide20.flip()  # not required for horizontal elements
+
+    # loads
+    T1 = Thermal('T1', 1, 500, 70)
+    T1.apply([run15, run20])
+
+    F1 = Force('F1', 1, 15, fz=-10000)
+    F1.apply([run15])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Thermal, Force], [1, 1])
+
+    app.models('simple').analyze()
+
+    assert compare(L1.reactions[pt20].fx, 0)
+    assert compare(L1.reactions[pt20].fy, 0)
+    assert compare(L1.reactions[pt20].fz, -5000)
+
+
 def test_plus_y_negative_load(app):
     """Simply supported beam with central concentrated force and a nonlinear
     +Y support.
@@ -280,6 +321,55 @@ def test_plus_y_positive_load(app):
     # check reactions due to fy
     assert compare(L1.reactions[pt10][1], 10000)
     assert compare(L1.reactions[pt20][1], 0)
+
+
+def test_minus_y_positive_load(app):
+    """Simply supported beam with central concentrated force and a nonlinear
+    -Y support.
+    """
+
+    # get pipe objects
+    pt10 = app.points(10)
+    pt15 = app.points(15)
+    pt20 = app.points(20)
+
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    gblx10 = X('GblX10', 10)
+    gblx10.apply([run10])
+
+    gbly10 = Y('GblY10', 10)
+    gbly10.apply([run10])
+
+    gblz10 = Z('GblZ10', 10)
+    gblz10.apply([run10])
+
+    # constrain torsion
+    gblrotx10 = X('GblRotX10', 10, is_rotational=True)
+    gblrotx10.apply([run10])
+
+    # nonlinear -Y
+    gbly20 = Y('GblY20', 20, direction="-")
+    gbly20.apply([run20])
+
+    gblz20 = Z('GblZ20', 20)
+    gblz20.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 15, fy=10000)
+    F1.apply([run10])
+
+    # loadcase
+    L1 = LoadCase('L1', 'ope', [Force], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt10][1], 5000)
+    assert compare(L1.reactions[pt20][1], 5000)
+    assert compare(L1.movements[pt20][1], 0)
 
 
 def test_minus_y_negative_load(app):

@@ -437,6 +437,10 @@ def static(model):
     points = list(model.points)
     nn = len(model.points)
 
+    # for unsolvable loadcases
+    nan = np.empty((nn*ndof, 1))
+    nan[:, 0] = np.nan
+
     # iterate each primary loadcase
     loadcases = [lc for lc in model.loadcases if isinstance(lc, LoadCase)]
 
@@ -452,7 +456,6 @@ def static(model):
         # solution matrices for primary load cases
         R = np.zeros((nn*ndof, 1), dtype=np.float64)    # reactions
         Fi = np.zeros((nn*ndof, 1), dtype=np.float64)   # internal forces
-        S = np.zeros((nn, 10), dtype=np.float64)        # stresses
 
         # pre-processing elements
         for element in model.elements:
@@ -531,8 +534,13 @@ def static(model):
             Ks[di] += weak_spring_arr
 
         try:
+            # all supports are initially assumed linear
             Xs = np.linalg.solve(Ks, Fs)
         except np.linalg.LinAlgError:
+            loadcase.movements.results = nan
+            loadcase.reactions.results = nan
+            loadcase.forces.results = nan
+
             if not model.settings.weak_springs:
                 raise np.linalg.LinAlgError("a solver error occured, ",
                                             "try turning on weak springs.")
@@ -540,18 +548,17 @@ def static(model):
                 raise np.linagl.LinAlgError("a solver error occured, ",
                                             "check model for errors.")
 
-        # all supports are initially assumed linear - directional, gap and/or
-        # friction is nonlinear
+        # one directional (i.e. gaps) and/or friction is nonlinear
         nonlinear = {support: "active" for support in model.supports
                      if isinstance(support, RigidSupport)
-                     and support.has_gap}   # partial nonlinear support
+                     and support.is_nonlinear}  # only handles gaps
         if nonlinear:
             converge_status = [False] * len(nonlinear)
 
             # stiffness matrix and force vector modified at nodes with supports
             t = trange(model.settings.nonlinear_iteration)
             for _ in t:
-                t.set_description("Iterating %s..." % loadcase.name)
+                t.set_description("Iterating loadcase %s..." % loadcase.name)
                 t.refresh()
 
                 # iterate non-linear supports to determine final state
@@ -567,9 +574,9 @@ def static(model):
                     niqi, niqj = idxi*ndof, idxi*ndof + ndof
                     njqi, njqj = idxj*ndof, idxj*ndof + ndof
 
-                    # calculated support reactions for non-linear supports
+                    # calculate support reactions for non-linear supports
                     if isinstance(support, Inclined):
-                        csup = support.cglobal(element)     # stiffness
+                        csup = support.cglobal(element)             # stiffness
                         dsup = support.dglobal(element, loadcase)   # displacement
                         B1, B2, B3 = support.dircos
                         B = np.array([[B1, B2, B3]], dtype=np.float64)
@@ -582,7 +589,7 @@ def static(model):
                                             ((Xs[njqi:njqj, 0].dot(B2)) -
                                                 dsup[6:12, 0]))
                     else:
-                        csup = support.cglobal(element)     # stiffness
+                        csup = support.cglobal(element)             # stiffness
                         dsup = support.dglobal(element, loadcase)   # displacement
 
                         R[niqi:niqj, 0] += (-csup[:6, 0] *
@@ -590,38 +597,56 @@ def static(model):
                         R[njqi:njqj, 0] += (-csup[6:12, 0] *
                                             (Xs[njqi:njqj, 0] - dsup[6:12, 0]))
 
-                    # extract reaction and displacement
-                    suppsign = support.direction    # may be +, -
+                    # support can be "+/-", "+", or "-"
+                    # note that a dircos always point in the positive direction
+                    # the solver is linear, assumes bi-directional supports,
+                    # i.e. restricts movement in both directions
+
+                    suppsign = support.direction    # may be +, - or None
                     suppdir = np.array(support.dircos, dtype=np.float64)
 
-                    # the default dircos also stands for full and "+" sense
-                    # support
-                    if suppsign == "-":
-                        suppdir *= -1   # negate for "-" sense
-
+                    # extract reaction, displacement and set gap
+                    gsup = np.zeros((12, 1), dtype=np.float64)
+                    gapvec = support.gap * np.array(support.dircos,
+                                                    dtype=np.float64)
                     if support.point == element.from_point.name:
                         if support.is_rotational is False:
                             reac = -R[niqi:niqj, 0][:3]
                             disp = Xs[niqi:niqj, 0][:3]
+                            gsup[:3, 0] = gapvec
                         else:
                             reac = -R[niqi:niqj, 0][3:6]
                             disp = Xs[niqi:niqj, 0][3:6]
+                            gsup[3:6, 0] = gapvec
                     elif support.point == element.to_point.name:
                         if support.is_rotational is False:
                             reac = -R[njqi:njqj, 0][:3]
                             disp = Xs[njqi:njqj, 0][:3]
+                            gsup[6:9, 0] = gapvec
                         else:
                             reac = -R[njqi:njqj, 0][3:6]
                             disp = Xs[njqi:njqj, 0][3:6]
+                            gsup[9:12, 0] = gapvec
+
                     # component in support direction
                     reac = np.dot(reac, suppdir)
                     disp = np.dot(disp, suppdir)
+                    gap = np.dot(gapvec, suppdir)
 
-                    # TODO: gaps, warning not converge, set np.nan for output
+                    if suppsign is None:
+                        # bi-directional supports components always against
+                        # support direction
+                        reac = -abs(reac)
+                        disp = -abs(disp)
+                        gap = abs(gap)
+                    elif suppsign == "-":
+                        reac *= -1
+                        disp *= -1
+                        gap *= -1
 
-                    # check support reaction
+                    # check support reaction in support direction
                     if nonlinear[support] == "active":
-                        if reac < 0:
+                        if reac < 0 and support.gap == 0:
                             nonlinear[support] = "active"
                             converge_status[i] = True
                         else:
@@ -634,11 +659,12 @@ def static(model):
                             Ks[njqi:njqj, njqi:njqj] -= ksup[6:12, 6:12]  # 4th
 
                             csup = support.cglobal(element)
-                            dsup = support.dglobal(element, loadcase)
+                            dsup = support.dglobal(element, loadcase) + gsup
+
                             Fs[niqi:niqj, 0] -= (csup[:6, 0] * dsup[:6, 0])
                             Fs[njqi:njqj, 0] -= (csup[6:12, 0] * dsup[6:12, 0])
 
-                    # check support displacement
+                    # check support displacement in support direction
                     elif nonlinear[support] == "inactive":
                         if disp >= 0:
                             nonlinear[support] = "inactive"
@@ -653,7 +679,8 @@ def static(model):
                             Ks[njqi:njqj, njqi:njqj] += ksup[6:12, 6:12]  # 4th
 
                             csup = support.cglobal(element)
-                            dsup = support.dglobal(element, loadcase)
+                            dsup = support.dglobal(element, loadcase) + gsup
+
                             Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
                             Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
 
@@ -664,9 +691,17 @@ def static(model):
                     R[:, 0] = 0                     # R cleared
                     Xs = np.linalg.solve(Ks, Fs)    # Ks and Fs modified
                 except np.linalg.LinAlgError:
+                    loadcase.movements.results = nan
+                    loadcase.reactions.results = nan
+                    loadcase.forces.results = nan
+
                     raise np.linagl.LinAlgError("a solver error occured, ",
                                                 "check model for errors.")
             else:
+                loadcase.movements.results = nan
+                loadcase.reactions.results = nan
+                loadcase.forces.results = nan
+
                 tqdm.info("    --> Loadcase %s failed to converge." % loadcase.name)
 
         tqdm.info("    --> Post processing elements...")
@@ -736,6 +771,8 @@ def static(model):
     model.app.units.enable()
 
     tqdm.info("*** Performing element code checking.")
+
+    S = np.zeros((nn, 10), dtype=np.float64)        # stresses
     for i, loadcase in enumerate(loadcases):
         C = []  # code used at each node
         for element in model.elements:

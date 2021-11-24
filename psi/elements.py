@@ -232,12 +232,9 @@ class Element(Entity):
         a = (np.array(self.to_point.xyz, dtype=np.float64) -
              np.array(self.from_point.xyz, dtype=np.float64))
         b = np.array(vector, dtype=np.float64)
-        # c = np.cross(a, b)  # normal of plane
 
-        # angle element makes with vertical
+        # angle element makes with vector
         theta = arccos(a.dot(b) / (np.linalg.norm(a)*np.linalg.norm(b)))
-
-        # theta = arctan(np.cross(a, b).dot(c) / a.dot(b))
 
         sint = sin(theta)
         cost = cos(theta)
@@ -552,6 +549,24 @@ class Run(Piping):
             return True
         except AssertionError:
             return False
+
+    @property
+    def is_horizontal(self):
+        up = self.app.models.active_object.settings.vertical
+
+        from_vert = np.array(self.geometry.v1.co)
+        to_vert = np.array(self.geometry.v2.co)
+        local_x = to_vert - from_vert
+
+        if up == "y":
+            vertical = np.array([0., 1., 0.], dtype=np.float64)
+        elif up == "z":
+            vertical = np.array([0., 0., 1.], dtype=np.float64)
+
+        if np.dot(local_x, vertical) == 0:
+            return True
+
+        return False
 
     def T(self):
         """Local to global transformation matrix"""
