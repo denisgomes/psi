@@ -141,8 +141,8 @@ class App(object):
                 "Y": self.supports.Y,
                 "Z": self.supports.Z,
                 "Spring": self.supports.Spring,
-                "LineStop": self.supports.LineStop,
-                "Guide": self.supports.Guide,
+                "LimitStop": self.supports.LimitStop,
+                "Lateral": self.supports.Lateral,
                 # "Displacement": self.supports.Displacement,
 
                 # codes

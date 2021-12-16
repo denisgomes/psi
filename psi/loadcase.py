@@ -691,8 +691,10 @@ class LoadComb(BaseCase):
                   algebraic method. Stresses are added together.
                 * SRSS - Square root of the sum squared. Direction independant.
                 * Abs - Absolute summation.
-                * Signmax - Signed max.
-                * Signmin - Signed min.
+                * Max - Largest value. Sign tacked on after taking abs.
+                * Min - Smallest value. Sign tacked on after taking abs.
+                * Signmax - Signed max. Sign accounted for.
+                * Signmin - Signed min. Sign accounted for.
 
         loadcases : list of loadcases.
             List of load cases.
@@ -731,6 +733,20 @@ class LoadComb(BaseCase):
     def factors(self):
         return tuple(self._factors)
 
+    @staticmethod
+    def maxfunc(a, b):
+        """Return the element with the largest value not accounting for
+        sign.
+        """
+        return a if abs(a) > abs(b) else b
+
+    @staticmethod
+    def minfunc(a, b):
+        """Return the element with the smallest value not accounting for
+        sign.
+        """
+        return a if abs(a) < abs(b) else b
+
     @property
     def movements(self):
         """Return the combined nodal displacement array."""
@@ -745,13 +761,22 @@ class LoadComb(BaseCase):
                 self._movements.results += (factor * loadcase.movements.results)**2
             elif self._method == "abs":
                 self._movements.results += (factor * np.abs(loadcase.movements.results))
+            elif self._method == "max":
+                # overwrite every time through the loop
+                self._movements.results = np.array(map(LoadComb.maxfunc,
+                                                       self._movements.results,
+                                                       factor * loadcase.movements.results))
+            elif self._method == "min":
+                self._movements.results = np.array(map(LoadComb.minfunc,
+                                                       self._movements.results,
+                                                       factor * loadcase.movements.results))
             elif self._method == "signmax":
                 # overwrite every time through the loop
                 self._movements.results = np.maximum(self._movements.results,
-                                                     loadcase.movements.results)
+                                                     factor * loadcase.movements.results)
             elif self._method == "signmin":
                 self._movements.results = np.minimum(self._movements.results,
-                                                     loadcase.movements.results)
+                                                     factor * loadcase.movements.results)
 
         if self._method == "srss":
             # this should be done once
@@ -773,13 +798,22 @@ class LoadComb(BaseCase):
                 self._reactions.results += (factor * loadcase.reactions.results)**2
             elif self._method == "abs":
                 self._reactions.results += (factor * np.abs(loadcase.reactions.results))
+            elif self._method == "max":
+                # overwrite every time through the loop
+                self._reactions.results = np.array(map(LoadComb.maxfunc,
+                                                       self._reactions.results,
+                                                       factor * loadcase.reactions.results))
+            elif self._method == "min":
+                self._reactions.results = np.array(map(LoadComb.minfunc,
+                                                       self._reactions.results,
+                                                       factor * loadcase.reactions.results))
             elif self._method == "signmax":
                 # overwrite every time through the loop
                 self._reactions.results = np.maximum(self._reactions.results,
-                                                     loadcase.movements.results)
+                                                     factor * loadcase.movements.results)
             elif self._method == "signmin":
                 self._reactions.results = np.minimum(self._reactions.results,
-                                                     loadcase.movements.results)
+                                                     factor * loadcase.movements.results)
 
         if self._method == "srss":
             self._reactions.results = np.sqrt(self._reactions.results)
@@ -800,13 +834,22 @@ class LoadComb(BaseCase):
                 self._forces.results += (factor * loadcase.forces.results)**2
             elif self._method == "abs":
                 self._forces.results += (factor * np.abs(loadcase.forces.results))
+            elif self._method == "max":
+                # overwrite every time through the loop
+                self._forces.results = np.array(map(LoadComb.maxfunc,
+                                                    self._forces.results,
+                                                    factor * loadcase.forces.results))
+            elif self._method == "min":
+                self._forces.results = np.array(map(LoadComb.minfunc,
+                                                    self._forces.results,
+                                                    factor * loadcase.forces.results))
             elif self._method == "signmax":
                 # overwrite every time through the loop
                 self._forces.results = np.maximum(self._forces.results,
-                                                  loadcase.movements.results)
+                                                  factor * loadcase.movements.results)
             elif self._method == "signmin":
                 self._forces.results = np.minimum(self._forces.results,
-                                                  loadcase.movements.results)
+                                                  factor * loadcase.movements.results)
 
         if self._method == "srss":
             self._forces.results = np.sqrt(self._forces.results)

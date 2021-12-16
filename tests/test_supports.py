@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes import B311
-from psi.supports import Anchor, X, Y, Z, LineStop, Inclined, Guide
+from psi.supports import Anchor, X, Y, Z, LimitStop, Inclined, Lateral
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
@@ -143,7 +143,7 @@ def test_incline(app):
     anc10 = Anchor('anc10', 10)
     anc10.apply([run15])
 
-    y20 = Inclined('y20', 20, dircos=(-0.7071, 0.7071, 0))
+    y20 = Inclined('y20', 20, (-0.7071, 0.7071, 0))
     y20.apply([run20])
 
     # loads
@@ -167,7 +167,7 @@ def test_incline(app):
     assert compare(L1.reactions[pt20].fy, -3295.48)
 
 
-def test_linestop(app):
+def test_limitstop(app):
     """Limit stop test"""
 
     # get pipe objects
@@ -179,7 +179,7 @@ def test_linestop(app):
     anc10 = Anchor('anc10', 10)
     anc10.apply([run15])
 
-    lim20 = LineStop('lim20', 20)
+    lim20 = LimitStop('lim20', 20)
     lim20.apply([run20])
 
     # loads
@@ -215,7 +215,7 @@ def test_guide(app):
     gblrotx10 = X('GblRotX10', 10, is_rotational=True)
     gblrotx10.apply([run15])
 
-    guide20 = Guide('guide20', 20)
+    guide20 = Lateral('guide20', 20)
     guide20.apply([run20])
     guide20.flip()  # not required for horizontal elements
 

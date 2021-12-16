@@ -921,9 +921,11 @@ class Reducer(Run):
     the end user and do not live in the model points or elements list.
     """
 
-    def __init__(self, point, dx, dy=0, dz=0, section2=None, from_point=None,
-                 section=None, material=None, insulation=None, code=None):
+    def __init__(self, point, dx, dy=0, dz=0, section2=None, is_concentric=True,
+                 from_point=None, section=None, material=None, insulation=None,
+                 code=None):
         self.section2 = section2
+        self.is_concentric = is_concentric
         self._runs = []             # internal run approximations
         self._sections = []         # internal section approximations
 
@@ -1052,6 +1054,16 @@ class Reducer(Run):
         """
         for run in self.runs:
             yield run.klocal(temp, sfac)
+
+    @property
+    def alpha(self):
+        # sloped portion assumed 60% of length
+        D1 = self.section.od
+        D2 = self.section2.od
+        L = 0.6 * self.length
+
+        alp = math.degrees(atan(0.5*(D1-D2)/L))
+        return alp
 
 
 @units.define(weight="force")

@@ -38,7 +38,7 @@ stiffness matrix has shown to produce good results based on textbook examples.
 Reasonable default values for translation and rotation stiffness are specified
 for each support. The user can change the default values via model settings.
 
-X, Y and Z supports are inherited from RigidSupport and can take several
+X, Y and Z supports are inherited from AbstractSupport and can take several
 different forms. They can be snubbers (only active in occasional load cases),
 single or bi-directional, translational or rotational and/or define friction
 and gaps.
@@ -213,25 +213,23 @@ class Anchor(Support):
         return c
 
 
-@units.define(gap="length")
-class RigidSupport(Support):    # Abstract Base Class
+@units.define(_gap="length")
+class AbstractSupport(Support):    # Abstract Base Class
     """A generic rigid support with different configurations.
 
-        1. Translational or rotational (X, Y, Z, RX, RY, RZ)
-        2. Single of double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
-        3. Gap and friction,
-        4. Snubber (+/-) (XSNB, YSNB, ZSNB).
+    1. Translational or rotational (X, Y, Z, RX, RY, RZ)
+    2. Single of double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
+    3. Gap and friction,
+    4. Snubber (+/-) (XSNB, YSNB, ZSNB).
 
     The default support is a rigid double-acting translational support with no
     friction or gap, in other words a linear support.
 
     .. note::
-
         Snubbers are translational linear supports, so gaps and friction are
         not valid. They are active only for occasional cases.
 
     .. note::
-
         Rotational supports do not have friction.
 
     X, Y, Z - support for friction
@@ -242,11 +240,10 @@ class RigidSupport(Support):    # Abstract Base Class
     -X, -Y, -Z, -RX, -RY, -RZ - support for gaps
     -x, -Y, -Z - support for friction
 
-    SNB - linear support
+    SNB - translational linear support
     """
 
-    def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
-                 is_rotational=False, is_snubber=False):
+    def __init__(self, name, point, direction=None, is_rotational=False):
         """Create a support instance at a node point.
 
         Parameters
@@ -279,17 +276,39 @@ class RigidSupport(Support):    # Abstract Base Class
         gap : float
             Support gap (non-linear).
         """
-        super(RigidSupport, self).__init__(name, point)
+        super(AbstractSupport, self).__init__(name, point)
         self.direction = direction
-        self.mu = mu
-        self._is_rotational = is_rotational
-        self._is_snubber = is_snubber
+        self.is_rotational = is_rotational
+        self._mu = 0
+        self._gap = 0
+        self._is_snubber = False
 
         model = self.app.models.active_object
         with units.Units(user_units=DEFAULT_UNITS):
             self.translation_stiffness = model.settings.translation_stiffness
             self.rotation_stiffness = model.settings.rotation_stiffness
-            self.gap = gap
+
+    @property
+    def mu(self):
+        return self._mu
+
+    @mu.setter
+    def mu(self, value):
+        if self._is_rotational or self._is_snubber:
+            raise ValueError("cannot set friction")
+
+        self._mu = value
+
+    @property
+    def gap(self):
+        return self._gap
+
+    @gap.setter
+    def gap(self, value):
+        if self._is_snubber:
+            raise ValueError("cannot set gap")
+
+        self._gap = value
 
     @property
     def is_rotational(self):
@@ -297,12 +316,12 @@ class RigidSupport(Support):    # Abstract Base Class
 
     @is_rotational.setter
     def is_rotational(self, value):
-        assert isinstance(value, bool), "must be boolean"
+        assert isinstance(value, bool), "value must be boolean"
 
-        self.is_rotational = value
+        self._is_rotational = value
         if value is True:
             self._is_snubber = False
-            self.mu = 0.0
+            self._mu = 0.0
 
     @property
     def is_snubber(self):
@@ -310,18 +329,17 @@ class RigidSupport(Support):    # Abstract Base Class
 
     @is_snubber.setter
     def is_snubber(self, value):
-        assert isinstance(value, bool), "must be boolean"
+        assert isinstance(value, bool), "value must be boolean"
 
         self._is_snubber = value
         if value is True:
             self._is_rotational = False
-            self.direction = None
-            self.mu = 0.0
-            self.gap = 0.0
+            self._mu = 0.0
+            self._gap = 0.0
 
     @property
     def is_nonlinear(self):
-        return (self.has_friction or self.has_gap) and not self.is_snubber
+        return self.has_friction or self.has_gap
 
     @property
     def has_friction(self):
@@ -336,16 +354,16 @@ class RigidSupport(Support):    # Abstract Base Class
         supdir = self.direction if self.direction else ""
 
         if self.is_snubber:
-            _type = supdir + super(RigidSupport, self).type + "SNB"
+            _type = supdir + super(AbstractSupport, self).type + "SNB"
         elif self.is_rotational:
-            _type = supdir + "R" + super(RigidSupport, self).type
+            _type = supdir + "R" + super(AbstractSupport, self).type
         else:
-            _type = super(RigidSupport, self).type
+            _type = super(AbstractSupport, self).type
 
         return _type
 
 
-class Inclined(RigidSupport):
+class Inclined(AbstractSupport):
     """A skewed roller support not aligned with a global axis.
 
     Parameters
@@ -358,11 +376,9 @@ class Inclined(RigidSupport):
             The support direction gives the sense of the support, "+" or "-".
     """
 
-    def __init__(self, name, point, direction=None, gap=0.0, mu=0.0,
-                 is_rotational=False, is_snubber=False, dircos=None):
-
-        super(Inclined, self).__init__(name, point, direction, gap, mu,
-                                       is_rotational, is_snubber)
+    def __init__(self, name, point, dircos, direction=None,
+                 is_rotational=False):
+        super(Inclined, self).__init__(name, point, direction, is_rotational)
         self.dircos = dircos
 
     def kglobal(self, element):
@@ -417,11 +433,11 @@ class Inclined(RigidSupport):
         supdir = self.direction if self.direction else ""
 
         if self.is_snubber:
-            _type = supdir + "I" + "SNB"
+            _type = supdir + "INC" + "SNB"
         elif self.is_rotational:
-            _type = supdir + "R" + "I"
+            _type = supdir + "R" + "INC"
         else:
-            _type = "I"
+            _type = "INC"
 
         # add on the dircos
         _type += repr(self.dircos)
@@ -429,7 +445,7 @@ class Inclined(RigidSupport):
         return _type
 
 
-class X(RigidSupport):
+class X(AbstractSupport):
     """Support aligned with the global x direction."""
 
     @property
@@ -454,7 +470,7 @@ class X(RigidSupport):
         return c
 
 
-class Y(RigidSupport):
+class Y(AbstractSupport):
     """Support aligned with the global y direction."""
 
     @property
@@ -479,7 +495,7 @@ class Y(RigidSupport):
         return c
 
 
-class Z(RigidSupport):
+class Z(AbstractSupport):
     """Support aligned with the global z direction."""
 
     @property
@@ -504,10 +520,10 @@ class Z(RigidSupport):
         return c
 
 
-class LineStop(RigidSupport):
+class LimitStop(AbstractSupport):
     """Support aligned with the axial direction of the pipe.
 
-    LineStop supports are used to redirect thermal movement. They are commonly
+    LimitStop supports are used to redirect thermal movement. They are commonly
     used for rack piping with expansion loops.
     """
 
@@ -546,8 +562,20 @@ class LineStop(RigidSupport):
 
         return T.transpose() @ self.clocal(element)
 
+    @property
+    def type(self):
+        supdir = self.direction if self.direction else ""
 
-class Guide(RigidSupport):
+        if self.is_snubber:
+            _type = supdir + "LIM" + "SNB"
+        elif self.is_rotational:
+            _type = supdir + "R" + "LIM"
+        else:
+            _type = "LIM"
+
+        return _type
+
+class Lateral(AbstractSupport):
     """Support perpendicular to the pipe run direction.
 
     The support direction can be toggled between the two local element lateral
@@ -643,6 +671,19 @@ class Guide(RigidSupport):
 
         return T.transpose() @ self.clocal(element)
 
+    @property
+    def type(self):
+        supdir = self.direction if self.direction else ""
+
+        if self.is_snubber:
+            _type = supdir + "LAT" + "SNB"
+        elif self.is_rotational:
+            _type = supdir + "R" + "LAT"
+        else:
+            _type = "LAT"
+
+        return _type
+
 
 @units.define(spring_rate="translation_stiffness", cold_load="force")
 class Spring(Support):
@@ -705,12 +746,10 @@ class SupportContainer(EntityContainer):
         super(SupportContainer, self).__init__()
         self.Anchor = Anchor
         self.Inclined = Inclined
-        self.X = X
-        self.Y = Y
-        self.Z = Z
-        self.LineStop = LineStop
-        self.Guide = Guide
+        self.LimitStop = LimitStop
+        self.Lateral = Lateral
         self.Spring = Spring
+        self.X = X; self.Y = Y; self.Z = Z
 
     def apply(self, supports=[], elements=[]):
         """Apply supports to elements.

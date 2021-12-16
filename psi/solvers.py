@@ -154,7 +154,7 @@ import numpy as np
 from scipy.sparse import linalg as splinalg
 from tqdm import trange
 
-from psi.supports import Inclined, RigidSupport
+from psi.supports import Inclined, AbstractSupport
 from psi.loadcase import LoadCase, LoadComb
 from psi.loads import Displacement
 from psi import units
@@ -550,7 +550,7 @@ def static(model):
 
         # one directional (i.e. gaps) and/or friction is nonlinear
         nonlinear = {support: "active" for support in model.supports
-                     if isinstance(support, RigidSupport)
+                     if isinstance(support, AbstractSupport)
                      and support.is_nonlinear}  # only handles gaps
         if nonlinear:
             converge_status = [False] * len(nonlinear)

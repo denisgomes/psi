@@ -111,24 +111,39 @@ class Code(Entity, ActiveEntityMixin):
             for loadtype, opercase in zip(loadcase.loadtypes,
                                           loadcase.opercases):
                 for load in element.loads:
-                    if isinstance(load, Thermal) and load.opercase == opercase:
+                    if (isinstance(load, Thermal) and
+                            load.opercase == opercase):
                         thermals.append(load)
 
-            thermals.sort(key=lambda x: x.temp, reverse=True)
+            # if length of temperature is greater than one, print warning
+            # message saying multiple thermal loads exist for the same
+            # operating case for the element, then proceed to take the max
+            # worst pressure
 
             try:
-                tload = thermals[0]
-            except IndexError:
-                # thermal load not defined - defaults to ambient
-                tload = None
+                return max(thermals, key=lambda t: t.temp)
+            except ValueError: # empty list
+                return None
 
-            return tload
-
-    def tmax(self, element, loadcases):
-        """Convenience function to get the largest element temperature across
+    def tmax(self, element):
+        """Convenience function to get the largest element temperature from
         all operating cases.
         """
-        raise NotImplementedError("implement")
+        with units.Units(user_units="code_english"):
+            thermals = []
+            for loadcase in element.loadcases:
+
+                for loadtype, opercase in zip(loadcase.loadtypes,
+                                              loadcase.opercases):
+                    for load in element.loads:
+                        if (isinstance(load, Thermal) and
+                                load.opercase == opercase):
+                            thermals.append(load)
+
+            try:
+                return max(thermals, key=lambda t: t.temp)
+            except ValueError:
+                return None
 
     def poper(self, element, loadcase):
         """Convenience function to get the largest element pressure load for a
@@ -141,28 +156,37 @@ class Code(Entity, ActiveEntityMixin):
             for loadtype, opercase in zip(loadcase.loadtypes,
                                           loadcase.opercases):
                 for load in element.loads:
-                    if isinstance(load, Pressure) and load.opercase == opercase:
+                    if (isinstance(load, Pressure) and
+                            load.opercase == opercase):
                         pressures.append(load)
-
-            pressures.sort(key=lambda x: x.pres, reverse=True)
 
             # if length of pressures is greater than one, print warning message
             # saying multiple pressure loads exist for the same operating case
             # for the element, then proceed to take the max worst pressure
 
             try:
-                pload = pressures[0]
-            except IndexError:
-                # pressure load not defined - defaults to 0
-                pload = None
+                return max(pressures, key=lambda p: p.pres)
+            except ValueError:
+                return None
 
-            return pload
-
-    def pmax(self, element, loadcases):
-        """Convenience function to get the largest element pressure across
+    def pmax(self, element):
+        """Convenience function to get the largest element pressure from
         all operating cases.
         """
-        raise NotImplementedError("implement")
+        with units.Units(user_units="code_english"):
+            pressures = []
+            for loadcase in element.loadcases:
+                for loadtype, opercase in zip(loadcase.loadtypes,
+                                            loadcase.opercases):
+                    for load in element.loads:
+                        if (isinstance(load, Pressure) and
+                                load.opercase == opercase):
+                            pressures.append(load)
+
+            try:
+                return max(pressures, key=lambda p: p.pres)
+            except ValueError:
+                return None
 
 
 class B311(Code):
@@ -190,63 +214,112 @@ class B311(Code):
 
     def h(self, element):
         """Flexibility characterisitic for fittings per the code."""
-        if isinstance(element, Bend):
-            # Per Appendix D of 1967 code
-            R1 = element.radius                 # bend radius
-            T = element.section.thk             # nominal thk
-            r2 = (element.section.od - T) / 2   # mean radius
-            h = (T*R1) / r2**2  # flexibility characteristic
+        with units.Units(user_units="code_english"):
+            if isinstance(element, Bend):
+                # Per Appendix D of 1967 code
+                R = element.radius                  # bend radius
+                tn = element.section.thk            # nominal thk
+                r = (element.section.od - T) / 2    # mean radius
+                h = (tn*R) / r**2                   # flexibility characteristic
 
-            # stiffening effect due to flanged ends, note 3
-            if element.flange == 0:
-                c = 1
-            elif element.flange == 1:
-                c = h**(1/6)
-            elif element.flange == 2:
-                c = h**(1/3)
+                # stiffening effect due to flanged ends, note 3
+                if element.flange == 0:
+                    c = 1
+                elif element.flange == 1:
+                    c = h**(1/6)
+                elif element.flange == 2:
+                    c = h**(1/3)
 
-            h = c*h  # corrected h
+                h = c*h  # corrected h
 
-            return h
+                return h
+
+            else:
+                return 1.0
 
     def sifi(self, element):
         """In plane stress intensification factor for fittings. The sif must
         be 1 or greater.
         """
-        if isinstance(element, Run):
-            return 1.0
+        model = self.app.models.active_object
+        section = element.section
+        material = element.material
 
-        elif isinstance(element, Bend):
-            h = self.h(element)
-            sif = 0.9 / h**(2/3)
+        with units.Units(user_units="code_english"):
+            if isinstance(element, Run):
+                return 1.0
 
-            return 1.0 if sif < 1 else sif
+            elif isinstance(element, Bend):
+                R = section.radius          # bend radius
+                tn = section.thk            # nominal thickness
+                r = (section.od - tn) / 2   # mean radius
+                Ec = material.ymod[model.settings.tref]
+                pmax = self.pmax(element)
+                h = self.h(element)
 
-        elif isinstance(element, Reducer):
-            return 1.0
+                ic = 1  # corrected for pressure - note 5
+                if section.is_large_bore and section.is_thin_wall:
+                    ic = 1 + 3.25 * (pmax/Ec) * (r/tn)**(5/2) * (R/r)**(2/3)
 
-        else:
-            # must be 1 at a minimum
-            return 1.0
+                sif = (0.9 / h**(2/3)) / ic
+
+                return 1.0 if sif < 1 else sif
+
+            elif isinstance(element, Reducer):
+                D1 = element.section.od
+                t1 = element.section.thk
+                D2 = element.section2.od
+                t2 = element.section2.thk
+                L = element.length
+                alp = element.alpha
+
+                alpv = True if alp <= 60 else False
+                conc = True if element.is_concentric else False
+                d2t1 = True if element.section.d2t <= 100 else False
+                d2t2 = True if element.section2.d2t <= 100 else False
+
+                if all([alpv, conc, d2t1, d2t2]):
+                    return 0.5 + 0.01*alp*(D2/t2)**(1/2)
+
+                return 2.0
+
+            else:
+                # must be 1 at a minimum
+                return 1.0
 
     sifo = sifi     # out of plane - same value
 
     def kfac(self, element):
         """Code flexibility factor for fittings."""
-        if isinstance(element, Run):
-            return 1.0
+        model = self.app.models.active_object
+        section = element.section
+        material = element.material
 
-        elif isinstance(element, Bend):
-            h = self.h(element)
-            k = 1.65 / h
+        with units.Units(user_units="code_english"):
+            if isinstance(element, Run):
+                return 1.0
 
-            return 1.0 if k < 1 else k
+            elif isinstance(element, Bend):
+                R = section.radius          # bend radius
+                tn = section.thk            # nominal thickness
+                r = (section.od - tn) / 2   # mean radius
+                Ec = material.ymod[model.settings.tref]
+                pmax = self.pmax(element)
+                h = self.h(element)
 
-        elif isinstance(element, Reducer):
-            return 1.0
+                kc = 1  # corrected for pressure - note 5
+                if section.is_large_bore and section.is_thin_wall:
+                    kc = 1 + 6 * (pmax/Ec) * (r/tn)**(7/3) * (R/r)**(1/3)
 
-        else:
-            return 1.0
+                k = (1.65 / h) / kc
+
+                return 1.0 if k < 1 else k
+
+            elif isinstance(element, Reducer):
+                return 1.0
+
+            else:
+                return 1.0
 
     def shoop(self, element, loadcase):
         """Hoop stress due to pressure.
