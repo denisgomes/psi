@@ -33,7 +33,7 @@ to determine the final stress results?
 from __future__ import division
 
 from psi.entity import Entity, EntityContainer
-from psi.codes import B311
+from psi import units
 
 
 class SIF(Entity):
@@ -99,13 +99,11 @@ class Connection(SIF):
         assert self.connection(), "invalid connection point"
 
 
+@units.define(do="length", tn="length", dob="length", rx="length", tc="length")
 class Welding(Intersection):
-    """Welding tees per ASME B16.9"""
+    """Welding tees per ASME B16.9."""
 
-    def __init__(self, element, point):
-        super(Welding, self).__init__(element, point)
-
-    def sif(self, code, do, tn, dob, rx, tc):
+    def __init__(self, element, point, do, tn, dob, rx, tc):
         """
         Parameters
         ----------
@@ -127,35 +125,19 @@ class Welding(Intersection):
         tc : float
             Crotch thickness
         """
-        if isinstance(code, B311) and code.year == "1967":
-            # per mandatory appendix D
-            r = (do-tn) / 2
-
-            if rx >= dob/8 and tc >= 1.5*tn:
-                h = 4.4*tn / r
-            else:
-                h = 3.1*tn / r
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            # must be larger than or equal to 1.0
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Welding, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
+        self.dob = dob
+        self.rx = rx
+        self.tc = tc
 
 
+@units.define(do="length", tn="length")
 class Unreinforced(Intersection):
-    """Unreinforced fabricated tee"""
+    """Unreinforced fabricated tee."""
 
-    def __init__(self, element, point):
-        super(Unreinforced, self).__init__(element, point)
-
-    def sif(self, code, do, tn):
+    def __init__(self, element, point, do, tn):
         """
         Parameters
         ----------
@@ -168,30 +150,16 @@ class Unreinforced(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if isinstance(code, B311) and code.year == "1967":
-            r = (do-tn) / 2
-
-            h = tn / r
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Unreinforced, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
 
 
+@units.define(do="length", tn="length", tr="length")
 class Reinforced(Intersection):
-    """Reinforced fabricated tee"""
+    """Reinforced fabricated tee."""
 
-    def __init__(self, element, point):
-        super(Reinforced, self).__init__(element, point)
-
-    def sif(self, code, do, tn, tr):
+    def __init__(self, element, point, do, tn, tr):
         """
         Parameters
         ----------
@@ -207,33 +175,17 @@ class Reinforced(Intersection):
         tr : float
             Pad thickness
         """
-        if isinstance(code, B311) and code.year == "1967":
-            r = (do-tn) / 2
-
-            if tr > 1.5*tn:
-                h = 4.05*tn / r
-            else:
-                h = (tn+tr/2)**(5/2) / (r*tn**(3/2))
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Reinforced, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
+        self.tr = tr
 
 
+@units.define(do="length", tn="length")
 class Weldolet(Intersection):
-    """Olet fitting with welded outlet branch"""
+    """Olet fitting with welded outlet branch."""
 
-    def __init__(self, element, point):
-        super(Weldolet, self).__init__(element, point)
-
-    def sif(self, code, do, tn):
+    def __init__(self, element, point, do, tn):
         """
         Parameters
         ----------
@@ -246,23 +198,12 @@ class Weldolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if isinstance(code, B311) and code.year == "1967":
-            r = (do-tn) / 2
-
-            h = 3.3*tn / r
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Weldolet, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
 
 
+@units.define(do="length", tn="length")
 class Sockolet(Intersection):
     """Olet fitting with socket welded outlet branch.
 
@@ -277,10 +218,7 @@ class Sockolet(Intersection):
     is too conservative.
     """
 
-    def __init__(self, element, point):
-        super(Sockolet, self).__init__(element, point)
-
-    def sif(self, code, do, tn):
+    def __init__(self, element, point, do, tn):
         """
         Parameters
         ----------
@@ -293,30 +231,16 @@ class Sockolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        if isinstance(code, B311) and code.year == "1967":
-            r = (do-tn) / 2
-
-            h = 3.3*tn / r
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Sockolet, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
 
 
+@units.define(do="length", tn="length", dob="length", rx="length", tc="length")
 class Sweepolet(Intersection):
     """Contoured integrally reinforced insert with butt-welded branch"""
 
-    def __init__(self, element, point):
-        super(Sweepolet, self).__init__(element, point)
-
-    def sif(self, code, do, tn, dob, rx, tc):
+    def __init__(self, element, point, do, tn, dob, rx, tc):
         """
         Parameters
         ----------
@@ -338,24 +262,12 @@ class Sweepolet(Intersection):
         tc : float
             Crotch thickness
         """
-        if isinstance(code, B311) and code.year == "1967":
-            r = (do-tn) / 2
-
-            if rx >= dob/8 and tc >= 1.5*tn:
-                h = 4.4*tn / r
-            else:
-                h = 3.1*tn / r
-
-            # in-plane and out-of-plane sifs are the same
-            # for B31.1 the higher is used
-            sif = 0.9 / h**(2/3)
-
-            if sif < 1.0:
-                sif = 1.0
-
-            sifi = sifo = sif
-
-            return (sifi, sifo)
+        super(Sweepolet, self).__init__(element, point)
+        self.do = do
+        self.tn = tn
+        self.dob = dob
+        self.rx = rx
+        self.tc = tc
 
 
 class ButtWeld(Connection):
@@ -363,10 +275,6 @@ class ButtWeld(Connection):
 
     def __init__(self, element, point):
         super(Welding, self).__init__(element, point)
-
-    def sif(self, code):
-        if isinstance(code, B311) and code.year == "1967":
-            return 1.0
 
 
 class SIFContainer(EntityContainer):

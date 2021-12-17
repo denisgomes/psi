@@ -21,6 +21,8 @@ import math
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
+from psi.sifs import (Welding, Unreinforced, Reinforced, Weldolet, Sockolet,
+                      Sweepolet, Weldolet, ButtWeld)
 from psi.loads import (Weight, Pressure, Thermal)
 from psi import units
 from contextlib import redirect_stdout
@@ -212,50 +214,127 @@ class B311(Code):
         """Title used in report output"""
         return "B31167"
 
-    def h(self, element):
+    def h(self, entity):
         """Flexibility characterisitic for fittings per the code."""
         with units.Units(user_units="code_english"):
-            if isinstance(element, Bend):
+            if isinstance(entity, Bend):
                 # Per Appendix D of 1967 code
-                R = element.radius                  # bend radius
-                tn = element.section.thk            # nominal thk
-                r = (element.section.od - T) / 2    # mean radius
-                h = (tn*R) / r**2                   # flexibility characteristic
+                R = entity.radius                  # bend radius
+                tn = entity.section.thk            # nominal thk
+                r = (entity.section.od - T) / 2    # mean radius
+                h = (tn*R) / r**2                  # flexibility characteristic
 
                 # stiffening effect due to flanged ends, note 3
-                if element.flange == 0:
+                if entity.flange == 0:
                     c = 1
-                elif element.flange == 1:
+                elif entity.flange == 1:
                     c = h**(1/6)
-                elif element.flange == 2:
+                elif entity.flange == 2:
                     c = h**(1/3)
 
                 h = c*h  # corrected h
 
                 return h
 
+            elif isinstance(entity, Reducer):
+                return 1.0
+
+            elif isinstance(entity, Welding):
+                do = entity.do      # header pipe dia
+                dob = entity.dob    # branch pipe dia
+                tn = entity.tn      # nominal header thk
+                rx = entity.rx      # crotch radius
+                tc = entity.tc      # crotch thk
+
+                r = (do-tn) / 2
+
+                if rx >= dob/8 and tc >= 1.5*tn:
+                    h = 4.4*tn / r
+                else:
+                    h = 3.1*tn / r
+
+                return h
+
+            elif isinstance(entity, Unreinforced):
+                do = entity.do      # header pipe dia
+                tn = entity.tn      # nominal header thk
+
+                r = (do-tn) / 2
+                h = tn / r
+
+                return h
+
+            elif isinstance(entity, Reinforced):
+                do = entity.do      # header pipe dia
+                tn = entity.tn      # nominal header thk
+                tr = entity.tr      # pad thk
+
+                r = (do-tn) / 2
+
+                if tr > 1.5*tn:
+                    h = 4.05*tn / r
+                else:
+                    h = (tn+tr/2)**(5/2) / (r*tn**(3/2))
+
+                return h
+
+            elif isinstance(entity, Weldolet):
+                do = entity.do      # header pipe dia
+                tn = entity.tn      # nominal header thk
+
+                r = (do-tn) / 2
+                h = 3.3*tn / r
+
+                return h
+
+            elif isinstance(entity, Sockolet):
+                do = entity.do      # header pipe dia
+                tn = entity.tn      # nominal header thk
+
+                r = (do-tn) / 2
+
+                h = 3.3*tn / r
+
+                return h
+
+            elif isinstance(entity, Sweepolet):
+                do = entity.do      # header pipe dia
+                dob = entity.dob    # branch pipe dia
+                tn = entity.tn      # nominal header thk
+                rx = entity.rx      # crotch radius
+                tc = entity.tc      # crotch thk
+
+                r = (do-tn) / 2
+
+                if rx >= dob/8 and tc >= 1.5*tn:
+                    h = 4.4*tn / r
+                else:
+                    h = 3.1*tn / r
+
+                return h
+
             else:
                 return 1.0
 
-    def sifi(self, element):
+    def sifi(self, entity):
         """In plane stress intensification factor for fittings. The sif must
         be 1 or greater.
         """
         model = self.app.models.active_object
-        section = element.section
-        material = element.material
+        section = entity.section
+        material = entity.material
 
         with units.Units(user_units="code_english"):
-            if isinstance(element, Run):
+            if isinstance(entity, Run):
                 return 1.0
 
-            elif isinstance(element, Bend):
+            elif isinstance(entity, Bend):
                 R = section.radius          # bend radius
                 tn = section.thk            # nominal thickness
                 r = (section.od - tn) / 2   # mean radius
                 Ec = material.ymod[model.settings.tref]
-                pmax = self.pmax(element)
-                h = self.h(element)
+                pmax = self.pmax( entity)
+                h = self.h(entity)
 
                 ic = 1  # corrected for pressure - note 5
                 if section.is_large_bore and section.is_thin_wall:
@@ -265,23 +344,100 @@ class B311(Code):
 
                 return 1.0 if sif < 1 else sif
 
-            elif isinstance(element, Reducer):
-                D1 = element.section.od
-                t1 = element.section.thk
-                D2 = element.section2.od
-                t2 = element.section2.thk
-                L = element.length
-                alp = element.alpha
+            elif isinstance(entity, Reducer):
+                D1 = entity.section.od
+                t1 = entity.section.thk
+                D2 = entity.section2.od
+                t2 = entity.section2.thk
+                L = entity.length
+                alp = entity.alpha
 
                 alpv = True if alp <= 60 else False
-                conc = True if element.is_concentric else False
-                d2t1 = True if element.section.d2t <= 100 else False
-                d2t2 = True if element.section2.d2t <= 100 else False
+                conc = True if entity.is_concentric else False
+                d2t1 = True if entity.section.d2t <= 100 else False
+                d2t2 = True if entity.section2.d2t <= 100 else False
 
                 if all([alpv, conc, d2t1, d2t2]):
                     return 0.5 + 0.01*alp*(D2/t2)**(1/2)
 
                 return 2.0
+
+            elif isinstance(entity, Welding):
+                # per mandatory appendix D
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                # must be larger than or equal to 1.0
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, Unreinforced):
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, Reinforced):
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, Weldolet):
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, Sockolet):
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, Sweepolet):
+                h = self.h(entity)
+
+                # in-plane and out-of-plane sifs are the same
+                # for B31.1 the higher is used
+                sif = 0.9 / h**(2/3)
+
+                if sif < 1.0:
+                    sif = 1.0
+
+                return sif
+
+            elif isinstance(entity, ButtWeld):
+                return 1.0
 
             else:
                 # must be 1 at a minimum

@@ -18,13 +18,21 @@ Supports
 or property?
 *Should supports have element reference?
 *Guide support should be pointed in the vertical direction.
+*Add support gaps
 
 Elements
 --------
 *Implement bend and reducer element type
+*Implement all other elements types
 *Implement sifs for various components, especially for tees
-*Implement tee element stiffness
+*Implement tee flexibility at the intersection node (see Code below)
 *Remove dependence on topology.py
+
+Code
+----
+1. Flex and SIF for reducer, bend and tee.
+2. Tee flexibility is applied only at the tee node, thus will alter the tee
+DOFs only in the stiffness matrix.
 
 Loads
 -----
@@ -36,6 +44,7 @@ apply a displacement to a support.
 Loadcase
 --------
 *Update automatic default loadcase method
+*Include loadcases for spring hanger design
 
 Settings
 --------
@@ -46,6 +55,7 @@ Solver
 ------
 1. Implement support prescribed displacement for nonlinear suppports.
 2. Refactor with fglobal for supports.
+3  Allow for support gaps.
 
 Tests
 -----
@@ -67,9 +77,8 @@ Website
 
 Future
 ======
-*Non-linear supports (+Y, gaps)
 *Non-linear supports (friction)
 *Implement bellows
-*Refine modal analysis
-*Implement Response spectra
-*Implement Time History
+*Refine modal analysis (dynamic.py)
+*Implement Response spectra (dynamic.py)
+*Implement Time History (dynamic.py)
