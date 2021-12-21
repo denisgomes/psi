@@ -16,11 +16,9 @@
 
 """Base entity and entity container for all psi objects.
 
-Entity manages objects created by an user defined unique name.
-
-After an object is created all functions work with objects only.
-
-A specific object can be called (i.e. __call__) by its user defined name.
+Entity manages objects created by user defined unique name. After an object is
+created all functions work with objects only. A specific object can be called
+its user defined name.
 """
 
 import logging
@@ -186,6 +184,9 @@ class EntityContainer(object):
 
     def iterate(self):
         pass
+
+    def check(self):
+        raise NotImplementedError("implement")
 
     def __call__(self, name):
         """Return an object given its name"""

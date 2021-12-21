@@ -29,7 +29,7 @@ p1.apply([run20])
 l1 = LoadCase('l1', 'sus', [Weight, Pressure], [1, 1])
 
 # code
-b311 = B311('B31.1')
+b311 = B31167('B31.1')
 b311.apply([run20])
 
 # run the analysis

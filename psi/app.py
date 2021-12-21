@@ -28,7 +28,7 @@ from psi.sections import SectionContainer
 from psi.material import MaterialContainer
 from psi.sifs import SIFContainer
 from psi.supports import SupportContainer
-from psi.codes import CodeContainer
+from psi.codes.codes import CodeContainer
 from psi.insulation import InsulationContainer
 from psi.loads import LoadContainer
 from psi.loadcase import LoadCaseContainer
@@ -147,7 +147,7 @@ class App(object):
 
                 # codes
                 "codes": self.codes,
-                "B311": self.codes.B311,
+                "B31167": self.codes.B31167,
 
                 # insulation
                 "insulation": self.insulation,

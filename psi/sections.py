@@ -60,7 +60,7 @@ class Section(Entity, ActiveEntityMixin):
         pass
 
 
-@units.define(od="length", thk="length")
+@units.define(od="length", thk="length", _nps="length", corro="length")
 class Pipe(Section):
 
     @classmethod
@@ -115,22 +115,24 @@ class Pipe(Section):
                     sch_map[s] = schedule
 
             for row in reader:
-                if row["nps"] == nps:
+                if float(row["nps"]) == float(nps):
                     try:
+                        nps = float(row["nps"])
                         od = float(row["od"])
                         thk = float(row[sch_map[sch]])
 
                         # using data file units to initialize
                         with units.Units(user_units=default_units):
-                            return cls(name, od, thk, corra=corra,
-                                       milltol=milltol)
+                            return cls(name, od, thk, nps=nps, sch=sch,
+                                       corra=corra, milltol=milltol)
 
                     except ValueError:  # calling float on empty string
                         return None
             else:
                 return None
 
-    def __init__(self, name, od, thk, corra=None, milltol=None):
+    def __init__(self, name, od, thk, nps=None, sch=None, corra=None,
+                 milltol=None):
         """Create a pipe object.
 
         Parameters
@@ -145,6 +147,16 @@ class Pipe(Section):
 
         thk : float
             Pipe wall thickness, ie. the nominal thickness.
+
+        nps : float
+            The nominal pipe size.
+
+            .. note::
+                If a size is not specified, the nominal is assumed to be the
+                actual.
+
+        sch : str
+            The pipe schedule.
 
         corro :  float
             Corrosion allowance (CA).
@@ -183,12 +195,28 @@ class Pipe(Section):
         .. code-block:: python
 
             >>> p1 = Pipe("p1", 10.75, 0.365)
+            >>> p2 = Pipe.from_file("p2", "10", "40")
         """
         super(Pipe, self).__init__(name)
         self.od = od
         self.thk = thk
+        self._nps = nps
+        self.sch = sch
         self.corra = corra
         self.milltol = milltol
+
+    @property
+    def nps(self):
+        """
+        .. todo::
+            Interpolate a value based on tabular data if nps is None for pipe
+            sizes below 12 inches.
+        """
+        return self._nps if self._nps else self.od
+
+    @nps.setter
+    def nps(self, value):
+        self._nps = value
 
     @property
     def thke(self):
@@ -221,17 +249,7 @@ class Pipe(Section):
         return effthk
 
     @property
-    def nps(self):
-        """The nominal pipe diameter is used to determine the bend radius for
-        a pipe bend.
-
-        Note that the actual and nominal diameter are the same number for 14
-        inch pipe and large.
-        """
-        pass
-
-    @property
-    def id_(self):
+    def id(self):
         """The pipe inner diameter, not to be confused with the object id."""
         return self.od - 2*self.thk
 

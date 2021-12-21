@@ -2,7 +2,7 @@
 
 
 from psi.app import App
-from psi.codes import B311
+from psi.codes.B311 import B31167
 from psi.elements import Run
 from psi.insulation import Insulation
 from psi.loads import Weight
@@ -27,7 +27,7 @@ def test_insulation():
     Pipe.from_file('pipe1', '10', '40')
     Insulation.from_file('insul1', 'minwool', 3)
     Material.from_file('mat1', 'A53A', 'B31.1')
-    B311('B31.1')
+    B31167('B31.1')
 
     pt10 = Point(10)
     run20 = Run(20, L)

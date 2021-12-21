@@ -14,21 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Implementation of code based stress intensification factors.
+"""Implementation of code based stress intensification factors."""
 
-B31.1
------
-Stress intensification and flexibility factors are based on Mandatory Appendix
-D. Per code, the calculated SIFs must always be greater than or eqaul to 1.0.
-
-SIFs provided are valid for a D/t ratio of less than 100. Beyond this limit,
-the pipe behaves like large duct piping and must be modeling using shell
-elements.
-
-Multiple SIFs defined for a particular element for example a reducing tee is
-not properly defined by any code. Should the reducer, tee or both SIFs be used
-to determine the final stress results?
-"""
 
 from __future__ import division
 
@@ -68,18 +55,6 @@ class SIF(Entity):
         """A welding connection"""
         return self.point.vertex.edges == 2
 
-    def sif(self):
-        """In and out-of-plane stress intensification factor"""
-        raise NotImplementedError("implement")
-
-    def sifi(self):
-        """In plane SIF"""
-        raise NotImplementedError("implement")
-
-    def sifo(self):
-        """Out of plane SIF"""
-        raise NotImplementedError("implement")
-
 
 class Intersection(SIF):
     """A tee type intersection"""
@@ -88,6 +63,14 @@ class Intersection(SIF):
         super(Intersection, self).__init__(element, point)
 
         assert self.intersection(), "invalid intersection point"
+
+    def header(self):
+        """Header element of intersection"""
+        pass
+
+    def branch(self):
+        """Branch element of intersection"""
+        pass
 
 
 class Connection(SIF):

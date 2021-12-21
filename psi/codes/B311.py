@@ -14,185 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Implementation of different piping codes"""
+"""Implementation of B31.1 Power Piping codes"""
 
 import math
+import sys
+from contextlib import redirect_stdout
 
-from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
-                        ActiveEntityContainerMixin)
 from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
 from psi.sifs import (Welding, Unreinforced, Reinforced, Weldolet, Sockolet,
                       Sweepolet, Weldolet, ButtWeld)
-from psi.loads import (Weight, Pressure, Thermal)
 from psi import units
-from contextlib import redirect_stdout
+from .codes import Code
 
 
-class Code(Entity, ActiveEntityMixin):
-
-    def __init__(self, name):
-        super(Code, self).__init__(name)
-
-        self.activate()
-
-    @property
-    def parent(self):
-        return self.app.codes
-
-    def activate(self):
-        self.parent.activate(self)
-
-    def apply(self, elements=None):
-        self.parent.apply(self, elements)
-
-    def sifi(self, element):
-        """Element stress intensification factor.
-
-        The code stress SIF is a fatigue factor developed by Markl and team in
-        the 1950s. These factors were empiracally determined by subjecting
-        piping to alternating loads and determining the effect it had over a
-        number of cycles.
-
-        By definition a SIF is the peak stress over the average stress of a
-        piping component. It is a multiplier on nominal stress for typical bend
-        and intersection components so that the effect of geometry and welding
-        can be considered in beam analysis.
-
-        The inplane and out of plane SIF applies to the moments and associated
-        stresses in the respective directions. An inplane moment/force will
-        tend to keep the component in the plane of the page. An out of plane
-        moment or force will cause the component to come out of the page.
-        """
-        raise NotImplementedError("implement")
-
-    def sifo(self, element):
-        raise NotImplementedError("implement")
-
-    def kfac(self, element):
-        """Element flexibility factor.
-
-        Note this factor is applied to the element for bending only. It has the
-        effect of reducing the stiffness of the element in the transverse
-        bending direction.
-        """
-        raise NotImplementedError("implement")
-
-    def shoop(self, element, loadcase):
-        """Element hoop stress due to pressure"""
-        raise NotImplementedError("implement")
-
-    def slp(self, element, loadcase):
-        """Element longitudinal stress due to pressure"""
-        raise NotImplementedError("implement")
-
-    def slb(self, element, loadcase):
-        """Element longitudinal stress due to bending"""
-        raise NotImplementedError("implement")
-
-    def stor(self, element, loadcase):
-        """Element torsional stress"""
-        raise NotImplementedError("implement")
-
-    def sax(self, element, forces):
-        """Element axial stress due to structural loading.
-
-        F/A type stress.
-        """
-        raise NotImplementedError("implement")
-
-    def sallow(self, element, loadcase):
-        """Element stress allowable based on the stress type of loadcase."""
-        raise NotImplementedError("implement")
-
-    def toper(self, element, loadcase):
-        """Convenience function to get the largest element temperature load for
-        a particular operating case.
-        """
-        with units.Units(user_units="code_english"):
-            thermals = []
-            for loadtype, opercase in zip(loadcase.loadtypes,
-                                          loadcase.opercases):
-                for load in element.loads:
-                    if (isinstance(load, Thermal) and
-                            load.opercase == opercase):
-                        thermals.append(load)
-
-            # if length of temperature is greater than one, print warning
-            # message saying multiple thermal loads exist for the same
-            # operating case for the element, then proceed to take the max
-            # worst pressure
-
-            try:
-                return max(thermals, key=lambda t: t.temp)
-            except ValueError: # empty list
-                return None
-
-    def tmax(self, element):
-        """Convenience function to get the largest element temperature from
-        all operating cases.
-        """
-        with units.Units(user_units="code_english"):
-            thermals = []
-            for loadcase in element.loadcases:
-
-                for loadtype, opercase in zip(loadcase.loadtypes,
-                                              loadcase.opercases):
-                    for load in element.loads:
-                        if (isinstance(load, Thermal) and
-                                load.opercase == opercase):
-                            thermals.append(load)
-
-            try:
-                return max(thermals, key=lambda t: t.temp)
-            except ValueError:
-                return None
-
-    def poper(self, element, loadcase):
-        """Convenience function to get the largest element pressure load for a
-        particular operating case.
-        """
-        with units.Units(user_units="code_english"):
-            # pressure load specified for loadcase and opercase sorted by
-            # maximum
-            pressures = []
-            for loadtype, opercase in zip(loadcase.loadtypes,
-                                          loadcase.opercases):
-                for load in element.loads:
-                    if (isinstance(load, Pressure) and
-                            load.opercase == opercase):
-                        pressures.append(load)
-
-            # if length of pressures is greater than one, print warning message
-            # saying multiple pressure loads exist for the same operating case
-            # for the element, then proceed to take the max worst pressure
-
-            try:
-                return max(pressures, key=lambda p: p.pres)
-            except ValueError:
-                return None
-
-    def pmax(self, element):
-        """Convenience function to get the largest element pressure from
-        all operating cases.
-        """
-        with units.Units(user_units="code_english"):
-            pressures = []
-            for loadcase in element.loadcases:
-                for loadtype, opercase in zip(loadcase.loadtypes,
-                                            loadcase.opercases):
-                    for load in element.loads:
-                        if (isinstance(load, Pressure) and
-                                load.opercase == opercase):
-                            pressures.append(load)
-
-            try:
-                return max(pressures, key=lambda p: p.pres)
-            except ValueError:
-                return None
-
-
-class B311(Code):
-    """B31.1 Power Piping Code Implementation.
+class B31167(Code):
+    """B31.1 1967 Power Piping code implementation.
 
     For each element, based on the loadcase and stress type, calculate code
     stresses.
@@ -200,10 +36,22 @@ class B311(Code):
     Each element can have one Temperature and/or Pressure load defined per one
     opercase. A load is defined to be unique using a key which checks the name,
     type and opercase.
+
+    Stress intensification and flexibility factors are based on Mandatory
+    Appendix D. Per code, the calculated SIFs must always be greater than or
+    eqaul to 1.0.
+
+    SIFs provided are valid for a D/t ratio of less than 100. Beyond this
+    limit, the pipe behaves like large duct piping and must be modeling using
+    shell elements.
+
+    Multiple SIFs defined for a particular element for example a reducing tee
+    is not properly defined by any code. Should the reducer, tee or both SIFs
+    be used to determine the final stress results?
     """
 
     def __init__(self, name, year="1967"):
-        super(B311, self).__init__(name)
+        super(B31167, self).__init__(name)
         self.year = year
         self.k = 1.15   # usage factor
         self.f = 0.90   # fatigue reduction factor
@@ -245,7 +93,6 @@ class B311(Code):
                 tn = entity.tn      # nominal header thk
                 rx = entity.rx      # crotch radius
                 tc = entity.tc      # crotch thk
-
                 r = (do-tn) / 2
 
                 if rx >= dob/8 and tc >= 1.5*tn:
@@ -258,7 +105,6 @@ class B311(Code):
             elif isinstance(entity, Unreinforced):
                 do = entity.do      # header pipe dia
                 tn = entity.tn      # nominal header thk
-
                 r = (do-tn) / 2
                 h = tn / r
 
@@ -268,7 +114,6 @@ class B311(Code):
                 do = entity.do      # header pipe dia
                 tn = entity.tn      # nominal header thk
                 tr = entity.tr      # pad thk
-
                 r = (do-tn) / 2
 
                 if tr > 1.5*tn:
@@ -281,7 +126,6 @@ class B311(Code):
             elif isinstance(entity, Weldolet):
                 do = entity.do      # header pipe dia
                 tn = entity.tn      # nominal header thk
-
                 r = (do-tn) / 2
                 h = 3.3*tn / r
 
@@ -290,9 +134,7 @@ class B311(Code):
             elif isinstance(entity, Sockolet):
                 do = entity.do      # header pipe dia
                 tn = entity.tn      # nominal header thk
-
                 r = (do-tn) / 2
-
                 h = 3.3*tn / r
 
                 return h
@@ -303,7 +145,6 @@ class B311(Code):
                 tn = entity.tn      # nominal header thk
                 rx = entity.rx      # crotch radius
                 tc = entity.tc      # crotch thk
-
                 r = (do-tn) / 2
 
                 if rx >= dob/8 and tc >= 1.5*tn:
@@ -316,25 +157,30 @@ class B311(Code):
             else:
                 return 1.0
 
-    def sifi(self, entity):
+    def sifi(self, element, point, combfunc="max"):
         """In plane stress intensification factor for fittings. The sif must
         be 1 or greater.
+
+        .. todo::
+            The maximum sif at a point is taken. It should eventually be a user
+            defined option to take the sum, max or average.
         """
         model = self.app.models.active_object
-        section = entity.section
-        material = entity.material
+        section = element.section
+        material = element.material
+        sifs = []
 
         with units.Units(user_units="code_english"):
-            if isinstance(entity, Run):
-                return 1.0
+            if isinstance(element, (Run, Rigid, Valve, Flange)):
+                sifs.append(1.0)
 
-            elif isinstance(entity, Bend):
+            elif isinstance(element, Bend):
                 R = section.radius          # bend radius
                 tn = section.thk            # nominal thickness
                 r = (section.od - tn) / 2   # mean radius
                 Ec = material.ymod[model.settings.tref]
-                pmax = self.pmax( entity)
-                h = self.h(entity)
+                pmax = self.pmax( element)
+                h = self.h(element)
 
                 ic = 1  # corrected for pressure - note 5
                 if section.is_large_bore and section.is_thin_wall:
@@ -342,106 +188,103 @@ class B311(Code):
 
                 sif = (0.9 / h**(2/3)) / ic
 
-                return 1.0 if sif < 1 else sif
+                sifs.append(1.0 if sif < 1 else sif)
 
-            elif isinstance(entity, Reducer):
-                D1 = entity.section.od
-                t1 = entity.section.thk
-                D2 = entity.section2.od
-                t2 = entity.section2.thk
-                L = entity.length
-                alp = entity.alpha
+            elif isinstance(element, Reducer):
+                D1 = section.od
+                t1 = section.thk
+                D2 = section2.od
+                t2 = section2.thk
+                L = element.length
+                alp = element.alpha
 
                 alpv = True if alp <= 60 else False
-                conc = True if entity.is_concentric else False
-                d2t1 = True if entity.section.d2t <= 100 else False
-                d2t2 = True if entity.section2.d2t <= 100 else False
+                conc = True if element.is_concentric else False
+                d2t1 = True if section.d2t <= 100 else False
+                d2t2 = True if section2.d2t <= 100 else False
 
                 if all([alpv, conc, d2t1, d2t2]):
-                    return 0.5 + 0.01*alp*(D2/t2)**(1/2)
+                    sif = 0.5 + 0.01*alp*(D2/t2)**(1/2)
 
-                return 2.0
+                    sifs.append(1.0 if sif < 1 else sif)
 
-            elif isinstance(entity, Welding):
-                # per mandatory appendix D
-                h = self.h(entity)
+                else:
+                    sifs.append(2.0)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
 
-                # must be larger than or equal to 1.0
-                if sif < 1.0:
-                    sif = 1.0
+            for entity in element.sifs:
 
-                return sif
+                if entity.point is point:
 
-            elif isinstance(entity, Unreinforced):
-                h = self.h(entity)
+                    if isinstance(entity, Welding):
+                        # per mandatory appendix D
+                        h = self.h(entity)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-                if sif < 1.0:
-                    sif = 1.0
+                        # must be larger than or equal to 1.0
+                        sifs.append(1.0 if sif < 1 else sif)
 
-                return sif
+                    elif isinstance(entity, Unreinforced):
+                        h = self.h(entity)
 
-            elif isinstance(entity, Reinforced):
-                h = self.h(entity)
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
+                        sifs.append(1.0 if sif < 1 else sif)
 
-                if sif < 1.0:
-                    sif = 1.0
+                    elif isinstance(entity, Reinforced):
+                        h = self.h(entity)
 
-                return sif
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-            elif isinstance(entity, Weldolet):
-                h = self.h(entity)
+                        sifs.append(1.0 if sif < 1 else sif)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
+                    elif isinstance(entity, Weldolet):
+                        h = self.h(entity)
 
-                if sif < 1.0:
-                    sif = 1.0
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-                return sif
+                        sifs.append(1.0 if sif < 1 else sif)
 
-            elif isinstance(entity, Sockolet):
-                h = self.h(entity)
+                    elif isinstance(entity, Sockolet):
+                        h = self.h(entity)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-                if sif < 1.0:
-                    sif = 1.0
+                        sifs.append(1.0 if sif < 1 else sif)
 
-                return sif
+                    elif isinstance(entity, Sweepolet):
+                        h = self.h(entity)
 
-            elif isinstance(entity, Sweepolet):
-                h = self.h(entity)
+                        # in-plane and out-of-plane sifs are the same
+                        # for B31.1 the higher is used
+                        sif = 0.9 / h**(2/3)
 
-                # in-plane and out-of-plane sifs are the same
-                # for B31.1 the higher is used
-                sif = 0.9 / h**(2/3)
+                        sifs.append(1.0 if sif < 1 else sif)
 
-                if sif < 1.0:
-                    sif = 1.0
+                    elif isinstance(entity, ButtWeld):
+                        sifs.append(1.0)
 
-                return sif
+                    else:
+                        # must be 1 at a minimum
+                        sifs.append(1.0)
 
-            elif isinstance(entity, ButtWeld):
-                return 1.0
-
-            else:
-                # must be 1 at a minimum
-                return 1.0
+            if combfunc == "max":
+                return max(sifs)
+            elif combfunc == "sum":
+                return sum(sifs)
+            elif combfunc == "avg":
+                return sum(sifs) / len(sifs)
 
     sifo = sifi     # out of plane - same value
 
@@ -452,10 +295,7 @@ class B311(Code):
         material = element.material
 
         with units.Units(user_units="code_english"):
-            if isinstance(element, Run):
-                return 1.0
-
-            elif isinstance(element, Bend):
+            if isinstance(element, Bend):
                 R = section.radius          # bend radius
                 tn = section.thk            # nominal thickness
                 r = (section.od - tn) / 2   # mean radius
@@ -503,7 +343,7 @@ class B311(Code):
         with units.Units(user_units="code_english"):
             section = element.section
             do = section.od
-            di = section.id_
+            di = section.id
 
             pload = self.poper(element, loadcase)
 
@@ -513,14 +353,14 @@ class B311(Code):
             except AttributeError:
                 return 0
 
-    def slb(self, element, forces):
+    def slb(self, element, point, forces):
         """Longitudinal stress due to bending moments."""
         with units.Units(user_units="code_english"):
             my, mz = forces[-2:]
             M = math.sqrt(my**2 + mz**2)
 
             # note for B31.1 sifi equals sifo
-            i = self.sifi(element)
+            i = self.sifi(element, point)
 
             section = element.section
             Z = section.z   # section modulus
@@ -557,14 +397,14 @@ class B311(Code):
 
         return sx
 
-    def sl(self, element, loadcase, forces):
+    def sl(self, element, loadcase, point, forces):
         """Total longitudinal stress due to pressure and bending+torsion. This
         combination of stresses is also known as the code stress for most
         codes.
         """
         with units.Units(user_units="code_english"):
             slp = self.slp(element, loadcase)
-            slb = self.slb(element, forces)
+            slb = self.slb(element, point, forces)
             sax = self.sax(element, forces)
             stor = self.stor(element, forces)
 
@@ -610,31 +450,3 @@ class B311(Code):
                 return self.f * (1.25*sc + 0.25*sh + liberal_stress)
             else:
                 return 0
-
-
-class CodeContainer(EntityContainer, ActiveEntityContainerMixin):
-
-    def __init__(self):
-        super(CodeContainer, self).__init__()
-        self.B311 = B311
-
-    def apply(self, code, elements=None):
-        """Apply code to elements.
-
-        Parameters
-        ----------
-        code : object
-            A code instance.
-
-        elements : list
-            A list of elements. If elements is None, loads are applied to all
-            elements.
-        """
-        if elements is None:
-            elements = []
-
-            for element in self.app.elements.active_objects:
-                elements.append(element)
-
-        for element in elements:
-            element.code = code

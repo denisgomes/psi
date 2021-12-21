@@ -25,7 +25,8 @@ from psi.settings import Configuration
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
 from psi.topology import Geometry
-from psi.solvers import static, modal
+from psi.solvers.static import static
+from psi.solvers.dynamic import modal
 
 
 # TODO: Raise exception if model is not active on attribute access

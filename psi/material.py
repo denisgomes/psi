@@ -83,9 +83,8 @@ class Property(object):
                 sorted(tvals, key=lambda p: p[0])   # by temp
                 temps, vals = zip(*tvals)
 
-                # 999.9999999F will properly round to 1000F
-                # user not expected to enter temp with 6 digits
-                # of precision
+                # 999.9999999F will round to 1000F - user not expected to enter
+                # temp with 6 digits of precision
                 temps = [round(temp, 6) for temp in temps]
 
                 # check if temp in range

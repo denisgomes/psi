@@ -26,7 +26,7 @@ f1.apply([run30])
 l1 = LoadCase('l1', 'sus', [Force], [1])
 
 # code
-b311 = B311('B311')
+b311 = B31167('B311')
 b311.apply([run20, run30])
 
 mdl.analyze()

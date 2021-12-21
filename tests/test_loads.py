@@ -8,7 +8,7 @@ from psi.point import Point
 from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
-from psi.codes import B311
+from psi.codes.B311 import B31167
 from psi.supports import Anchor
 from psi.loads import (Weight, Thermal, Pressure, Fluid, Hydro, Seismic, Wind,
                        Force, Displacement)
@@ -25,7 +25,7 @@ def app():
 
     Pipe.from_file('pipe1', '10', '40')
     Material.from_file('mat1', 'A53A', 'B31.1')
-    B311('code1')
+    B31167('code1')
 
     Point(10)
     run20 = Run(20, 0, 0, 10*12)
@@ -61,7 +61,7 @@ def app2():
     run20 = Run(20, L/2)
 
     # code
-    b311 = B311('B311')
+    b311 = B31167('B311')
     b311.apply([run15, run20])
 
     return app

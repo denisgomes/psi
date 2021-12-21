@@ -42,7 +42,7 @@ L2 = LoadCase('L2', 'sus', [Weight, Pressure], [1, 1])
 L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code
-b311 = B311('B311')
+b311 = B31167('B311')
 b311.apply([run20])
 
 # solve
