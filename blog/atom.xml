@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://openpipestress.com/</id>
+  <title>Blog</title>
+  <updated>2021-12-27T18:14:48.366499+00:00</updated>
+  <link href="https://openpipestress.com/"/>
+  <link href="https://openpipestress.com/blog/atom.xml" rel="self"/>
+  <generator uri="https://ablog.readthedocs.org/" version="0.10.19">ABlog</generator>
+  <entry>
+    <id>https://openpipestress.com/posts/first_post.html</id>
+    <title>First Post</title>
+    <updated>2021-12-27T00:00:00-05:00</updated>
+    <author>
+      <name>me</name>
+    </author>
+    <content type="html">&lt;p&gt;PipeStressInfinity website hosted on openpipestress.com created using Sphinx
+and the ABlog extension with support for Disqus integration.&lt;/p&gt;
+</content>
+    <link href="https://openpipestress.com/posts/first_post.html" rel="alternate"/>
+    <summary>PipeStressInfinity website hosted on openpipestress.com created using Sphinx
+and the ABlog extension with support for Disqus integration.</summary>
+    <category term="firstpost" label="first post"/>
+    <published>2021-12-27T00:00:00-05:00</published>
+  </entry>
+</feed>
