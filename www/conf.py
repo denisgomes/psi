@@ -15,12 +15,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Open Pipe Stress'
+project = 'PSI'
 copyright = '2021, Denis Gomes'
 author = 'Denis Gomes'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+# release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,12 +32,13 @@ extensions = ['ablog',
               'sphinx_comments',
 ]
 
-comments_config = {
-        'utterances': {
-            'repo': 'github-org/github-repo',
-            'optional': 'config',
-            }
-}
+# comments_config = {
+#         'utterances': {
+#             'repo': 'github-org/github-repo',
+#             'optional': 'config',
+#             }
+# }
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -55,6 +56,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'alabaster'
 
+
+# ABLOG
 import ablog
 templates_path.append(ablog.get_html_templates_path())
 
@@ -63,17 +66,24 @@ templates_path.append(ablog.get_html_templates_path())
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+blog_baseurl = 'https://openpipestress.com/'
+
+# disqus config
+disqus_shortname = 'openpipestress-1'
+disqus_pages = False
+disqus_drafts = False
 
 html_sidebars = {
     '**': [
         'about.html',
-        # 'recentposts.html',
-        'navigation.html',
+        'recentposts.html',
+        # 'navigation.html',
         'categories.html',
-        # 'useful_links.html',
+        'useful_links.html',
         # 'relations.html',
-        'donate.html',
         'searchbox.html',
+        'donate.html',
+        'archives.html',
     ]
 }
 
@@ -84,18 +94,18 @@ html_theme_options = {
     # 'logo_text_align': 'left',
     'github_user': 'denisgomes',
     'github_repo': 'psi',
-    'description': 'The pipe stress analysis and design blog.',
+    'description': 'The pipe stress analysis and design software.',
     'fixed_sidebar': False,
-    # 'github_banner': True,
+    'github_banner': True,
     'github_button': True,
     'analytics_id': 'UA-155102137-1',
     'donate_url': 'https://github.com/denisgomes/psi',
-    # 'extra_nav_links':
-    # {'Documentation': 'https://pipe-stress-infinity.readthedocs.io/en/latest',
-    #  'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
-    #  'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
-    #  'PSI at Discord': 'https://discord.gg/xnHnwbD',
-    #  'PSI at GitHub': 'https://github.com/denisgomes/psi',
-    #  'PSI at PyPI': 'https://pypi.org',
-    # },
+    'extra_nav_links':
+    {'Documentation': 'https://pipe-stress-infinity.readthedocs.io/en/latest',
+     'Issue Tracker': 'https://github.com/denisgomes/psi/issues',
+     'Mailing List': 'https://groups.google.com/group/pipestressinfinity-users',
+     'Discord Server': 'https://discord.gg/xnHnwbD',
+     'GitHub Repository': 'https://github.com/denisgomes/psi',
+     'PyPI Package': 'https://pypi.org',
+    },
 }

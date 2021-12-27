@@ -211,10 +211,9 @@ class B31167(Code):
                 else:
                     sifs.append(2.0)
 
-
             for entity in element.sifs:
 
-                if entity.point is point:
+                if self.app.points(entity.point) is point:
 
                     if isinstance(entity, Welding):
                         # per mandatory appendix D

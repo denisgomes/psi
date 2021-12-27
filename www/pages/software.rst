@@ -1,4 +1,0 @@
-========
-Software
-========
-.. include:: ../../README.rst

@@ -26,43 +26,41 @@ from psi import units
 class SIF(Entity):
     """A tee type intersection or a welding connection"""
 
-    def __init__(self, element, point):
-        super(SIF, self).__init__()
-        self.element = element
+    def __init__(self, name, point):
+        super(SIF, self).__init__(name)
         self.point = point
+        self.element = None
 
     @property
     def parent(self):
         """Returns the SIFContainer instance."""
         return self.app.sifs
 
-    def apply(self, elements=None):
-        """Apply the sif to the elements.
+    def apply(self, element):
+        """Apply the sif to the element.
 
         Parameters
         ----------
-        elements : list
-            A list of elements. If elements is None, sif is applied to the
-            active elements.
+        element : Element
+            An element object.
+
+        SIFs are applied to an element at a node on the element.
         """
-        self.parent.apply([self], elements)
-
-    def is_intersection(self):
-        """A tee type intersection"""
-        return self.point.vertex.edges == 3
-
-    def is_connection(self):
-        """A welding connection"""
-        return self.point.vertex.edges == 2
+        self.parent.apply([self], element)
 
 
 class Intersection(SIF):
     """A tee type intersection"""
 
-    def __init__(self, element, point):
-        super(Intersection, self).__init__(element, point)
+    def __init__(self, name, point):
+        super(Intersection, self).__init__(name, point)
 
-        assert self.intersection(), "invalid intersection point"
+        assert self.is_intersection, "invalid intersection point"
+
+    @property
+    def is_intersection(self):
+        """A tee type intersection"""
+        return len(self.app.points(self.point).vertex.edges) == 3
 
     def header(self):
         """Header element of intersection"""
@@ -76,22 +74,30 @@ class Intersection(SIF):
 class Connection(SIF):
     """A joint between two pipe spools"""
 
-    def __init__(self, element, point):
-        super(Connection, self).__init__(element, point)
+    def __init__(self, name, point):
+        super(Connection, self).__init__(name, point)
 
-        assert self.connection(), "invalid connection point"
+        assert self.is_connection, "invalid connection point"
+
+    @property
+    def is_connection(self):
+        """A welding connection"""
+        return len(self.app.points(self.point).vertex.edges) == 2
 
 
 @units.define(do="length", tn="length", dob="length", rx="length", tc="length")
 class Welding(Intersection):
     """Welding tees per ASME B16.9."""
 
-    def __init__(self, element, point, do, tn, dob, rx, tc):
+    def __init__(self, name, point, do, tn, dob, rx, tc):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -108,7 +114,7 @@ class Welding(Intersection):
         tc : float
             Crotch thickness
         """
-        super(Welding, self).__init__(element, point)
+        super(Welding, self).__init__(name, point)
         self.do = do
         self.tn = tn
         self.dob = dob
@@ -120,12 +126,15 @@ class Welding(Intersection):
 class Unreinforced(Intersection):
     """Unreinforced fabricated tee."""
 
-    def __init__(self, element, point, do, tn):
+    def __init__(self, name, point, do, tn):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -133,7 +142,7 @@ class Unreinforced(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        super(Unreinforced, self).__init__(element, point)
+        super(Unreinforced, self).__init__(name, point)
         self.do = do
         self.tn = tn
 
@@ -142,12 +151,15 @@ class Unreinforced(Intersection):
 class Reinforced(Intersection):
     """Reinforced fabricated tee."""
 
-    def __init__(self, element, point, do, tn, tr):
+    def __init__(self, name, point, do, tn, tr):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -158,7 +170,7 @@ class Reinforced(Intersection):
         tr : float
             Pad thickness
         """
-        super(Reinforced, self).__init__(element, point)
+        super(Reinforced, self).__init__(name, point)
         self.do = do
         self.tn = tn
         self.tr = tr
@@ -168,12 +180,15 @@ class Reinforced(Intersection):
 class Weldolet(Intersection):
     """Olet fitting with welded outlet branch."""
 
-    def __init__(self, element, point, do, tn):
+    def __init__(self, name, point, do, tn):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -181,7 +196,7 @@ class Weldolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        super(Weldolet, self).__init__(element, point)
+        super(Weldolet, self).__init__(name, point)
         self.do = do
         self.tn = tn
 
@@ -201,12 +216,15 @@ class Sockolet(Intersection):
     is too conservative.
     """
 
-    def __init__(self, element, point, do, tn):
+    def __init__(self, name, point, do, tn):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -214,7 +232,7 @@ class Sockolet(Intersection):
         tn : float
             Nomimal thickness of run (i.e. header) pipe
         """
-        super(Sockolet, self).__init__(element, point)
+        super(Sockolet, self).__init__(name, point)
         self.do = do
         self.tn = tn
 
@@ -223,12 +241,15 @@ class Sockolet(Intersection):
 class Sweepolet(Intersection):
     """Contoured integrally reinforced insert with butt-welded branch"""
 
-    def __init__(self, element, point, do, tn, dob, rx, tc):
+    def __init__(self, name, point, do, tn, dob, rx, tc):
         """
         Parameters
         ----------
-        code : str
-            The code used to calculate the parameters
+        name : str
+            Unique name for welding tee.
+
+        point : Point
+            Point on which welding sif is applied.
 
         do : float
             Outer diameter of run (i.e. header) pipe
@@ -245,7 +266,7 @@ class Sweepolet(Intersection):
         tc : float
             Crotch thickness
         """
-        super(Sweepolet, self).__init__(element, point)
+        super(Sweepolet, self).__init__(name, point)
         self.do = do
         self.tn = tn
         self.dob = dob
@@ -256,8 +277,8 @@ class Sweepolet(Intersection):
 class ButtWeld(Connection):
     """Buttwelded piping connections"""
 
-    def __init__(self, element, point):
-        super(Welding, self).__init__(element, point)
+    def __init__(self, name, point):
+        super(Welding, self).__init__(name, point)
 
 
 class SIFContainer(EntityContainer):
@@ -273,7 +294,7 @@ class SIFContainer(EntityContainer):
         self.Weldolet = Weldolet
         self.ButtWeld = ButtWeld
 
-    def apply(self, sifs=[], elements=None):
+    def apply(self, sifs=[], elements=[]):
         """Apply sifs to elements.
 
         A reference for each sif is assigned to each element.
@@ -290,11 +311,6 @@ class SIFContainer(EntityContainer):
             A list of elements. If elements is None, sifs are applied to all
             active elements.
         """
-        if elements is None:
-            elements = []
-
-            for element in self.app.elements.active_objects:
-                elements.append(element)
-
-        for element in elements:
-            element.sifs.update(sifs)
+        for sif, element in zip(sifs, elements):
+            sif.element = element
+            element.sifs.add(sif)
