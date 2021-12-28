@@ -5,6 +5,8 @@ Testing
 
 .. jupyter-execute::
 
+    import ipywidgets as widgets
+
     import numpy as np
     from matplotlib import pyplot
     %matplotlib inline
@@ -14,6 +16,9 @@ Testing
     pyplot.plot(x, np.sin(x) / x)
     pyplot.plot(x, np.cos(x))
     pyplot.grid()
+
+    widgets.IntSlider()
+
 
 .. image:: ./test_post/python.jpg
   :width: 200
