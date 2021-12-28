@@ -87,7 +87,6 @@ six==1.13.0
 snowballstemmer==2.0.0
 soupsieve==2.2.1
 Sphinx==2.3.0
-sphinx-bootstrap-theme==0.7.1
 sphinx-comments==0.0.3
 sphinxcontrib-applehelp==1.0.1
 sphinxcontrib-devhelp==1.0.1
