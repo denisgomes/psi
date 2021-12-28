@@ -30,14 +30,19 @@ author = 'Denis Gomes'
 # ones.
 extensions = ['ablog',
               'sphinx_comments',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.mathjax',
+              'jupyter_sphinx.execute',
+              'nbsphinx',
 ]
 
-# comments_config = {
-#         'utterances': {
-#             'repo': 'github-org/github-repo',
-#             'optional': 'config',
-#             }
-# }
+# jupyter-sphinx
+jupyter_sphinx_thebelab_config = {
+    'requestKernel': True,
+    'binderOptions': {
+        'repo': "denisgomes/psi",
+    },
+}
 
 
 # Add any paths that contain templates here, relative to this directory.
