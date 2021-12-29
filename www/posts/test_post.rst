@@ -1,24 +1,25 @@
 Testing
 =======
-.. thebe-button:: Start Jupyter Kernel
+.. thebe-button:: Interact!
 
 
 .. jupyter-execute::
 
+    %matplotlib widget
     import ipywidgets as widgets
-
+    import matplotlib.pyplot as plt
     import numpy as np
-    from matplotlib import pyplot
-    %matplotlib inline
 
-    x = np.linspace(1E-3, 2 * np.pi)
+    x = np.linspace(0,10)
 
-    pyplot.plot(x, np.sin(x) / x)
-    pyplot.plot(x, np.cos(x))
-    pyplot.grid()
+    def sine_func(x, w, amp):
+        return amp*np.sin(w*x)
 
-    widgets.IntSlider()
-
+    @widgets.interact(w=(0, 4, 0.25), amp=(0, 4, .1))
+    def update(w = 1, amp = 1):
+        plt.clf()
+        plt.ylim(-4, 4)
+        plt.plot(x, sine_func(x, w, amp))
 
 .. image:: ./test_post/python.jpg
   :width: 200
@@ -26,5 +27,5 @@ Testing
 
 .. post:: Dec 27, 2021
    :tags: calc
-   :category: Calc
+   :category: Tools
    :author: me
