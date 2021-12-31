@@ -8,10 +8,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+sys.path.insert(0, os.path.abspath('./..'))
 
 # -- Project information -----------------------------------------------------
 
@@ -38,6 +38,7 @@ extensions = ['ablog',
 
 # jupyter-sphinx
 jupyter_sphinx_thebelab_config = {
+    'bootstrap': True,
     'requestKernel': True,
     'binderOptions': {
         'repo': "denisgomes/psi",
@@ -81,10 +82,10 @@ disqus_drafts = False
 html_sidebars = {
     '**': [
         'about.html',
-        'recentposts.html',
-        # 'navigation.html',
+        'navigation.html',
         'categories.html',
-        'useful_links.html',
+        'recentposts.html',
+        # 'useful_links.html',
         # 'relations.html',
         'searchbox.html',
         'donate.html',
