@@ -196,7 +196,7 @@ class CodeContainer(EntityContainer, ActiveEntityContainerMixin):
         super(CodeContainer, self).__init__()
 
         # to avoid circular import
-        from .B311 import B31167
+        from .b311 import B31167
 
         self.B31167 = B31167
 

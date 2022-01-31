@@ -78,6 +78,7 @@ a different type of element such as a valve or a flange.
     >>> elements(54, 55).convert(Valve, mass=...)
 
 .. note::
+
     Only runs can be split and merged. To split a valve for example, it must
     first be changed to a run and then split.
 
@@ -490,7 +491,7 @@ class Run(Piping):
 
     def dircos(self):
         """Return the direction cosine of the element in matrix form. The unit
--        vector components of the local coordinate axes of the element determine
+        vector components of the local coordinate axes of the element determine
         the 3x3 transformation matrix.
 
         For straight elements, the local x axis is given by the direction from

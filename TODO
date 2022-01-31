@@ -8,8 +8,8 @@ Releases
 Supports
 --------
 *Debug inclined supports
-*Make imposed support displacment opercase dependent (solver.py)
-*Refactor support.py, change GlobalX to X, etc
+*Make imposed support displacement opercase dependent (solver.py)
+*Refactor support.py, change GlobalX to X, etc (Complete)
 *Implement spring supports and refactor supports.py
 *Update support apply method
 *Implement fglobal for supports.
@@ -30,15 +30,15 @@ Elements
 
 Code
 ----
-1. Flex and SIF for reducer, bend and tee.
-2. Tee flexibility is applied only at the tee node, thus will alter the tee
-DOFs only in the stiffness matrix.
+*Flex and SIF for reducer, bend and tee.
+*Tee flexibility is applied only at the tee node, thus will alter the tee DOFs
+only in the stiffness matrix.
 
 Loads
 -----
 *Fix thermal load internal force reaction report, should be 0 if not restrained
 axially
-*Distinguish betweeen Nodal displacement (loads.Displacement). Be able to
+*Distinguish between Nodal displacement (loads.Displacement). Be able to
 apply a displacement to a support.
 
 Loadcase
@@ -53,7 +53,7 @@ Settings
 
 Solver
 ------
-1. Implement support prescribed displacement for nonlinear suppports.
+1. Implement support prescribed displacement for nonlinear supports.
 2. Refactor with fglobal for supports.
 3  Allow for support gaps.
 

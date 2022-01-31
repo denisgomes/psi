@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Implementation of different types of theoritical pipe supports.
+"""Implementation of different types of theoretical pipe supports.
 
 Supports are implemented using the penalty approach where the global system
 stiffness and force matrices are modified by the support stiffness value and
@@ -30,7 +30,7 @@ support stiffness and added to the corresponding force vector. Refer to
 "Introduction to Finite Elements in Engineering" by Chandrupatla and Belegundu
 for additional details. The user specified global support displacement is
 projected in the support direction to determine the displacement components. If
-a compoment is 0, the support will not be active along that axis, and the pipe
+a component is 0, the support will not be active along that axis, and the pipe
 will be able to move in that direction.
 
 A stiffness value of 1000*K, where K is the largest stiffness in the global
@@ -44,12 +44,15 @@ single or bi-directional, translational or rotational and/or define friction
 and gaps.
 """
 
+import csv
+import os
 import warnings
 import sys
 from contextlib import redirect_stdout
 
 import numpy as np
 
+import psi
 from psi import units
 from psi.entity import Entity, EntityContainer
 from psi.loads import Displacement
@@ -575,6 +578,7 @@ class LimitStop(AbstractSupport):
 
         return _type
 
+
 class Lateral(AbstractSupport):
     """Support perpendicular to the pipe run direction.
 
@@ -685,40 +689,216 @@ class Lateral(AbstractSupport):
         return _type
 
 
-@units.define(spring_rate="translation_stiffness", cold_load="force")
+@units.define(_spring_rate="translation_stiffness", cold_load="force",
+              component_weight="force")
 class Spring(Support):
+    """Define a spring support.
+
+    Parameters
+    ----------
+    name : str
+        Unique name for pipe object.
+
+    point : Point
+        Point instance where support is located.
+
+    spring_rate : float
+        Spring stiffness
+
+    cold_load : float
+        The spring load in the cold installation position.
+
+    variability : float
+        The allowable difference in hot to cold load given in percentage.
+
+    is_constant : bool
+        If set to True, spring is set to constant effort.
+
+        .. note::
+            Variability is set to zero and the hot and cold loads are the same
+            value. The spring_rate is also set to None since a constant force
+            is applied.
+
+    is_ftype : bool
+        Is set to bottom supporting F type if set to True.
+
+    component_weight : float
+        The weight of support component such as pipe clamp and rod that should
+        be accounted for in spring sizing.
+    """
 
     def __init__(self, name, point, spring_rate, cold_load, variability=25,
-                 is_constant=False):
-        warnings.warn("do not use, implementation incomplete")
+                 is_constant=False, is_ftype=False, component_weight=0):
 
         super(Spring, self).__init__(name, point)
-        self.spring_rate = spring_rate
+        self._spring_rate = spring_rate
         self.cold_load = cold_load
         self._variability = variability     # 25% per MSS-SP-58
         self._is_constant = is_constant     # true if constant effort
+        self.is_ftype = is_ftype            # bottom supported
+        self.component_weight = component_weight
+
+    @property
+    def spring_rate(self):
+        if self.is_constant:
+            return None
+        else:
+            return self._spring_rate
+
+    @spring_rate.setter
+    def spring_rate(self, value):
+        self._spring_rate = value
+
+    @staticmethod
+    def nan_helper(y):
+        """Helper for missing data used to interpolate values. Code courtesy of
+        stackoverflow question 6518811.
+        """
+        return np.isnan(y), lambda z: z.nonzero()[0]
 
     @classmethod
-    def from_table(cls, name, point, hot_load, movement, vendor="anvil"):
-        """Pick a spring from a vendor hanger table based on the hot load
-        and movement.
+    def from_file(cls, name, point, hot_load, movement, variability=25,
+                  is_ftype=False, component_weight=0, vendor="anvil"):
+        """Pick a spring from a vendor hanger table based on the hot load and
+        movement.
+
+        If the movement is small for the corresponding hot load a rigid support
+        in the vertical direction is returned.
+
+        If however, the movement is beyond the maximum range prescribed in the
+        vendor table for the hot load, a constant spring load with the required
+        movement is selected.
         """
-        pass
+        vsfname = vendor + "_variable.csv"
+        csfname = vendor + "_constant.csv"
+        with open(os.path.join(psi.SPRING_DIRECTORY, vsfname), "r") as vsfile:
+            vsdata = np.array(list(csv.reader(vsfile)))
+
+        if vendor == "anvil":
+            stypes = np.asarray(vsdata[0, :5])
+            sizes = np.asarray(vsdata[0, 5:])
+
+            # interpolate missing spring deflection data
+            udata = np.array(vsdata[1:30, :5])
+            udata[udata==''] = np.nan
+            udata = udata.astype(dtype=np.float)
+            # fill in nan values with interpolated data col by col
+            for i, col in enumerate(udata.transpose()):
+                nans, x = Spring.nan_helper(col)
+                udata[:, i][nans] = np.interp(x(nans), x(~nans),
+                                              udata[:, i][~nans])
+
+            ldata = np.asarray(vsdata[1:30, 5:], dtype=np.float)
+            top_out_load_row = 4        # going above tops out support
+            bottom_out_load_row = 24    # going below bottoms out support
+
+            kdata = np.array(vsdata[31:36, 5:])
+            kdata[kdata=='-'] = np.nan
+            kdata = kdata.astype(dtype=np.float)
+
+        # find all applicable columns from table
+        hot_load += component_weight
+        assert (ldata[0, 0] <= hot_load <= ldata[-1, -1]), ("hot load out of "
+                "range, use rigid support instead")
+        idxs = []
+        for i, col in enumerate(ldata.transpose()): # down column
+            break_outer = False
+            for j, load in enumerate(col):
+                if j == 0 and load >= hot_load:
+                    break_outer = True
+                    break
+
+                if load >= hot_load:
+                    if top_out_load_row <= j <= bottom_out_load_row:
+                        idxs.append((j, i)) # store row and column
+                    break
+
+            if break_outer:     # break nested for
+                break
+
+        # print(idxs)
+
+        # get the load closest to middle of table
+        if not idxs:
+            return
+        else:
+            dist = []
+            midrow = 0.5 * (top_out_load_row + bottom_out_load_row)
+            for row, _ in idxs:
+                dist.append(abs(midrow - row))
+            # get index of load closest to middle
+            mididx = dist.index(min(dist))
+
+        # print(mididx)
+
+        # use load from above to find displacement
+        lrow, lcol = idxs[mididx]   # load row and col
+        assert (udata[lrow, -1] <= movement <= udata[lrow, 0]), ("movement "
+                "out of range, use constant spring or rigid support")
+        ucol = 0
+        for i, mvt in enumerate(reversed(udata[lrow])): # right to left
+            if movement <= mvt:
+                ucol = i    # spring displacement column
+                break
+
+        # use load and displacement to find spring stiffness
+        spring_rate = kdata[ucol, lcol]
+
+        # calculate cold load based on the hot load
+        if movement < 0:
+            cold_load = hot_load - (abs(movement)*spring_rate)
+        else:
+            cold_load = hot_load + (abs(movement)*spring_rate)
+
+        # calculate cold load and move to next load column if spring tops or
+        # bottoms out - recalculate corresponding hot load
+
+        # allowable variation between cold and hot load
+        var = abs(((hot_load-cold_load) / hot_load) * 100)
+        assert var <= variability, "over the variability limit"
+
+        # create spring instance
+        inst = cls(name, point, spring_rate, cold_load, variability=variability,
+                   is_constant=False, is_ftype=is_ftype,
+                   component_weight=component_weight)
+
+        return inst
 
     @property
     def variability(self):
-        return self._variability
+        if self.is_constant:
+            return 0
+        else:
+            return self._variability
 
     @variability.setter
     def variability(self, variability):
-        """The change in load from the cold load to the hot load"""
+        """The allowable change in load from the hot load to cold load"""
         self._variability = variability
         if variability == 0:
-            self._is_constant = True
+            self.is_constant = True
 
     @property
     def is_constant(self):
         return self._is_constant
+
+    @is_constant.setter
+    def is_constant(self, value):
+        self._is_constant = value
+
+    def hot_load(self, movement):
+        """Return the spring hot load based on the movement."""
+        if self.is_constant:
+            return self.cold_load
+        else:
+            if movement < 0:
+                hl = (self.cold_load + self.component_weight +
+                        abs(movement)*self.spring_rate)
+            else:
+                hl = (self.cold_load + self.component_weight -
+                        abs(movement)*self.spring_rate)
+
+        return hl
 
     def cglobal(self, element):
         c = np.zeros((12, 1), dtype=np.float64)

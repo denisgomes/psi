@@ -39,7 +39,7 @@ T1.apply([run20])
 # loadcases
 L1 = LoadCase('L1', 'ope', [Weight, Pressure, Thermal], [1, 1, 1])
 L2 = LoadCase('L2', 'sus', [Weight, Pressure], [1, 1])
-L3 = LoadComb('L1-L2', 'exp', 'algebraic', [L1, L2], [1, -1])
+L3 = LoadComb('L12', 'exp', 'algebraic', [L1, L2], [1, -1])
 
 # code
 b311 = B31167('B311')
@@ -50,7 +50,7 @@ mdl.analyze()
 # mdl.settings.units = 'si'
 
 # reports
-reac = Reactions('R1', [L1])
+reac = Reactions('R1', [L1, L2, L3])
 reac.to_screen()
 
 disp = Movements('R2', [L1])

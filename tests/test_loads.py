@@ -8,7 +8,7 @@ from psi.point import Point
 from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
-from psi.codes.B311 import B31167
+from psi.codes.b311 import B31167
 from psi.supports import Anchor
 from psi.loads import (Weight, Thermal, Pressure, Fluid, Hydro, Seismic, Wind,
                        Force, Displacement)

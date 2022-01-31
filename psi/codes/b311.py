@@ -50,17 +50,45 @@ class B31167(Code):
     be used to determine the final stress results?
     """
 
-    def __init__(self, name, year="1967"):
+    def __init__(self, name, year="1967", cycles=1e7, occ_hours=8):
         super(B31167, self).__init__(name)
         self.year = year
-        self.k = 1.15   # usage factor
-        self.f = 0.90   # fatigue reduction factor
+        self.k = self.k_from_hours(occ_hours)
+        self.f = self.f_from_cycles(cycles)
         self.Y = 0.0    # hoop stress factor
 
     @property
     def label(self):
         """Title used in report output"""
         return "B31167"
+
+    def f_from_cycles(self, cycles):
+        """Thermal stress range reduction factor due to fatigue based on the
+        number of cycles per Table 102.3.2(c).
+        """
+        if cycles <= 7000:
+            return 1
+        elif 7000 < cycles <= 14000:
+            return 0.9
+        elif 14000 < cycles <= 22000:
+            return 0.8
+        elif 22000 < cycles <= 45000:
+            return 0.7
+        elif 45000 < cycles <= 100000:
+            return 0.6
+        else:
+            return 0.5
+
+    def k_from_hours(self, hours):
+        """The occasional stress usage factor based on the total duration of
+        the event given in hours.
+        """
+        if hours <= 1:
+            return 1.2
+        elif 1 < hours <= 8:
+            return 1.15
+        else:
+            return 1.15
 
     def h(self, entity):
         """Flexibility characterisitic for fittings per the code."""
@@ -179,7 +207,7 @@ class B31167(Code):
                 tn = section.thk            # nominal thickness
                 r = (section.od - tn) / 2   # mean radius
                 Ec = material.ymod[model.settings.tref]
-                pmax = self.pmax( element)
+                pmax = self.pmax(element)
                 h = self.h(element)
 
                 ic = 1  # corrected for pressure - note 5

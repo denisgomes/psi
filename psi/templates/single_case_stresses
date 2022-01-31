@@ -4,7 +4,7 @@
 {{ super() }}
 {{ "%-10s" | format(" ") }}{{ "                       %-s (%s)                       " | format("STRESSES", units.stress) | center(60) }}
 
-{{ "%-10s" | format("NODE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}
+{{ "%-10s" | format("NODE") }}{{ "%10s" | format("HOOP") }}{{ "%10s" | format("AXIAL") }}{{ "%10s" | format("TORSION") }}{{ "%10s" | format("PRESSURE") }}{{ "%10s" | format("BENDING") }}{{ "%10s" | format("CODE") }}{{ "%10s" | format("RATIO")}}
 
 {% endblock %}
 
@@ -17,7 +17,8 @@
 {%- set pressure = results[3] -%}
 {%- set bending = results[4] -%}
 {%- set code = results[5] -%}
-{{ "%-10s" | format(point.name) }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}
+{%- set ratio = results[9] -%}
+{{ "%-10s" | format(point.name) }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(axial) }}{{ "% 10.1f" | format(torsion) }}{{ "% 10.1f" | format(pressure) }}{{ "% 10.1f" | format(bending) }}{{ "% 10.1f" | format(code) }}{{ "% 10.2f" | format(ratio)}}
 {% endfor -%}
 {%- endfor %}
 {% endblock %}

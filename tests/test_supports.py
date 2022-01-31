@@ -8,7 +8,7 @@ from psi.point import Point
 from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
-from psi.codes.B311 import B31167
+from psi.codes.b311 import B31167
 from psi.supports import Anchor, X, Y, Z, LimitStop, Inclined, Lateral
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
@@ -134,7 +134,6 @@ def test_incline(app):
 
     # get pipe objects
     pt10 = app.points(10)
-    # pt15 = app.points(15)
     pt20 = app.points(20)
 
     run15 = app.elements(10, 15)
@@ -237,7 +236,7 @@ def test_guide(app):
 
 
 def test_plus_y_negative_load(app):
-    """Simply supported beam with central concentrated force and a nonlinear
+    """Simply supported beam with central concentrated force and a non-linear
     +Y support.
     """
 
@@ -286,7 +285,7 @@ def test_plus_y_negative_load(app):
 
 
 def test_plus_y_positive_load(app):
-    """Simply supported beam with central concentrated force and a nonlinear
+    """Simply supported beam with central concentrated force and a non-linear
     +Y support.
     """
 
@@ -324,7 +323,7 @@ def test_plus_y_positive_load(app):
 
 
 def test_minus_y_positive_load(app):
-    """Simply supported beam with central concentrated force and a nonlinear
+    """Simply supported beam with central concentrated force and a non-linear
     -Y support.
     """
 
@@ -373,7 +372,7 @@ def test_minus_y_positive_load(app):
 
 
 def test_minus_y_negative_load(app):
-    """Simply supported beam with central concentrated force and a nonlinear
+    """Simply supported beam with central concentrated force and a non-linear
     -Y support.
     """
 

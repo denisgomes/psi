@@ -38,7 +38,7 @@ extensions = ['ablog',
 
 # jupyter-sphinx
 jupyter_sphinx_thebelab_config = {
-    'bootstrap': True,
+    # 'bootstrap': True,
     'requestKernel': True,
     'binderOptions': {
         'repo': "denisgomes/psi",
@@ -90,6 +90,7 @@ html_sidebars = {
         'searchbox.html',
         'donate.html',
         'archives.html',
+        'tagcloud.html',
     ]
 }
 

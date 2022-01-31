@@ -23,7 +23,7 @@ f1 = Force('f1', 1, 30, fy=-10000)
 f1.apply([run30])
 
 # loadcases
-l1 = LoadCase('l1', 'sus', [Force], [1])
+l1 = LoadCase('l1', 'occ', [Force], [1])
 
 # code
 b311 = B31167('B311')
@@ -34,3 +34,6 @@ mdl.analyze()
 # results
 disp = Movements('r1', [l1])
 disp.to_screen()
+
+codes = Codes('r2', [l1])
+codes.to_screen()

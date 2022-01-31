@@ -24,7 +24,7 @@ Some of the features of PSI are:
 * Assign loads such as Weight, Pressure, Thermal, Wind and Seismic
 * Linear combinations of loads and combinations of load cases
 * Stress evaluation based on B31.1 power piping code
-* Linear static analysis
+* Linear static, modal and dynamic analyses
 * Movements, support reactions, internal forces and code stress results
 * And more...
 

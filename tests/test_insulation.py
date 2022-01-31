@@ -2,7 +2,7 @@
 
 
 from psi.app import App
-from psi.codes.B311 import B31167
+from psi.codes.b311 import B31167
 from psi.elements import Run
 from psi.insulation import Insulation
 from psi.loads import Weight
