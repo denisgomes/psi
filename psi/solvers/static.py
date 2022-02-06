@@ -23,7 +23,7 @@ import logging
 import numpy as np
 from tqdm import trange
 
-from psi.supports import Inclined, AbstractSupport
+from psi.supports import Inclined, AbstractSupport, Spring
 from psi.loadcase import LoadCase, LoadComb
 from psi.loads import Displacement
 from psi import units
@@ -116,6 +116,14 @@ def static(model):
 
                 Fs[niqi:niqj, 0] += (csup[:6, 0] * dsup[:6, 0])
                 Fs[njqi:njqj, 0] += (csup[6:12, 0] * dsup[6:12, 0])
+
+                # add cold load if spring support or constant
+                # note spring rate for variables is added above
+                if isinstance(support, Spring):
+                    fspring = support.fglobal(element)
+
+                    Fs[niqi:niqj, 0] += fspring[:6, 0]
+                    Fs[njqi:njqj, 0] += fspring[6:12, 0]
 
             # load vector summed at nodes with forces
             feg = np.zeros((en*ndof, 1), dtype=np.float64)

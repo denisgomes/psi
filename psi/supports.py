@@ -694,6 +694,10 @@ class Lateral(AbstractSupport):
 class Spring(Support):
     """Define a spring support.
 
+    The hanger selection algorithm requires a hot load and movement. If the
+    variability is less than 3% or greater than the input variability or 25% by
+    default a constant spring is selected.
+
     Parameters
     ----------
     name : str
@@ -709,7 +713,8 @@ class Spring(Support):
         The spring load in the cold installation position.
 
     variability : float
-        The allowable difference in hot to cold load given in percentage.
+        The allowable difference in cold to hot load given in percentage.
+        Set to default value at 25 percent per MSS-SP-58.
 
     is_constant : bool
         If set to True, spring is set to constant effort.
@@ -737,6 +742,28 @@ class Spring(Support):
         self._is_constant = is_constant     # true if constant effort
         self.is_ftype = is_ftype            # bottom supported
         self.component_weight = component_weight
+        self._size = None    # size
+        self._stype = None   # type
+
+    @classmethod
+    def variable(cls, name, point, spring_rate, cold_load):
+        inst = cls(name, point, spring_rate, cold_load)
+
+        return inst
+
+    @classmethod
+    def constant(cls, name, point, load):
+        inst = cls(name, point, None, load, is_constant=True)
+
+        return inst
+
+    @property
+    def size(self):
+        return self._size
+
+    @property
+    def stype(self):
+        return self._stype
 
     @property
     def spring_rate(self):
@@ -750,56 +777,56 @@ class Spring(Support):
         self._spring_rate = value
 
     @staticmethod
-    def nan_helper(y):
+    def _nan_helper(y):
         """Helper for missing data used to interpolate values. Code courtesy of
         stackoverflow question 6518811.
         """
         return np.isnan(y), lambda z: z.nonzero()[0]
 
-    @classmethod
-    def from_file(cls, name, point, hot_load, movement, variability=25,
-                  is_ftype=False, component_weight=0, vendor="anvil"):
-        """Pick a spring from a vendor hanger table based on the hot load and
-        movement.
+    @staticmethod
+    def _pick_variable(udata, ldata, top_out_load_row, bottom_out_load_row,
+                      kdata, hot_load, movement, sizes=None, stypes=None):
+        """Helper function which returns a spring stiffness and other data if
+        available.
 
-        If the movement is small for the corresponding hot load a rigid support
-        in the vertical direction is returned.
+        The algorithm finds the hot load at the middle of the table such that
+        the spring does not top or bottom out. It then uses the movement to
+        go across the corresponding row to determine the first bounding value.
+        It uses the load row and the displacment column to determine the spring
+        stiffness.
 
-        If however, the movement is beyond the maximum range prescribed in the
-        vendor table for the hot load, a constant spring load with the required
-        movement is selected.
+        Parameters
+        ----------
+        udata : numpy array
+            Spring displacement data.
+
+        ldata : numpy array
+            Spring load data.
+
+        top_out_load_row : int
+            Spring load above which the spring tops out.
+
+        bottom_out_load_row : int
+            Spring load row below which the spring bottoms out.
+
+        kdata : numpy array
+            Spring stiffness data.
+
+        hot_load : float
+            The hot load to design for.
+
+        movement : float
+            The movement to design for.
+
+        sizes : numpy array
+            Sizes if available.
+
+        stypes : numpy array
+            Hanger types if available.
         """
-        vsfname = vendor + "_variable.csv"
-        csfname = vendor + "_constant.csv"
-        with open(os.path.join(psi.SPRING_DIRECTORY, vsfname), "r") as vsfile:
-            vsdata = np.array(list(csv.reader(vsfile)))
-
-        if vendor == "anvil":
-            stypes = np.asarray(vsdata[0, :5])
-            sizes = np.asarray(vsdata[0, 5:])
-
-            # interpolate missing spring deflection data
-            udata = np.array(vsdata[1:30, :5])
-            udata[udata==''] = np.nan
-            udata = udata.astype(dtype=np.float)
-            # fill in nan values with interpolated data col by col
-            for i, col in enumerate(udata.transpose()):
-                nans, x = Spring.nan_helper(col)
-                udata[:, i][nans] = np.interp(x(nans), x(~nans),
-                                              udata[:, i][~nans])
-
-            ldata = np.asarray(vsdata[1:30, 5:], dtype=np.float)
-            top_out_load_row = 4        # going above tops out support
-            bottom_out_load_row = 24    # going below bottoms out support
-
-            kdata = np.array(vsdata[31:36, 5:])
-            kdata[kdata=='-'] = np.nan
-            kdata = kdata.astype(dtype=np.float)
-
-        # find all applicable columns from table
-        hot_load += component_weight
         assert (ldata[0, 0] <= hot_load <= ldata[-1, -1]), ("hot load out of "
                 "range, use rigid support instead")
+        # find all applicable columns from variable table
         idxs = []
         for i, col in enumerate(ldata.transpose()): # down column
             break_outer = False
@@ -820,7 +847,7 @@ class Spring(Support):
 
         # get the load closest to middle of table
         if not idxs:
-            return
+            raise IndexError("spring load not found")
         else:
             dist = []
             midrow = 0.5 * (top_out_load_row + bottom_out_load_row)
@@ -843,6 +870,107 @@ class Spring(Support):
 
         # use load and displacement to find spring stiffness
         spring_rate = kdata[ucol, lcol]
+        stype = stypes[ucol] if stypes.tolist() else None
+        size = sizes[lcol] if sizes.tolist() else None
+
+        return spring_rate, stype, size
+
+    @staticmethod
+    def _pick_constant(cudata, cldata, hot_load, movement, csizes):
+        """Design a constant spring based on hot load and movement.
+
+        1. Determine total travel.
+
+            TT = AT + greater of (1.20*AT or 1")
+
+            Round TT to nearest 1/2".
+
+        2. Find the load that most closely bounds the hot load.
+
+        3. Determine the corresponding constant spring size.
+        """
+        total_travel = max(1.2*movement, 1+movement)
+        assert (cudata[0] <= total_travel <= cudata[-1]), ("movement out of",
+                "range.")
+
+        ucol = 0    # mvt column
+        for i, udat in enumerate(cudata):
+            if udat >= total_travel:
+                ucol = i
+                break
+
+        lrow = 0    # load row
+        for i, cldat in enumerate(cldata[:, ucol]):
+            if cldat >= hot_load:
+                lrow = i
+                break
+
+        load = cldata[lrow, ucol]
+        travel = cudata[ucol]
+        size = csizes[lrow]
+
+        return load, travel, size
+
+    @classmethod
+    def from_file(cls, name, point, hot_load, movement, variability=25,
+                  is_ftype=False, component_weight=0, vendor="anvil"):
+        """Pick a spring from a vendor hanger table based on the hot load and
+        movement.
+
+        If the movement is small for the corresponding hot load a rigid support
+        in the vertical direction is returned.
+
+        If however, the movement is beyond the maximum range prescribed in the
+        vendor table for the hot load, a constant spring load with the required
+        movement is selected.
+        """
+        vsfname = vendor + "_variable.csv"
+        csfname = vendor + "_constant.csv"
+        with open(os.path.join(psi.SPRING_DIRECTORY, vsfname), "r") as vsfile:
+            vsdata = np.array(list(csv.reader(vsfile)))
+
+        with open(os.path.join(psi.SPRING_DIRECTORY, csfname), "r") as csfile:
+            csdata = np.array(list(csv.reader(csfile)))
+
+        # reset per vendor as applicable
+        default_catalog_units = "english"
+
+        if vendor == "anvil":
+            stypes = np.asarray(vsdata[0, :5])
+            sizes = np.asarray(vsdata[0, 5:])
+
+            # interpolate missing spring deflection data
+            udata = np.array(vsdata[1:30, :5])
+            udata[udata==""] = np.nan
+            udata = udata.astype(dtype=np.float)
+            # fill in nan values with interpolated data col by col
+            for i, col in enumerate(udata.transpose()):
+                nans, x = Spring._nan_helper(col)
+                udata[:, i][nans] = np.interp(x(nans), x(~nans),
+                                              udata[:, i][~nans])
+
+            ldata = np.asarray(vsdata[1:30, 5:], dtype=np.float)
+            top_out_load_row = 4        # going above tops out support
+            bottom_out_load_row = 24    # going below bottoms out support
+
+            kdata = np.array(vsdata[31:36, 5:])
+            kdata[kdata=='-'] = np.nan
+            kdata = kdata.astype(dtype=np.float)
+
+            # constant spring data
+            csizes = np.asarray(csdata[1:, 0])
+            cudata = np.asarray(csdata[0, 1:], dtype=np.float)
+
+            cldata = np.array(csdata[1:, 1:])
+            cldata[cldata==""] = np.nan
+            cldata = cldata.astype(dtype=np.float)
+
+        hot_load += component_weight
+
+        # use load and displacement to find spring stiffness
+        spring_rate, stype, size = Spring._pick_variable(udata, ldata,
+                top_out_load_row, bottom_out_load_row, kdata, hot_load,
+                movement, sizes=sizes, stypes=stypes)
 
         # calculate cold load based on the hot load
         if movement < 0:
@@ -850,17 +978,33 @@ class Spring(Support):
         else:
             cold_load = hot_load + (abs(movement)*spring_rate)
 
-        # calculate cold load and move to next load column if spring tops or
-        # bottoms out - recalculate corresponding hot load
+        # TODO: calculate cold load and move to next or previous load column if
+        # spring tops or bottoms out - recalculate corresponding hot load
 
-        # allowable variation between cold and hot load
+        # actual variation between cold and hot load
         var = abs(((hot_load-cold_load) / hot_load) * 100)
-        assert var <= variability, "over the variability limit"
 
-        # create spring instance
-        inst = cls(name, point, spring_rate, cold_load, variability=variability,
-                   is_constant=False, is_ftype=is_ftype,
-                   component_weight=component_weight)
+        try:
+            assert (var <= variability and var < 25), "variability over limit"
+
+            # create spring instance
+            with units.Units(user_units=default_catalog_units):
+                inst = cls(name, point, spring_rate, cold_load,
+                        variability=variability, is_constant=False,
+                        is_ftype=is_ftype, component_weight=component_weight)
+                inst._stype = stype
+                inst._size = size
+        except AssertionError:
+            # design a constant spring
+            load, travel, size = Spring._pick_constant(cudata, cldata,
+                    hot_load, movement, csizes)
+
+            with units.Units(user_units=default_catalog_units):
+                inst = cls(name, point, None, load, variability=variability,
+                        is_constant=True, is_ftype=is_ftype,
+                        component_weight=component_weight)
+                inst._stype = None
+                inst._size = size
 
         return inst
 
@@ -901,23 +1045,54 @@ class Spring(Support):
         return hl
 
     def cglobal(self, element):
+        """The spring rate of a variable spring will alter the diagonal of the
+        stiffness matrix in the vertical direction (y or z). A constant spring
+        will not have any stiffness effect.
+        """
         c = np.zeros((12, 1), dtype=np.float64)
 
         vert = self.app.models.active_object.settings.vertical
+        rate = self.spring_rate
+        if self.is_constant:
+            rate = 0
 
         if vert == "y":
             if self.point == element.from_point.name:
-                c[1, 0] = self.spring_rate
+                c[1, 0] = rate
             elif self.point == element.to_point.name:
-                c[7, 0] = self.spring_rate
+                c[7, 0] = rate
 
         elif vert == "z":
             if self.point == element.from_point.name:
-                c[2, 0] = self.spring_rate
+                c[2, 0] = rate
             elif self.point == element.to_point.name:
-                c[8, 0] = self.spring_rate
+                c[8, 0] = rate
 
         return c
+
+    def fglobal(self, element):
+        """For both a variable and a constant spring a load is applied to the
+        point to simulate the cold load support the support provides. Note the
+        sign of the load is positive (upward).
+        """
+        f = np.zeros((12, 1), dtype=np.float64)
+
+        vert = self.app.models.active_object.settings.vertical
+        cl = self.cold_load
+
+        if vert == "y":
+            if self.point == element.from_point.name:
+                f[:6, 0] = [0, cl, 0, 0, 0, 0]
+            elif self.point == element.to_point.name:
+                f[6:12, 0] = [0, cl, 0, 0, 0, 0]
+
+        elif vert == "z":
+            if self.point == element.from_point.name:
+                f[:6, 0] = [0, 0, cl, 0, 0, 0]
+            elif self.point == element.to_point.name:
+                f[6:12, 0] = [0, 0, cl, 0, 0, 0]
+
+        return f
 
 
 class SupportContainer(EntityContainer):
