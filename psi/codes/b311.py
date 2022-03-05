@@ -394,6 +394,17 @@ class B31167(Code):
 
             return M*i / Z
 
+    def sts(self, element, forces):
+        """Transverse shear stress"""
+        with units.Units(user_units="code_english"):
+            fy, fz = forces[1:3]
+            F = math.sqrt(fy**2 + fz**2)
+
+            section = element.section
+            area = section.area
+
+            return F / area
+
     def stor(self, element, forces):
         """Shear stress due to torsion"""
         with units.Units(user_units="code_english"):

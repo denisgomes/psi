@@ -400,12 +400,15 @@ def static(model):
 
     tqdm.info("*** Performing element code checking.")
 
-    S = np.zeros((nn, 10), dtype=np.float64)        # stresses
+    S = np.zeros((nn, 15), dtype=np.float64)    # stresses
     for i, loadcase in enumerate(loadcases):
         C = []  # code used at each node
         for element in model.elements:
             element_codecheck(points, loadcase, element, S)
             C.extend(2 * [element.code.label])
+
+        print(S)
+
         loadcase.stresses.results = (S[:, :], C)
 
     tqdm.info("*** Code checking complete.")

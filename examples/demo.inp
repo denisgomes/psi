@@ -9,7 +9,6 @@ mdl = Model('demo')
 # define properties
 pipe1 = Pipe.from_file('pipe1', '10', '40')
 mat1 = Material.from_file('mat1', 'A53A', 'B31.1')
-
 # create geometry
 pt10 = Point(10)
 run20 = Run(20, L)
@@ -44,3 +43,6 @@ reac.to_screen()
 
 stress = Stresses('r3', [l1])
 stress.to_screen()
+
+stressext = StressesExtended('r4', [l1])
+stressext.to_screen()

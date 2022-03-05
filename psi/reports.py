@@ -220,7 +220,7 @@ class Stresses(Report):
                                             jobname=jobname,
                                             licensed_to="PSI Community",
                                             report_type=self.__class__.__name__,
-                                            report_desc="Element Stresses Report",
+                                            report_desc="Stresses Report",
                                             units=Quantity.user_units,
                                             loadcases=self.loadcases,
                                             zip=zip,     # pass zip
@@ -228,6 +228,50 @@ class Stresses(Report):
                                             abs=abs,
                                             ))
 
+
+class StressesExtended(Report):
+    """Stress output results"""
+
+    def __init__(self, name, loadcases):
+        """Create a forces report instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for report object.
+
+        loadcases : list of loadcases
+            Loadcases for which results are displayed.
+        """
+        super(StressesExtended, self).__init__(name, loadcases)
+
+        if len(loadcases) == 1:
+            self.template = self.env.get_template("single_case_stresses_extended")
+        else:
+            self.template = self.env.get_template("multiple_case_stresses_extended")
+
+    def to_screen(self):
+        """Print forces report results to screen."""
+        # version = options["core.version"]
+        version = self.app.models.active_object.settings.version
+        date = datetime.now().date()
+        jobname = self.app.models.active_object.jobname
+        time = datetime.strftime(datetime.now(), "%I:%M %p")
+
+        with redirect_stdout(sys.__stdout__):
+            tqdm.write(self.template.render(version=version,
+                                            date=date,
+                                            time=time,
+                                            jobname=jobname,
+                                            licensed_to="PSI Community",
+                                            report_type="STRESSES EXTENDED",
+                                            report_desc="Stresses Extended Report",
+                                            units=Quantity.user_units,
+                                            loadcases=self.loadcases,
+                                            zip=zip,     # pass zip
+                                            enumerate=enumerate,
+                                            abs=abs,
+                                            ))
 
 class Codes(Report):
     """Code compliance output results"""
@@ -282,4 +326,5 @@ class ReportContainer(EntityContainer, ActiveEntityContainerMixin):
         self.Reactions = Reactions
         self.Forces = Forces
         self.Stresses = Stresses
+        self.StressesExtended = StressesExtended
         self.Codes = Codes

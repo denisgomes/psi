@@ -689,7 +689,7 @@ class Lateral(AbstractSupport):
         return _type
 
 
-@units.define(_spring_rate="translation_stiffness", cold_load="force",
+@units.define(_spring_rate="translation_stiffness", _cold_load="force",
               component_weight="force")
 class Spring(Support):
     """Define a spring support.
@@ -730,20 +730,28 @@ class Spring(Support):
     component_weight : float
         The weight of support component such as pipe clamp and rod that should
         be accounted for in spring sizing.
+
+    is_program_designed : bool
+        Set to True by default.
     """
 
-    def __init__(self, name, point, spring_rate, cold_load, variability=25,
-                 is_constant=False, is_ftype=False, component_weight=0):
+    def __init__(self, name, point, spring_rate=None, cold_load=None,
+                 variability=25, is_constant=False, is_ftype=False,
+                 component_weight=0, is_program_designed=True):
 
         super(Spring, self).__init__(name, point)
         self._spring_rate = spring_rate
-        self.cold_load = cold_load
+        self._cold_load = cold_load
         self._variability = variability     # 25% per MSS-SP-58
         self._is_constant = is_constant     # true if constant effort
         self.is_ftype = is_ftype            # bottom supported
         self.component_weight = component_weight
         self._size = None    # size
         self._stype = None   # type
+
+        self._is_program_designed = is_program_designed
+        if spring_rate and cold_load:
+            self._is_program_designed = False
 
     @classmethod
     def variable(cls, name, point, spring_rate, cold_load):
@@ -756,6 +764,14 @@ class Spring(Support):
         inst = cls(name, point, None, load, is_constant=True)
 
         return inst
+
+    @property
+    def is_program_designed(self):
+        return self._is_program_designed
+
+    @is_program_designed.setter
+    def is_program_designed(self, value):
+        self._is_program_designed = value
 
     @property
     def size(self):
@@ -774,7 +790,19 @@ class Spring(Support):
 
     @spring_rate.setter
     def spring_rate(self, value):
+        if self.is_program_designed:
+            raise ValueError("cannont set value for program designed spring")
         self._spring_rate = value
+
+    @property
+    def cold_load(self):
+        return self._cold_load
+
+    @cold_load.setter
+    def cold_load(self, value):
+        if self.is_program_designed:
+            raise ValueError("cannont set value for program designed spring")
+        self._cold_load = value
 
     @staticmethod
     def _nan_helper(y):
@@ -785,7 +813,7 @@ class Spring(Support):
 
     @staticmethod
     def _pick_variable(udata, ldata, top_out_load_row, bottom_out_load_row,
-                      kdata, hot_load, movement, sizes=None, stypes=None):
+                       kdata, hot_load, movement, sizes=None, stypes=None):
         """Helper function which returns a spring stiffness and other data if
         available.
 
@@ -984,6 +1012,7 @@ class Spring(Support):
         # actual variation between cold and hot load
         var = abs(((hot_load-cold_load) / hot_load) * 100)
 
+        spring_selection_failed = False
         try:
             assert (var <= variability and var < 25), "variability over limit"
 
@@ -1072,7 +1101,7 @@ class Spring(Support):
 
     def fglobal(self, element):
         """For both a variable and a constant spring a load is applied to the
-        point to simulate the cold load support the support provides. Note the
+        point to simulate the installation load the support provides.  Note the
         sign of the load is positive (upward).
         """
         f = np.zeros((12, 1), dtype=np.float64)

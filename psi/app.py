@@ -143,7 +143,6 @@ class App(object):
                 "Spring": self.supports.Spring,
                 "LimitStop": self.supports.LimitStop,
                 "Lateral": self.supports.Lateral,
-                # "Displacement": self.supports.Displacement,
 
                 # codes
                 "codes": self.codes,
@@ -164,6 +163,7 @@ class App(object):
                 "Seismic": self.loads.Seismic,
                 "Force": self.loads.Force,
                 "Displacement": self.loads.Displacement,
+                "Hanger": self.loads.Hanger,
 
                 # loadcases
                 "loadcases": self.loadcases,
@@ -176,6 +176,7 @@ class App(object):
                 "Reactions": self.reports.Reactions,
                 "Forces": self.reports.Forces,
                 "Stresses": self.reports.Stresses,
+                "StressesExtended": self.reports.StressesExtended,
                 "Codes": self.reports.Codes,
                 }
 

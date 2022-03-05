@@ -9,7 +9,7 @@ from psi.elements import Run
 from psi.sections import Pipe
 from psi.material import Material
 from psi.codes.b311 import B31167
-from psi.supports import Anchor, X, Y, Z, LimitStop, Inclined, Lateral
+from psi.supports import Anchor, X, Y, Z, LimitStop, Inclined, Lateral, Spring
 from psi.loads import Force, Weight, Thermal
 from psi.loadcase import LoadCase
 
@@ -407,3 +407,29 @@ def test_minus_y_negative_load(app):
     # check reactions due to fy
     assert compare(L1.reactions[pt10][1], -10000)
     assert compare(L1.reactions[pt20][1], 0)
+
+
+def test_variable_spring(app):
+
+    # get pipe objects
+    pt10 = app.points(10)
+    run10 = app.elements(10, 15)
+    run20 = app.elements(15, 20)
+
+    # supports
+    anc1 = Anchor('A1', 10)
+    anc1.apply([run10])
+
+    spr20 = Spring('Spr20', 20, 1000, 1000)
+    spr20.apply([run20])
+
+    W1 = Weight('W1', 1)
+    W1.apply([run10, run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'sus', [Weight], [1])
+
+    app.models('simple').analyze()
+
+    # check reactions due to fy
+    assert compare(L1.reactions[pt10].fy, -100)

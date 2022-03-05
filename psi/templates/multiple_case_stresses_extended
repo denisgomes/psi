@@ -1,0 +1,53 @@
+{% extends "multiple_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "%-10s" | format(" ") }}{{ "%-s (%s)" | format("STRESSES", units.stress) | center(50) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("S1") }}{{ "%10s" | format("S2") }}{{ "%10s" | format("TMAX") }}{{ "%10s" | format("SINT") }}{{ "%10s" | format("SVON") }}{{ "%10s" | format("CODE") }}
+{% endblock %}
+
+{% block body %}
+{%- for i, point in enumerate(loadcases[0].points) -%}
+
+{%- set ns = namespace(S1=0, S2=0, TMAX=0, SINT=0, SVON=0, CODE=0) -%}
+
+{%- for loadcase in loadcases -%}
+
+{%- set results = loadcase.stresses.results[i] -%}
+{%- set s1 = results[10] -%}
+{%- set s2 = results[11] -%}
+{%- set tmax = results[12] -%}
+{%- set sint = results[13] -%}
+{%- set svon = results[14] -%}
+{%- set code = results[10] -%}
+
+{%- if abs(s1) > abs(ns.S1) -%}
+    {%- set ns.S1 = s1 -%}
+{% endif -%}
+{%- if abs(s2) > abs(ns.S2) -%}
+    {%- set ns.S2 = s2 -%}
+{% endif -%}
+{%- if abs(tmax) > abs(ns.TMAX) -%}
+    {%- set ns.TMAX = tmax -%}
+{% endif -%}
+{%- if abs(sint) > abs(ns.SINT) -%}
+    {%- set ns.SINT = sint -%}
+{% endif -%}
+{%- if abs(svon) > abs(ns.SVON) -%}
+    {%- set ns.SVON = svon -%}
+{% endif -%}
+{% if loop.first %}
+{{ "%-10s" | format(point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(s1) }}{{ "% 10.1f" | format(s2) }}{{ "% 10.1f" | format(tmax) }}{{ "% 10.1f" | format(sint) }}{{ "% 10.1f" | format(svon) }}{{ "%10s" | format(code) }}
+{%- elif loop.last %}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(s1) }}{{ "% 10.1f" | format(s2) }}{{ "% 10.1f" | format(tmax) }}{{ "% 10.1f" | format(sint) }}{{ "% 10.1f" | format(svon) }}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format("MAX ") }}{{ "% 10.1f" | format(ns.S1) }}{{ "% 10.1f" | format(ns.S2) }}{{ "% 10.1f" | format(ns.TMAX) }}{{ "% 10.1f" | format(ns.SINT) }}{{ "% 10.1f" | format(ns.SVON) }}{{ "%10s" | format(ns.CODE) }}
+{%- else -%}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(s1) }}{{ "% 10.1f" | format(s2) }}{{ "% 10.1f" | format(tmax) }}{{ "% 10.1f" | format(sint) }}{{ "% 10.1f" | format(svon) }}
+{%- endif -%}
+{% endfor %}
+{% endfor -%}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

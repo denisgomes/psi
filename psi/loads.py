@@ -955,6 +955,61 @@ class Displacement(Load):
         return self.cglobal(element) * self.dglobal(element)
 
 
+class Hanger(Load):
+    """Perform spring hanger design based on cold load and travel.
+
+    For the weight cases, all springs are converted to +Y supports and solved
+    for support loads.
+
+    The rigid support reactions from each case are combined. The combination
+    method can be 'max' or 'avg'. If 'max' is selected, the largest cold load
+    is taken otherwise the average value across all weight cases is used by
+    default.
+
+    The combined reaction forces are then applied at the spring support
+    locations and used to calculate the support movements. The 'max' or 'avg'
+    is taken depending on the method.
+
+    The solver takes all weight cases and solves them using +Y supports in
+    place of springs. It then applies the calculated loads to the travel cases
+    to determine the total hanger movements. The springs are then designed
+    based on these loads and movements.
+
+    .. note::
+        This load should be added to all cases if springs are defined.
+    """
+
+    _instance = None    # singleton
+
+    label = "H"
+
+    def __new__(cls, args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(Hanger, cls).__new__(cls, args, kwargs)
+
+        return cls._instance
+
+    def __init__(self, name, weight_cases=[], travel_cases=[], method="avg"):
+        super(Hanger, self).__init__(name, opercase=None)
+        self.weight_cases = weight_cases
+        self.travel_cases = travel_cases
+        self.method = method
+
+    def _design_load(self):
+        """Design weight case used to supply input to travel case"""
+        pass
+
+    def _design_travel(self):
+        """Design travel case"""
+        pass
+
+    def design(self, loadcase=None):
+        """Design system springs based on results from weight and travel cases
+        and apply to loadcases.
+        """
+        pass
+
+
 class LoadContainer(EntityContainer):
 
     def __init__(self):
@@ -968,6 +1023,7 @@ class LoadContainer(EntityContainer):
         self.Force = Force
         self.Seismic = Seismic
         self.Wind = Wind
+        self.Hanger = Hanger
 
     def apply(self, loads=[], elements=None):
         """Apply loads to elements.

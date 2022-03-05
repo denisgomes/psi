@@ -54,6 +54,9 @@ def element_codecheck(points, loadcase, element, S):
             saxi = element.code.sax(element, fori)
             saxj = element.code.sax(element, forj)
 
+            stsi = element.code.sts(element, fori)
+            stsj = element.code.sts(element, forj)
+
             stori = element.code.stor(element, fori)
             storj = element.code.stor(element, forj)
 
@@ -78,6 +81,23 @@ def element_codecheck(points, loadcase, element, S):
                 sratioi = 0
                 sratioj = 0
 
+            # derived extended stresses
+            s1i = element.code.s1(sli, shoop, stori, stsi)
+            s1j = element.code.s1(slj, shoop, storj, stsj)
+
+            s2i = element.code.s2(sli, shoop, stori, stsi)
+            s2j = element.code.s2(slj, shoop, storj, stsj)
+
+            smsi = element.code.max_shear(s1i, s2i)
+            smsj = element.code.max_shear(s1j, s2j)
+
+            sinti = element.code.sint(smsi)
+            sintj = element.code.sint(smsj)
+
+            svoni = element.code.svon(s1i, s2i)
+            svonj = element.code.svon(s1j, s2j)
+
+
         elif isinstance(loadcase, LoadComb):
             # fitting and nodal sifs, sum together, take max or average?
             sifi = element.code.sifi(element)
@@ -85,8 +105,8 @@ def element_codecheck(points, loadcase, element, S):
 
             loadcomb = loadcase
             shoop_list, slp_list = [], []
-            saxi_list, stori_list, slbi_list, sli_list = [], [], [], []
-            saxj_list, storj_list, slbj_list, slj_list = [], [], [], []
+            saxi_list, stsi, stori_list, slbi_list, sli_list = [], [], [], [], []
+            saxj_list, stsj, storj_list, slbj_list, slj_list = [], [], [], [], []
             for factor, loadcase in zip_longest(loadcomb.factors,
                                                 loadcomb.loadcases,
                                                 fillvalue=1):
@@ -98,6 +118,9 @@ def element_codecheck(points, loadcase, element, S):
 
                 saxi_list.append(factor * element.code.sax(element, fori))
                 saxj_list.append(factor * element.code.sax(element, forj))
+
+                stsi_list.append(factor * element.code.sts(element, fori))
+                stsj_list.append(factor * element.code.sts(element, forj))
 
                 stori_list.append(factor * element.code.stor(element, fori))
                 storj_list.append(factor * element.code.stor(element, forj))
@@ -120,6 +143,9 @@ def element_codecheck(points, loadcase, element, S):
                 saxi = sum(saxi_list)
                 saxj = sum(saxj_list)
 
+                stsi = sum(stsi_list)
+                stsj = sum(stsj_list)
+
                 stori = sum(stori_list)
                 storj = sum(storj_list)
 
@@ -139,6 +165,9 @@ def element_codecheck(points, loadcase, element, S):
 
                 saxi = element.code.sax(element, fori)
                 saxj = element.code.sax(element, forj)
+
+                stsi = element.code.sts(element, fori)
+                stsj = element.code.sts(element, forj)
 
                 stori = element.code.stor(element, fori)
                 storj = element.code.stor(element, forj)
@@ -160,6 +189,9 @@ def element_codecheck(points, loadcase, element, S):
                 saxi = sum([s**2 for s in saxi_list])
                 saxj = sum([s**2 for s in saxj_list])
 
+                stsi = sum([s**2 for s in stsi_list])
+                stsj = sum([s**2 for s in stsj_list])
+
                 stori = sum([s**2 for s in stori_list])
                 storj = sum([s**2 for s in storj_list])
 
@@ -175,6 +207,9 @@ def element_codecheck(points, loadcase, element, S):
 
                 saxi = sum([abs(s) for s in saxi_list])
                 saxj = sum([abs(s) for s in saxj_list])
+
+                stsi = sum([abs(s) for s in stsi_list])
+                stsj = sum([abs(s) for s in stsj_list])
 
                 stori = sum([abs(s) for s in stori_list])
                 storj = sum([abs(s) for s in storj_list])
@@ -192,6 +227,9 @@ def element_codecheck(points, loadcase, element, S):
                 saxi = max(saxi_list)
                 saxj = max(saxj_list)
 
+                stsi = max(stsi_list)
+                stsj = max(stsj_list)
+
                 stori = max(stori_list)
                 storj = max(storj_list)
 
@@ -207,6 +245,9 @@ def element_codecheck(points, loadcase, element, S):
 
                 saxi = min(saxi_list)
                 saxj = min(saxj_list)
+
+                stsi = min(stsi_list)
+                stsj = min(stsj_list)
 
                 stori = min(stori_list)
                 storj = min(storj_list)
@@ -225,6 +266,9 @@ def element_codecheck(points, loadcase, element, S):
                 saxi = math.sqrt(saxi)
                 saxj = math.sqrt(saxj)
 
+                stsi = math.sqrt(stsi)
+                stsj = math.sqrt(stsj)
+
                 stori = math.sqrt(stori)
                 storj = math.sqrt(storj)
 
@@ -233,6 +277,23 @@ def element_codecheck(points, loadcase, element, S):
 
                 sli = math.sqrt(sli)
                 slj = math.sqrt(slj)
+
+            # calculate derived stresses from combined stresses
+            s1i = element.code.s1(sli, shoop, stori, stsi)
+            s1j = element.code.s1(slj, shoop, storj, stsj)
+
+            s2i = element.code.s2(sli, shoop, stori, stsi)
+            s2j = element.code.s2(slj, shoop, storj, stsj)
+
+            smsi = element.code.max_shear(s1i, s2i)
+            smsj = element.code.max_shear(s1j, s2j)
+
+            sinti = element.code.sint(smsi)
+            sintj = element.code.sint(smsj)
+
+            svoni = element.code.svon(s1i, s2i)
+            svonj = element.code.svon(s1j, s2j)
+
 
             # allowable loadcomb stress
             sallowi_list = []
@@ -266,13 +327,15 @@ def element_codecheck(points, loadcase, element, S):
 
         # hoop, sax, stor, slp, slb, sl, sifi, sifj, sallow, ir
         # take the worst code stress at node
-        if sratioi > S[idxi, -1]:
-            S[idxi, :10] = (shoop, saxi, stori, slp, slbi, sli,
-                            sifi, sifo, sallowi, sratioi)
+        if sratioi > S[idxi, 9]:
+            S[idxi, :15] = (shoop, saxi, stori, slp, slbi, sli,
+                            sifi, sifo, sallowi, sratioi,
+                            s1i, s2i, smsi, sinti, svoni)
 
-        if sratioj > S[idxj, -1]:
-            S[idxj, :10] = (shoop, saxj, storj, slp, slbj, slj,
-                            sifi, sifo, sallowj, sratioj)
+        if sratioj > S[idxj, 9]:
+            S[idxj, :15] = (shoop, saxj, storj, slp, slbj, slj,
+                            sifi, sifo, sallowj, sratioj,
+                            s1j, s2j, smsj, sintj, svonj)
 
         # TODO : Implement Ma, Mb and Mc calculation loads
         # for each loadcase where Ma is for sustained, Mb is

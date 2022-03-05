@@ -9,8 +9,15 @@
 
 {%- block body -%}
 {%- for loadcase in loadcases -%}
-{%- for point, stress in zip(loadcase.points, loadcase.stresses.results) %}
-{{ "%-8s" | format(point.name) }}{{ "% 10.1f" | format(stress[0]) }}{{ "% 10.1f" | format(stress[5]) }}{{ "% 10.1f" | format(stress[8]) }}{{ "% 10.2f" | format(stress[6]) }}{{ "% 10.2f" | format(stress[7]) }}{{ "% 10.2f" | format(stress[9]) }}{{ "%10s" | format(stress[10])}}
+{%- for point, result in zip(loadcase.points, loadcase.stresses.results) %}
+{%- set hoop = result[0] %}
+{%- set stress = result[5] %}
+{%- set allow = result[8] %}
+{%- set sifi = result[6] %}
+{%- set sifo = result[7] %}
+{%- set ratio = result[9] %}
+{%- set code = result[15] %}
+{{ "%-8s" | format(point.name) }}{{ "% 10.1f" | format(hoop) }}{{ "% 10.1f" | format(stress) }}{{ "% 10.1f" | format(allow) }}{{ "% 10.2f" | format(sifi) }}{{ "% 10.2f" | format(sifo) }}{{ "% 10.2f" | format(ratio) }}{{ "%10s" | format(code)}}
 {%- endfor -%}
 {%- endfor %}
 {% endblock %}

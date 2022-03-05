@@ -457,6 +457,36 @@ class Sallow:
     pass
 
 
+@units.define(_values="stress")
+class S1(Stress):
+    """Maximum principal stress"""
+    pass
+
+
+@units.define(_values="stress")
+class S2(Stress):
+    """Minimum principal stress"""
+    pass
+
+
+@units.define(_values="stress")
+class MaxShear(Stress):
+    """Maximum shear stress"""
+    pass
+
+
+@units.define(_values="stress")
+class SInt(Stress):
+    """Stress Intensity"""
+    pass
+
+
+@units.define(_values="stress")
+class SVon(Stress):
+    """Von Mises Stress"""
+    pass
+
+
 class Stresses:
     """A table of nodal stress results.
 
@@ -465,8 +495,9 @@ class Stresses:
     """
 
     Result = namedtuple("Result", ["shoop", "sax", "stor", "slp", "slb", "sl",
-                                   "sifi", "sifo", "sallow", "sratio", "scode"
-                                   ])
+                                   "sifi", "sifo", "sallow", "sratio",
+                                   "s1", "s2", "mshear", "sint", "svon",
+                                   "scode"])
 
     def __init__(self, app):
         self._app = app
@@ -480,6 +511,11 @@ class Stresses:
         self._sifo = None
         self._sallow = Sallow()
         self._sratio = None
+        self._s1 = S1()
+        self._s2 = S2()
+        self._mshear = MaxShear()
+        self._sint = SInt()
+        self._svon = SVon()
         self._scode = None
 
     def __getitem__(self, item):
@@ -491,9 +527,12 @@ class Stresses:
 
                 # note that .results is a table, each row corresponds to node
                 # the stress terms are in arrays because of units
-                shoop, sax, stor, slp, slb, sl, *others = self.results[idxi]
+                (shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow,
+                 sratio, s1, s2, mshear, sint, svon, scode) = self.results[idxi]
                 return Stresses.Result(shoop[0], sax[0], stor[0], slp[0],
-                                       slb[0], sl[0], *others)
+                                       slb[0], sl[0], sifi, sifo,
+                                       sallow, sratio, s1[0], s2[0],
+                                       mshear[0], sint[0], svon[0], scode)
             except:
                 raise ValueError("node is not in results array")
 
@@ -512,10 +551,15 @@ class Stresses:
         sifo = self._sifo
         sallow = self._sallow.results
         sratio = self._sratio
+        s1 = self._s1.results
+        s2 = self._s2.results
+        mshear = self._mshear.results
+        sint = self._sint.results
+        svon = self._svon.results
         scodes = self._scodes
 
         data = zip(shoop, sax, stor, slp, slb, sl, sifi, sifo, sallow, sratio,
-                   scodes)
+                   s1, s2, mshear, sint, svon, scodes)
         values = list(data)     # mixed datatype
 
         return values
@@ -534,7 +578,11 @@ class Stresses:
         self._sifo = results[:, 7]
         self._sallow.results = results[:, 8]
         self._sratio = results[:, 9]
-
+        self._s1.results = results[:, 10]
+        self._s2.results = results[:, 11]
+        self._mshear.results = results[:, 12]
+        self._sint.results = results[:, 13]
+        self._svon.results = results[:, 14]
         self._scodes = codes
 
 

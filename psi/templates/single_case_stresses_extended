@@ -1,0 +1,24 @@
+{% extends "single_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "                       %-s (%s)                       " | format("STRESSES", units.stress) | center(60) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%10s" | format("S1") }}{{ "%10s" | format("S2") }}{{ "%10s" | format("TMAX") }}{{ "%10s" | format("SINT") }}{{ "%10s" | format("SVON") }}{{ "%10s" | format("CODE") }}{{ "%10s" | format("RATIO")}}
+
+{% endblock %}
+
+{% block body %}
+{%- for loadcase in loadcases -%}
+{%- for point, results in zip(loadcase.points, loadcase.stresses.results) %}
+{%- set s1 = results[10] -%}
+{%- set s2 = results[11] -%}
+{%- set mshear = results[12] -%}
+{%- set sint = results[13] -%}
+{%- set svon = results[14] -%}
+{%- set code = results[5] -%}
+{%- set ratio = results[9] -%}
+{{ "%-10s" | format(point.name) }}{{ "% 10.1f" | format(s1) }}{{ "% 10.1f" | format(s2) }}{{ "% 10.1f" | format(mshear) }}{{ "% 10.1f" | format(sint) }}{{ "% 10.1f" | format(svon) }}{{ "% 10.1f" | format(code) }}{{ "% 10.2f" | format(ratio)}}
+{% endfor -%}
+{%- endfor %}
+{% endblock %}

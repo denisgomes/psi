@@ -19,7 +19,7 @@
 {%- set sifi = results[6] -%}
 {%- set sifo = results[7] -%}
 {%- set ratio = results[9] -%}
-{%- set code = results[10] -%}
+{%- set code = results[15] -%}
 
 {%- if abs(stress) > abs(ns.STRESS) -%}
     {%- set ns.STRESS = stress -%}

@@ -16,6 +16,7 @@
 
 """Implementation of different piping codes"""
 
+import math
 
 from psi.entity import (Entity, EntityContainer, ActiveEntityMixin,
                         ActiveEntityContainerMixin)
@@ -87,6 +88,10 @@ class Code(Entity, ActiveEntityMixin):
         """Element longitudinal stress due to bending"""
         raise NotImplementedError("implement")
 
+    def sts(self, element, forces):
+        """Element transverse shear"""
+        raise NotImplementedError("implement")
+
     def stor(self, element, loadcase):
         """Element torsional stress"""
         raise NotImplementedError("implement")
@@ -97,6 +102,33 @@ class Code(Entity, ActiveEntityMixin):
         F/A type stress.
         """
         raise NotImplementedError("implement")
+
+    def sl(self, element, loadcase, point, forces):
+        """Total longitudinal stress due to pressure and bending. This
+        combination of stresses is also known as the code stress for most
+        codes.
+        """
+        raise NotImplementError("implement")
+
+    def s1(self, sl, shoop, stor, sts):
+        """Maximum principal stress"""
+        return (sl+shoop)*0.5 + math.sqrt(((sl-shoop)*0.5)**2 + (stor+sts)**2)
+
+    def s2(self, sl, shoop, stor, sts):
+        """Minimum principal stress"""
+        return (sl+shoop)*0.5 - math.sqrt(((sl-shoop)*0.5)**2 + (stor+sts)**2)
+
+    def max_shear(self, s1, s2):
+        """Maximum shear stress"""
+        return (s1-s2) * 0.5
+
+    def sint(self, max_shear):
+        """Stress intensity"""
+        return 2 * max_shear
+
+    def svon(self, s1, s2):
+        """Von mises stress"""
+        return math.sqrt(s1**2 + s2**2 - s1*s2)
 
     def sallow(self, element, loadcase):
         """Element stress allowable based on the stress type of loadcase."""
@@ -190,7 +222,6 @@ class Code(Entity, ActiveEntityMixin):
 
 
 class CodeContainer(EntityContainer, ActiveEntityContainerMixin):
-
 
     def __init__(self):
         super(CodeContainer, self).__init__()
