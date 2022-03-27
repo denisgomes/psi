@@ -230,7 +230,7 @@ class Stresses(Report):
 
 
 class StressesExtended(Report):
-    """Stress output results"""
+    """Extended stress output results"""
 
     def __init__(self, name, loadcases):
         """Create a forces report instance.

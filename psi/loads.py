@@ -973,7 +973,7 @@ class Hanger(Load):
     The solver takes all weight cases and solves them using +Y supports in
     place of springs. It then applies the calculated loads to the travel cases
     to determine the total hanger movements. The springs are then designed
-    based on these loads and movements.
+    based on these loads and movements if they are program designed.
 
     .. note::
         This load should be added to all cases if springs are defined.

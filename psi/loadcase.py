@@ -641,6 +641,28 @@ class LoadCase(BaseCase):
     """
 
     def __init__(self, name, stype="sus", loadtypes=[], opercases=[]):
+        """Create a load case instance.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for load case object.
+
+        stype : str
+            Type of code stress. Defaults to sustained stress.
+
+                * HGR - Hanger load case
+                * HYD - Hydro load case
+                * SUS - Sustained stress case
+                * EXP - Thermal expansion stress.case
+                * OCC - Occasional stress case
+                * OPE - Operating stress case
+                * FAT - Fatigue stress case
+
+        loadtypes : list of Load classes
+
+        opercases : list of corresponding operating case numbers
+        """
         super(LoadCase, self).__init__(name, stype)
         # self._loads = OrderedSet()
         self._loadtypes = loadtypes

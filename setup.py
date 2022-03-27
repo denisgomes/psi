@@ -49,7 +49,7 @@ setup(
     package_data={
         "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",
                      "insulation.csv"],
-        "psi.data.spring": ["anvil_variable.csv", "anvil_constant.csv"],
+        "psi.data.springs": ["anvil_variable.csv", "anvil_constant.csv"],
         "psi.data.units": ["base.csv", "english.csv", "code_english.csv",
                            "si.csv"],
         },

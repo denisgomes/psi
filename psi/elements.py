@@ -309,8 +309,15 @@ class Piping(Element):
         return mass
 
     def cladding_mass(self):
-        """Mass of cladding"""
-        raise NotImplementedError("implement")
+        """Cladding mass"""
+        docld = self.section.id
+        dicld = docld - 2*self.cladding.thk
+
+        cld_area = (pi/4) * (docld**2-dicld**2)
+
+        mass = (self.cladding.rho * cld_area * self.geometry.length)
+
+        return mass
 
     def insulation_mass(self):
         """Insulation mass"""
@@ -324,8 +331,15 @@ class Piping(Element):
         return mass
 
     def refractory_mass(self):
-        """Mass of refractory"""
-        raise NotImplementedError("implement")
+        """Refractory mass"""
+        doref = self.section.id
+        diref = doref - 2*self.refractory.thk
+
+        ref_area = (pi/4) * (doref**2-diref**2)
+
+        mass = (self.refractory.rho * ref_area * self.geometry.length)
+
+        return mass
 
     def delete(self):
         """Deleting an element other than a run has the effect of converting to
@@ -1071,12 +1085,15 @@ class Reducer(Run):
 class Rigid(Run):
     """Rigid elements for which user defined weights must be provided.
 
-    By default a weightless rigid element will have zero mass, however it will
-    have mass due to insulation and fluid contents defined for the element. The
-    user can zero out the additional mass if needed by setting the insulation
-    and fluid attributes to None.
+    By default a weightless rigid element with zero mass is assumed, however it
+    will have mass due to insulation and fluid contents defined for derived
+    classs such as a Valve. The user can zero out the additional mass if
+    needed by setting the insulation and fluid attributes to None.
 
-    The wall thickness of a rigid element is 10 times the thickness of a run.
+    .. note::
+
+        The wall thickness of a rigid element is 10 times the thickness of a
+        run.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
