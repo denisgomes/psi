@@ -4,7 +4,7 @@ mdl.settings.vertical = 'z'
 
 Pipe.from_file('pipe1', '10', '40')
 Material.from_file('mat1', 'A53A', 'B31.1')
-B311('code1')
+B31167('code1')
 
 Point(10)
 run20 = Run(20, 10*12, 10*12, 10*12)

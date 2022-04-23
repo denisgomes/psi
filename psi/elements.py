@@ -166,6 +166,13 @@ class Element(Entity):
         raise NotImplementedError("implement")
 
     @property
+    def length(self):
+        x2, y2, z2 = self.to_point().xyz
+        x1, y1, z1 = self.from_point().xyz
+
+        return sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+
+    @property
     def parent(self):
         return self.app.elements
 
@@ -304,18 +311,18 @@ class Piping(Element):
     def mass(self):
         """Pipe element mass"""
         mass = (self.material.rho.value * self.section.area *
-                self.geometry.length)
+                self.length)
 
         return mass
 
     def cladding_mass(self):
-        """Cladding mass"""
+        """Internal cladding mass"""
         docld = self.section.id
         dicld = docld - 2*self.cladding.thk
 
         cld_area = (pi/4) * (docld**2-dicld**2)
 
-        mass = (self.cladding.rho * cld_area * self.geometry.length)
+        mass = (self.cladding.rho * cld_area * self.length)
 
         return mass
 
@@ -326,18 +333,18 @@ class Piping(Element):
         insulation_area = (pi/4) * (dins**2-do**2)
 
         mass = (self.insulation.rho * insulation_area *
-                self.geometry.length)
+                self.length)
 
         return mass
 
     def refractory_mass(self):
-        """Refractory mass"""
+        """Internal refractory mass"""
         doref = self.section.id
         diref = doref - 2*self.refractory.thk
 
         ref_area = (pi/4) * (doref**2-diref**2)
 
-        mass = (self.refractory.rho * ref_area * self.geometry.length)
+        mass = (self.refractory.rho * ref_area * self.length)
 
         return mass
 
@@ -610,7 +617,7 @@ class Run(Piping):
         """
         kmat = np.zeros((12, 12), dtype=np.float64)
 
-        L = self.geometry.length
+        L = self.length
         E = self.material.ymod[temp]
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod, isotropic mats
@@ -705,7 +712,7 @@ class Run(Piping):
         """
         mmat = np.zeros((12, 12), dtype=np.float64)
 
-        L = self.geometry.length
+        L = self.length
         rho = self.material.rho.value
         A = self.section.area
 
@@ -1012,7 +1019,7 @@ class Reducer(Run):
         d2o = self.section2.od
         d2i = self.section2.od - 2*self.section2.thke
 
-        vol = (1/12)*pi*self.geometry.length*(d1o**2+d1o*d2o+d2o**2 -
+        vol = (1/12)*pi*self.length*(d1o**2+d1o*d2o+d2o**2 -
                                               d1i**2+d1i*d2i+d2i**2)
         return self.material.rho.value * vol
 
@@ -1024,7 +1031,7 @@ class Reducer(Run):
         d1i = self.section.od - 2*self.section.thke
         d2i = self.section2.od - 2*self.section2.thke
 
-        fluvol = (1/12)*pi*self.geometry.length*(d1i**2+d1i*d2i+d2i**2)
+        fluvol = (1/12)*pi*self.length*(d1i**2+d1i*d2i+d2i**2)
 
         return fluden * fluvol
 
@@ -1120,10 +1127,10 @@ class Rigid(Run):
 
 
 class Valve(Rigid):
-    """A valve is a rigid element with a user defined weight.
+    """A valve is modeled as a rigid element with a user defined weight.
 
-    User defined weights can be loaded from a data file. Insulation and pipe
-    cladding weight is multiplied by 1.75 to account for additional material.
+    User defined weights can be loaded from a data file. Insulation weight is
+    multiplied by 1.75 to account for additional material.
     """
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
@@ -1142,12 +1149,9 @@ class Valve(Rigid):
         """Valves have more insulation to cover surface area."""
         return 1.75 * super(Valve, self).insulation_mass()
 
-    def cladding_mass(self):
-        raise 1.75 * super(Valve, self).cladding_mass()
-
 
 class Flange(Rigid):
-    """A flanged piping connections"""
+    """A flange piping component"""
 
     def __init__(self, point, dx, dy=0, dz=0, weight=0, from_point=None,
                  section=None, material=None, insulation=None, code=None):
@@ -1164,9 +1168,6 @@ class Flange(Rigid):
     def insulation_mass(self):
         """Flanges have more insulation to cover surface area."""
         return 1.75 * super(Flange, self).insulation_mass()
-
-    def cladding_mass(self):
-        raise 1.75 * super(Flange, self).cladding_mass()
 
 
 class Bellow(Run):

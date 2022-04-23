@@ -97,16 +97,15 @@ def element_codecheck(points, loadcase, element, S):
             svoni = element.code.svon(s1i, s2i)
             svonj = element.code.svon(s1j, s2j)
 
-
         elif isinstance(loadcase, LoadComb):
             # fitting and nodal sifs, sum together, take max or average?
-            sifi = element.code.sifi(element)
-            sifo = element.code.sifo(element)
+            sifi = element.code.sifi(element, element.from_point)
+            sifo = element.code.sifo(element, element.to_point)
 
             loadcomb = loadcase
             shoop_list, slp_list = [], []
-            saxi_list, stsi, stori_list, slbi_list, sli_list = [], [], [], [], []
-            saxj_list, stsj, storj_list, slbj_list, slj_list = [], [], [], [], []
+            saxi_list, stsi_list, stori_list, slbi_list, sli_list = [], [], [], [], []
+            saxj_list, stsj_list, storj_list, slbj_list, slj_list = [], [], [], [], []
             for factor, loadcase in zip_longest(loadcomb.factors,
                                                 loadcomb.loadcases,
                                                 fillvalue=1):
@@ -293,7 +292,6 @@ def element_codecheck(points, loadcase, element, S):
 
             svoni = element.code.svon(s1i, s2i)
             svonj = element.code.svon(s1j, s2j)
-
 
             # allowable loadcomb stress
             sallowi_list = []

@@ -128,7 +128,7 @@ class Code(Entity, ActiveEntityMixin):
 
     def svon(self, s1, s2):
         """Von mises stress"""
-        return math.sqrt(s1**2 + s2**2 - s1*s2)
+        return math.sqrt(0.5*((s1-s2)**2 + s2**2 + (-s1)**2))
 
     def sallow(self, element, loadcase):
         """Element stress allowable based on the stress type of loadcase."""
