@@ -191,6 +191,48 @@ class Movements:
         self._translation.results = data
         self._rotation.results = data
 
+    def dx(self, func=None):
+        """Perform an operation on the translation array - x components"""
+        if func:
+            return func(self._translation.results[::3])
+
+        return self._translation.results[::3]
+
+    def dy(self, func=None):
+        """Perform an operation on the translation array - y components"""
+        if func:
+            return func(self._translation.results[1::3])
+
+        return self._translation.results[1::3]
+
+    def dz(self, func=None):
+        """Perform an operation on the translation array - z components"""
+        if func:
+            return func(self._translation.results[2::3])
+
+        return self._translation.results[2::3]
+
+    def rx(self, func=None):
+        """Perform an operation on the rotation array - rx components"""
+        if func:
+            return func(self._rotation.results[::3])
+
+        return self._rotation.results[::3]
+
+    def ry(self, func=None):
+        """Perform an operation on the rotation array - ry components"""
+        if func:
+            return func(self._rotation.results[1::3])
+
+        return self._rotation.results[1::3]
+
+    def rz(self, func=None):
+        """Perform an operation on the rotation array - rz components"""
+        if func:
+            return func(self._rotation.results[2::3])
+
+        return self._rotation.results[2::3]
+
 
 @units.define(_values="force")
 class Force:
@@ -325,6 +367,42 @@ class Reactions:
         self._force.results = data
         self._moment.results = data
 
+    def fx(self, func=None):
+        if func:
+            return func(self._force.results[::3])
+
+        return self._force.results[::3]
+
+    def fy(self, func=None):
+        if func:
+            return func(self._force.results[1::3])
+
+        return self._force.results[1::3]
+
+    def fz(self, func=None):
+        if func:
+            return func(self._force.results[2::3])
+
+        return self._force.results[2::3]
+
+    def mx(self, func=None):
+        if func:
+            return func(self._moment.results[::3])
+
+        return self._moment.results[::3]
+
+    def my(self, func=None):
+        if func:
+            return func(self._moment.results[1::3])
+
+        return self._moment.results[1::3]
+
+    def mz(self, func=None):
+        if func:
+            return func(self._moment.results[2::3])
+
+        return self._moment.results[2::3]
+
 
 class Forces:
     """Member internal forces and moments.
@@ -399,6 +477,42 @@ class Forces:
     def results(self, data):
         self._force.results = data
         self._moment.results = data
+
+    def fx(self, func=None):
+        if func:
+            return func(self._force.results[::3])
+
+        return self._force.results[::3]
+
+    def fy(self, func=None):
+        if func:
+            return func(self._force.results[1::3])
+
+        return self._force.results[1::3]
+
+    def fz(self, func=None):
+        if func:
+            return func(self._force.results[2::3])
+
+        return self._force.results[2::3]
+
+    def mx(self, func=None):
+        if func:
+            return func(self._moment.results[::3])
+
+        return self._moment.results[::3]
+
+    def my(self, func=None):
+        if func:
+            return func(self._moment.results[1::3])
+
+        return self._moment.results[1::3]
+
+    def mz(self, func=None):
+        if func:
+            return func(self._moment.results[2::3])
+
+        return self._moment.results[2::3]
 
 
 @units.define(_values="stress")
@@ -584,6 +698,90 @@ class Stresses:
         self._sint.results = results[:, 13]
         self._svon.results = results[:, 14]
         self._scodes = codes
+
+    def shoop(self, func=None):
+        if func:
+            return func(self._shoop.results)
+
+        return self._shoop.results
+
+    def sax(self, func=None):
+        if func:
+            return func(self._sax.results)
+
+        return self._sax.results
+
+    def stor(self, func=None):
+        if func:
+            return func(self._stor.results)
+
+        return self._stor.results
+
+    def slp(self, func=None):
+        if func:
+            return func(self._slp.results)
+
+        return self._slp.results
+
+    def slb(self, func=None):
+        if func:
+            return func(self._slb.results)
+
+        return self._slb.results
+
+    def sl(self, func=None):
+        if func:
+            return func(self._sl.results)
+
+        return self._sl.results
+
+    def sifi(self, func=None):
+        if func:
+            return func(self._sifi.results)
+
+        return self._sifi.results
+
+    def sifo(self, func=None):
+        if func:
+            return func(self._sifo.results)
+
+        return self._sifo.results
+
+    def sratio(self, func=None):
+        if func:
+            return func(self._sratio.results)
+
+        return self._sratio.results
+
+    def sig1(self, func=None):
+        if func:
+            return func(self._s1.results)
+
+        return self._s1.results
+
+    def sig2(self, func=None):
+        if func:
+            return func(self._s2.results)
+
+        return self._s2.results
+
+    def mshear(self, func=None):
+        if func:
+            return func(self._mshear.results)
+
+        return self._mshear.results
+
+    def sint(self, func=None):
+        if func:
+            return func(self._sint.results)
+
+        return self._sint.results
+
+    def svon(self, func=None):
+        if func:
+            return func(self._svon.results)
+
+        return self._svon.results
 
 
 class BaseCase(Entity):
@@ -803,15 +1001,31 @@ class LoadComb(BaseCase):
     def factors(self):
         return tuple(self._factors)
 
+    @property
+    def loadtypes(self):
+        ltypes = []
+        for loadcase in self.loadcases:
+            ltypes.extend(loadcase.loadtypes)
+
+        return tuple(ltypes)
+
+    @property
+    def opercases(self):
+        opers = []
+        for loadcase in self.loadcases:
+            opers.extend(loadcase.opercases)
+
+        return tuple(opers)
+
     @staticmethod
-    def maxfunc(a, b):
+    def _maxfunc(a, b):
         """Return the element with the largest value not accounting for
         sign.
         """
         return a if abs(a) > abs(b) else b
 
     @staticmethod
-    def minfunc(a, b):
+    def _minfunc(a, b):
         """Return the element with the smallest value not accounting for
         sign.
         """
@@ -833,11 +1047,11 @@ class LoadComb(BaseCase):
                 self._movements.results += (factor * np.abs(loadcase.movements.results))
             elif self._method == "max":
                 # overwrite every time through the loop
-                self._movements.results = np.array(map(LoadComb.maxfunc,
+                self._movements.results = np.array(map(LoadComb._maxfunc,
                                                        self._movements.results,
                                                        factor * loadcase.movements.results))
             elif self._method == "min":
-                self._movements.results = np.array(map(LoadComb.minfunc,
+                self._movements.results = np.array(map(LoadComb._minfunc,
                                                        self._movements.results,
                                                        factor * loadcase.movements.results))
             elif self._method == "signmax":
@@ -870,11 +1084,11 @@ class LoadComb(BaseCase):
                 self._reactions.results += (factor * np.abs(loadcase.reactions.results))
             elif self._method == "max":
                 # overwrite every time through the loop
-                self._reactions.results = np.array(map(LoadComb.maxfunc,
+                self._reactions.results = np.array(map(LoadComb._maxfunc,
                                                        self._reactions.results,
                                                        factor * loadcase.reactions.results))
             elif self._method == "min":
-                self._reactions.results = np.array(map(LoadComb.minfunc,
+                self._reactions.results = np.array(map(LoadComb._minfunc,
                                                        self._reactions.results,
                                                        factor * loadcase.reactions.results))
             elif self._method == "signmax":
@@ -906,11 +1120,11 @@ class LoadComb(BaseCase):
                 self._forces.results += (factor * np.abs(loadcase.forces.results))
             elif self._method == "max":
                 # overwrite every time through the loop
-                self._forces.results = np.array(map(LoadComb.maxfunc,
+                self._forces.results = np.array(map(LoadComb._maxfunc,
                                                     self._forces.results,
                                                     factor * loadcase.forces.results))
             elif self._method == "min":
-                self._forces.results = np.array(map(LoadComb.minfunc,
+                self._forces.results = np.array(map(LoadComb._minfunc,
                                                     self._forces.results,
                                                     factor * loadcase.forces.results))
             elif self._method == "signmax":

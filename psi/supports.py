@@ -221,7 +221,7 @@ class AbstractSupport(Support):    # Abstract Base Class
     """A generic rigid support with different configurations.
 
     1. Translational or rotational (X, Y, Z, RX, RY, RZ)
-    2. Single of double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
+    2. Single or double-acting, (+/-) (X, Y, Z, RX, RY, RZ)
     3. Gap and friction,
     4. Snubber (+/-) (XSNB, YSNB, ZSNB).
 

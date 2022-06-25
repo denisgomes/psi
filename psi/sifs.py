@@ -55,8 +55,6 @@ class Intersection(SIF):
     def __init__(self, name, point):
         super(Intersection, self).__init__(name, point)
 
-        assert self.is_intersection, "invalid intersection point"
-
     @property
     def is_intersection(self):
         """A tee type intersection"""
@@ -76,8 +74,6 @@ class Connection(SIF):
 
     def __init__(self, name, point):
         super(Connection, self).__init__(name, point)
-
-        assert self.is_connection, "invalid connection point"
 
     @property
     def is_connection(self):
@@ -291,7 +287,6 @@ class SIFContainer(EntityContainer):
         self.Weldolet = Weldolet
         self.Sockolet = Sockolet
         self.Sweepolet = Sweepolet
-        self.Weldolet = Weldolet
         self.ButtWeld = ButtWeld
 
     def apply(self, sifs=[], elements=[]):

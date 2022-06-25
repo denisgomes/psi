@@ -23,6 +23,7 @@ from contextlib import redirect_stdout
 from psi.elements import (Run, Bend, Reducer, Rigid, Valve, Flange)
 from psi.sifs import (Welding, Unreinforced, Reinforced, Weldolet, Sockolet,
                       Sweepolet, Weldolet, ButtWeld)
+from psi.loadcase import LoadCase
 from psi import units
 from .codes import Code
 
@@ -50,7 +51,7 @@ class B31167(Code):
     be used to determine the final stress results?
     """
 
-    def __init__(self, name, year="1967", cycles=1e7, occ_hours=8):
+    def __init__(self, name, year="1967", cycles=7000, occ_hours=8):
         super(B31167, self).__init__(name)
         self.year = year
         self.k = self.k_from_hours(occ_hours)
@@ -453,7 +454,7 @@ class B31167(Code):
             else:
                 return 0
 
-    def sallow(self, element, loadcase, forces):
+    def sallow(self, element, loadcase, point, forces):
         """Allowable stress for sustained, occasional and expansion loadcases.
 
         Liberal stress can be excluded for the expansion case by user defined
@@ -483,8 +484,15 @@ class B31167(Code):
             elif loadcase.stype == "exp":
                 liberal_stress = 0  # default per code
                 if self.app.models.active_object.settings.liberal_stress:
-                    liberal_stress = sh - self.sl(element, loadcase, forces)
+                    cases = self.app.models.active_object.loadcases
+                    suscases = [case for case in cases if
+                            isinstance(case, LoadCase) and case.stype == "sus"]
+                    shsls = [sh-suscase.stresses[point].sl for suscase in suscases]
+                    liberal_stresses = [shsl for shsl in shsls if shsl > 0]
 
-                return self.f * (1.25*sc + 0.25*sh + liberal_stress)
+                    if liberal_stresses:
+                        liberal_stress = min(liberal_stresses)
+
+                return self.f*(1.25*sc + 0.25*sh + liberal_stress)
             else:
                 return 0

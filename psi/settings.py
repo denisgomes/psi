@@ -97,7 +97,7 @@ class Configuration:
             self.stress_case_corroded = True
             self.bourdon_effect = False
             self.pressure_thrust = False
-            self.liberal_stress = False
+            self.liberal_stress = True
             self.weak_springs = False
             self.nonlinear_iteration = 1000
             self.translation_stiffness = 10**10

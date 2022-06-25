@@ -30,6 +30,98 @@ def app():
     return app
 
 
+def test_axial(app):
+    Point(10)
+    run20 = Run(20, 10*12)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, fx=1000000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'sus', [Force], [1])
+
+    app.models('elements').analyze()
+
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+
+    assert compare(L1.reactions[pt10].fx, 1000000)
+    assert compare(L1.movements[pt20].dx, 0.361)
+
+
+def test_bending_dir1(app):
+    Point(10)
+    run20 = Run(20, 10*12)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, fy=-1000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'sus', [Force], [1])
+
+    app.models('elements').analyze()
+
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+
+    assert compare(L1.reactions[pt10].fy, -1000)
+    assert compare(L1.reactions[pt10].mz, -10000)
+
+
+def test_bending_dir2(app):
+    Point(10)
+    run20 = Run(20, 10*12)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, fz=-1000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'sus', [Force], [1])
+
+    app.models('elements').analyze()
+
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+
+    assert compare(L1.reactions[pt10].fz, -1000)
+    assert compare(L1.reactions[pt10].my, 10000)
+
+
+def test_torsion(app):
+    Point(10)
+    run20 = Run(20, 10*12)
+
+    anc10 = Anchor('anc10', 10)
+    anc10.apply([run20])
+
+    # loads
+    F1 = Force('F1', 1, 20, mx=1000)
+    F1.apply([run20])
+
+    # loadcase
+    L1 = LoadCase('L1', 'sus', [Force], [1])
+
+    app.models('elements').analyze()
+
+    pt10 = app.points(10)
+    pt20 = app.points(20)
+
+    # note: moment input input in*lbf and output in ft*lbf
+    assert compare(L1.reactions[pt10].mx, 83.333)
+
+
 def test_rigid(app):
     """Check rigid element."""
 

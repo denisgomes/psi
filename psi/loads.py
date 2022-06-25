@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Applying loads to model nodes and elements.
+"""Piping loads applied to elements and nodal points.
 
 
 Example
@@ -49,14 +49,21 @@ For multiple loads use the LoadContainer apply method:
     should be of a different operating case. This is not currently enforced by
     the program so an element can have two Weight loads defined for the same
     operating case in which case the weights will be added together.
+
+Then to consider a LoadCase consisting of the weight and thermal loads for
+operating case 1, create a loadcase:
+
+.. code-block:: python
+
+    >>> LoadCase('L1', 'ope', [Weight, Thermal], [1, 1])
 """
 
 from __future__ import division
 
 import csv
 from math import pi
-# import sys
-# from contextlib import redirect_stdout
+import sys
+from contextlib import redirect_stdout
 
 import numpy as np
 
@@ -69,6 +76,7 @@ from psi.units import DEFAULT_UNITS
 
 
 class Load(Entity):
+    """Base class for a piping load"""
 
     def __init__(self, name, opercase):
         super(Load, self).__init__(name)
@@ -622,6 +630,10 @@ class Wind(Load):
             must be set to zero. In other words, the 0 reference of the profile
             is located at ground elevation. Use the Wind.gelev attribute to set
             the global vertical position of ground.
+
+        .. warning::
+            Unlike some other piping programs, the input profile is *not*
+            step-wise.
 
     shape : float
         The element wind shape factor. Set to a typical default value of 0.7.

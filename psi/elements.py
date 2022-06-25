@@ -167,8 +167,8 @@ class Element(Entity):
 
     @property
     def length(self):
-        x2, y2, z2 = self.to_point().xyz
-        x1, y1, z1 = self.from_point().xyz
+        x2, y2, z2 = self.to_point.xyz
+        x1, y1, z1 = self.from_point.xyz
 
         return sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
 
@@ -622,14 +622,17 @@ class Run(Piping):
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod, isotropic mats
 
+        thk = self.section.thk
+
         # used for rigids
         self.section.thk *= sfac
-
         J = self.section.ixx
         Iy = self.section.iyy
         Iz = self.section.izz
-
         A = self.section.area
+
+        self.section.thk = thk  # reset
+
         Ay = 0  # shear area y
         Az = 0  # shear area z
         phi_y = 0
@@ -685,7 +688,7 @@ class Run(Piping):
         kmat[11, 11] = ((4+phi_y)*E*Iz / (L*(1+phi_y))) / kfac
 
         # with redirect_stdout(sys.__stdout__):
-        #     print(kmat)
+        #     print(E)
 
         return kmat
 

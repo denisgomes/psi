@@ -32,14 +32,14 @@ L3 = LoadComb('L3', 'exp', 'algebraic', [L1, L2], [1, -1])
 mdl.analyze()
 
 # reports
-#disp = Movements('R1', [L1, L2, L3])
-#disp.to_screen()
+disp = Movements('R1', [L1, L2, L3])
+disp.to_screen()
 
-#reac = Reactions('R2', [L1, L2, L3])
-#reac.to_screen()
+reac = Reactions('R2', [L1, L2, L3])
+reac.to_screen()
 
-cod1 = Codes('R3', [L3])
+cod1 = Codes('R3', [L1, L2, L3])
 cod1.to_screen()
 
-#forc = Forces('R4', [L2])
-#forc.to_screen()
+forc = Forces('R4', [L2])
+forc.to_screen()

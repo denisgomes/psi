@@ -19,6 +19,7 @@
 
 import math
 import logging
+from collections import OrderedDict
 
 import numpy as np
 from tqdm import trange
@@ -28,6 +29,9 @@ from psi.loadcase import LoadCase, LoadComb
 from psi.loads import Displacement
 from psi import units
 from .codecheck import element_codecheck
+
+import sys
+from contextlib import redirect_stdout
 
 
 def order_of_mag(n):
@@ -75,7 +79,9 @@ def static(model):
 
         # solution matrices for primary load cases
         R = np.zeros((nn*ndof, 1), dtype=np.float64)    # reactions
+
         Fi = np.zeros((nn*ndof, 1), dtype=np.float64)   # internal forces
+        Fj = np.zeros((nn*ndof, 1), dtype=np.float64)   # internal forces
 
         # pre-processing elements
         for element in model.elements:
@@ -177,9 +183,9 @@ def static(model):
                                             "check model for errors.")
 
         # one directional (i.e. gaps) and/or friction is nonlinear
-        nonlinear = {support: "active" for support in model.supports
-                     if isinstance(support, AbstractSupport)
-                     and support.is_nonlinear}  # only handles gaps
+        nonlinear = OrderedDict({support: "active" for support in model.supports
+                                 if isinstance(support, AbstractSupport)
+                                 and support.is_nonlinear})  # only handles gaps
         if nonlinear:
             converge_status = [False] * len(nonlinear)
 
@@ -379,13 +385,21 @@ def static(model):
             # element stiffness matrix and fi = kel*x where x is the local
             # displacement vector given by (T * _x)
             _x = np.zeros((12, 1), dtype=np.float64)
+            _f = np.zeros((12, 1), dtype=np.float64)
+
             _x[:6, 0] = Xs[niqi:niqj, 0]
             _x[6:12, 0] = Xs[njqi:njqj, 0]
+            _f[:6, 0] = Fs[niqi:niqj, 0]
+            _f[6:12, 0] = Fs[njqi:njqj, 0]
 
             # x is the element local displacements
-            fi = kel @ (T @ _x)
+            fi = kel@(T@_x) - T@_f
 
-            # internal force and moment matrix at node i and j
+            # with redirect_stdout(sys.__stdout__):
+            #     print(_x)
+                # print(fi)
+
+            # internal force and moment at node i and j
             Fi[niqi:niqj, 0] = fi[:6, 0]
             Fi[njqi:njqj, 0] = fi[6:12, 0]
 

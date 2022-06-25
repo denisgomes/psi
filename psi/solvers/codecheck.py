@@ -68,11 +68,15 @@ def element_codecheck(points, loadcase, element, S):
             slj = element.code.sl(element, loadcase, element.to_point, forj)
 
             # fitting and nodal sifs, sum together, take max or average?
-            sifi = element.code.sifi(element, element.from_point)
-            sifo = element.code.sifo(element, element.to_point)
+            sifi_i = element.code.sifi(element, element.from_point)
+            sifo_i = element.code.sifo(element, element.from_point)
+            sifi_j = element.code.sifi(element, element.to_point)
+            sifo_j = element.code.sifo(element, element.to_point)
 
-            sallowi = element.code.sallow(element, loadcase, fori)
-            sallowj = element.code.sallow(element, loadcase, forj)
+            sallowi = element.code.sallow(element, loadcase, element.from_point,
+                                          fori)
+            sallowj = element.code.sallow(element, loadcase, element.to_point,
+                                          forj)
 
             try:
                 sratioi = sli / sallowi     # code ratio at node i
@@ -99,8 +103,10 @@ def element_codecheck(points, loadcase, element, S):
 
         elif isinstance(loadcase, LoadComb):
             # fitting and nodal sifs, sum together, take max or average?
-            sifi = element.code.sifi(element, element.from_point)
-            sifo = element.code.sifo(element, element.to_point)
+            sifi_i = element.code.sifi(element, element.from_point)
+            sifo_i = element.code.sifo(element, element.from_point)
+            sifi_j = element.code.sifi(element, element.to_point)
+            sifo_j = element.code.sifo(element, element.to_point)
 
             loadcomb = loadcase
             shoop_list, slp_list = [], []
@@ -293,28 +299,11 @@ def element_codecheck(points, loadcase, element, S):
             svoni = element.code.svon(s1i, s2i)
             svonj = element.code.svon(s1j, s2j)
 
-            # allowable loadcomb stress
-            sallowi_list = []
-            sallowj_list = []
-            # determine the loadcomb code stress allowable
-            for loadcase in loadcomb.loadcases:
-                stype = loadcase.stype              # save type
-                loadcase.stype = loadcomb.stype     # change to loadcomb type
-
-                fori = loadcase.forces.results[niqi:niqj, 0]
-                forj = loadcase.forces.results[njqi:njqj, 0]
-
-                # calculate loadcomb allowable
-                sallowi = element.code.sallow(element, loadcase, fori)
-                sallowi_list.append(sallowi)
-
-                sallowj = element.code.sallow(element, loadcase, forj)
-                sallowj_list.append(sallowj)
-
-                # revert to loadcase stype
-                loadcase.stype = stype
-            sallowi = min(sallowi_list)
-            sallowj = min(sallowj_list)
+            # calculate loadcomb allowable
+            sallowi = element.code.sallow(element, loadcomb, element.from_point,
+                                          fori)
+            sallowj = element.code.sallow(element, loadcomb, element.to_point,
+                                          forj)
 
             try:
                 sratioi = sli / sallowi     # code ratio at node i
@@ -327,12 +316,12 @@ def element_codecheck(points, loadcase, element, S):
         # take the worst code stress at node
         if sratioi > S[idxi, 9]:
             S[idxi, :15] = (shoop, saxi, stori, slp, slbi, sli,
-                            sifi, sifo, sallowi, sratioi,
+                            sifi_i, sifo_i, sallowi, sratioi,
                             s1i, s2i, smsi, sinti, svoni)
 
         if sratioj > S[idxj, 9]:
             S[idxj, :15] = (shoop, saxj, storj, slp, slbj, slj,
-                            sifi, sifo, sallowj, sratioj,
+                            sifi_j, sifo_j, sallowj, sratioj,
                             s1j, s2j, smsj, sintj, svonj)
 
         # TODO : Implement Ma, Mb and Mc calculation loads

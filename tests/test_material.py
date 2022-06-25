@@ -50,6 +50,6 @@ def test_ymod(app):
 def test_sh(app):
     mat = app.materials("MAT1")
 
-    assert round(mat.sh[-325], 0) == 30000
-    assert round(mat.sh[70], 0) == 30000
-    assert round(mat.sh[1000], 0) == 17800
+    assert round(mat.sh[-325], 0) == 12000
+    assert round(mat.sh[70], 0) == 12000
+    assert round(mat.sh[1000], 0) == 9000
