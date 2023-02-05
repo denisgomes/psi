@@ -1,0 +1,250 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.3">
+  <object class="tk.Toplevel" id="toplevel1">
+    <property name="geometry">1152x768</property>
+    <property name="height">200</property>
+    <property name="width">200</property>
+    <child>
+      <object class="ttk.Frame" id="frame1">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">both</property>
+          <property name="padx">5</property>
+          <property name="pady">5</property>
+          <property name="side">top</property>
+        </layout>
+        <child>
+          <object class="pygubu.builder.widgets.scrolledframe" id="scrolledframe1">
+            <property name="scrolltype">both</property>
+            <property name="usemousewheel">false</property>
+            <layout manager="pack">
+              <property name="expand">true</property>
+              <property name="fill">both</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="ttk.Notebook" id="notebook1">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="expand">true</property>
+                  <property name="fill">both</property>
+                  <property name="side">top</property>
+                </layout>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab1">
+                    <property name="text" translatable="yes">Pres/Temp/Pipe</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame3">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet1">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab2">
+                    <property name="text" translatable="yes">Pipe Properties</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame4">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet2">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab3">
+                    <property name="text" translatable="yes">Segment</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame5">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet3">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab4">
+                    <property name="text" translatable="yes">Point</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame6">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet4">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab5">
+                    <property name="text" translatable="yes">Support</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame7">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet5">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab6">
+                    <property name="text" translatable="yes">Tee</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame8">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet6">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab7">
+                    <property name="text" translatable="yes">Bend</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame9">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet7">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab8">
+                    <property name="text" translatable="yes">Flange</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame10">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet8">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Notebook.Tab" id="tab9">
+                    <property name="text" translatable="yes">Reducer</property>
+                    <child>
+                      <object class="ttk.Frame" id="frame11">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="tksheet.Sheet" id="sheet9">
+                            <layout manager="pack">
+                              <property name="expand">true</property>
+                              <property name="fill">both</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -1,0 +1,1569 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.3">
+  <object class="tk.Toplevel" id="toplevel1">
+    <property name="geometry">1440x1080</property>
+    <property name="height">200</property>
+    <property name="width">200</property>
+    <child>
+      <object class="ttk.Frame" id="frame5">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">both</property>
+          <property name="padx">3</property>
+          <property name="pady">3</property>
+          <property name="side">top</property>
+        </layout>
+        <child>
+          <object class="ttk.Frame" id="frame1">
+            <property name="height">200</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="expand">false</property>
+              <property name="fill">x</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="tk.Menubutton" id="menubutton2">
+                <property name="font">{DejaVu Sans Mono} 16 {bold}</property>
+                <property name="indicatoron">false</property>
+                <property name="justify">center</property>
+                <property name="padx">20</property>
+                <property name="relief">raised</property>
+                <property name="text" translatable="yes">PS8</property>
+                <layout manager="pack">
+                  <property name="side">left</property>
+                </layout>
+                <child>
+                  <object class="tk.Menu" id="menu2">
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command7">
+                        <property name="label" translatable="yes">New</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command8">
+                        <property name="label" translatable="yes">Open ...</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command9">
+                        <property name="label" translatable="yes">Open recent ...</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Separator" id="separator4" />
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command10">
+                        <property name="label" translatable="yes">Save</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command11">
+                        <property name="label" translatable="yes">Save As</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Separator" id="separator5" />
+                    </child>
+                    <child>
+                      <object class="tk.Menuitem.Command" id="command12">
+                        <property name="label" translatable="yes">Exit</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Separator" id="separator11">
+                <property name="orient">vertical</property>
+                <layout manager="pack">
+                  <property name="expand">false</property>
+                  <property name="fill">y</property>
+                  <property name="padx">5</property>
+                  <property name="pady">5</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Frame" id="frame13">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="side">left</property>
+                </layout>
+                <child>
+                  <object class="ttk.Button" id="button5">
+                    <property name="style">Toolbutton</property>
+                    <property name="text" translatable="yes">Open</property>
+                    <layout manager="pack">
+                      <property name="side">left</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Button" id="button6">
+                    <property name="style">Toolbutton</property>
+                    <property name="text" translatable="yes">Save</property>
+                    <layout manager="pack">
+                      <property name="side">left</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Panedwindow" id="panedwindow1">
+            <property name="height">200</property>
+            <property name="orient">vertical</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="expand">true</property>
+              <property name="fill">both</property>
+              <property name="pady">3</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="ttk.Panedwindow.Pane" id="pane1">
+                <property name="weight">0</property>
+                <child>
+                  <object class="ttk.Frame" id="frame2">
+                    <property name="height">200</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Notebook" id="notebook1">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="expand">true</property>
+                          <property name="fill">x</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab1">
+                            <property name="text" translatable="yes">Geometry</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame6">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame7">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame8">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button1">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button2">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame4">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label4">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator1">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame10">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame11">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button3">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button4">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame9">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label5">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab4">
+                            <property name="text" translatable="yes">View</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame18">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame19">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame20">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button7">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">Centerline</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button8">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">Wire-Frame</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button29">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">   Solid   </property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame21">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label1">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Mode</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator2">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame22">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame23">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Menubutton" id="menubutton4">
+                                            <property name="text" translatable="yes">Isometric</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                            <child>
+                                              <object class="tk.Menu" id="menu3">
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command13">
+                                                    <property name="label" translatable="yes">command13</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="tk.Menubutton" id="menubutton5">
+                                            <property name="text" translatable="yes">Projected</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                            <child>
+                                              <object class="tk.Menu" id="menu4">
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command14">
+                                                    <property name="label" translatable="yes">Top</property>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command15">
+                                                    <property name="label" translatable="yes">Bottom</property>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command16">
+                                                    <property name="label" translatable="yes">Front</property>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command17">
+                                                    <property name="label" translatable="yes">Back</property>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command18">
+                                                    <property name="label" translatable="yes">Left</property>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="tk.Menuitem.Command" id="command19">
+                                                    <property name="label" translatable="yes">Right</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame24">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label2">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Orientation</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator10">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame53">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame54">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button27">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">   Pan   </property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button28">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">Zoom In</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame55">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label14">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Pan-Zoom</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator9">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab5">
+                            <property name="text" translatable="yes">Specification</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame25">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame26">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame27">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button11">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button12">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame28">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label6">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator3">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame29">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame30">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button13">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button14">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame31">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label7">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab6">
+                            <property name="text" translatable="yes">Loading</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame32">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame33">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame34">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button15">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button16">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame35">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label8">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator6">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame36">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame37">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button17">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button18">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame38">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label9">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab7">
+                            <property name="text" translatable="yes">Analysis and Design</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame39">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame40">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame41">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button19">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button20">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame42">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label10">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator7">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame43">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame44">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button21">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button22">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame45">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label11">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab8">
+                            <property name="text" translatable="yes">Utilities</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame46">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame47">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame48">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button23">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button24">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame49">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label12">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator8">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame50">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame51">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button25">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button26">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame52">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label13">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Notebook.Tab" id="tab9">
+                            <property name="text" translatable="yes">About</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame56">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Frame" id="frame57">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame58">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button30">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button31">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame59">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label15">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Help</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Separator" id="separator12">
+                                    <property name="orient">vertical</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="pady">10</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Frame" id="frame60">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">false</property>
+                                      <property name="fill">y</property>
+                                      <property name="padx">5</property>
+                                      <property name="pady">5</property>
+                                      <property name="side">left</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Frame" id="frame61">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">true</property>
+                                          <property name="fill">y</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="ttk.Button" id="button32">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="ttk.Button" id="button33">
+                                            <property name="style">Toolbutton</property>
+                                            <property name="text" translatable="yes">button1</property>
+                                            <layout manager="pack">
+                                              <property name="expand">true</property>
+                                              <property name="fill">y</property>
+                                              <property name="side">left</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="tk.Frame" id="frame62">
+                                        <property name="height">200</property>
+                                        <property name="width">200</property>
+                                        <layout manager="pack">
+                                          <property name="expand">false</property>
+                                          <property name="fill">x</property>
+                                          <property name="padx">5</property>
+                                          <property name="pady">5</property>
+                                          <property name="side">top</property>
+                                        </layout>
+                                        <child>
+                                          <object class="tk.Label" id="label16">
+                                            <property name="font">{Nimbus Sans} 9 {bold}</property>
+                                            <property name="text" translatable="yes">Online Resource</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Panedwindow.Pane" id="pane2">
+                <property name="weight">1</property>
+                <child>
+                  <object class="ttk.Frame" id="frame3">
+                    <property name="height">200</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Panedwindow" id="panedwindow3">
+                        <property name="height">200</property>
+                        <property name="orient">vertical</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="expand">true</property>
+                          <property name="fill">both</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Panedwindow.Pane" id="pane3">
+                            <property name="weight">1</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame14">
+                                <property name="background">#d9aed9</property>
+                                <property name="height">200</property>
+                                <property name="style">Button</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="side">top</property>
+                                </layout>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Panedwindow.Pane" id="pane4">
+                            <property name="weight">0</property>
+                            <child>
+                              <object class="ttk.Frame" id="frame15">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="pack">
+                                  <property name="side">top</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Notebook" id="notebook4">
+                                    <property name="height">200</property>
+                                    <property name="width">200</property>
+                                    <layout manager="pack">
+                                      <property name="expand">true</property>
+                                      <property name="fill">x</property>
+                                      <property name="side">top</property>
+                                    </layout>
+                                    <child>
+                                      <object class="ttk.Notebook.Tab" id="tab2">
+                                        <property name="text" translatable="yes">Piping Input</property>
+                                        <child>
+                                          <object class="ttk.Frame" id="frame16">
+                                            <property name="height">200</property>
+                                            <property name="width">200</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                            <child>
+                                              <object class="tksheet.Sheet" id="sheet1">
+                                                <layout manager="pack">
+                                                  <property name="expand">true</property>
+                                                  <property name="fill">both</property>
+                                                  <property name="side">top</property>
+                                                </layout>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="ttk.Notebook.Tab" id="tab3">
+                                        <property name="text" translatable="yes">Python</property>
+                                        <child>
+                                          <object class="ttk.Frame" id="frame17">
+                                            <property name="height">200</property>
+                                            <property name="width">200</property>
+                                            <layout manager="pack">
+                                              <property name="side">top</property>
+                                            </layout>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="frame12">
+            <property name="height">200</property>
+            <property name="relief">sunken</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="expand">false</property>
+              <property name="fill">x</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="tk.Label" id="label3">
+                <property name="text" translatable="yes">Status...</property>
+                <layout manager="pack">
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
