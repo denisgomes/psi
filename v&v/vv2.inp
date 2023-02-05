@@ -33,7 +33,7 @@ mdl.analyze()
 disp = Movements('R1', [L2, L3])
 disp.to_screen()
 
-reac = Reactions('R2', [L2, L3])
+reac = Reactions('R2', [L2])
 reac.to_screen()
 
 cod1 = Codes('R3', [L2, L3])

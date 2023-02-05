@@ -59,5 +59,8 @@ disp.to_screen()
 forc = Forces('R3', [L1])
 forc.to_screen()
 
+mforc = MForces('R4', [L1])
+mforc.to_screen()
+
 str1 = Stresses('S1', [L2])
 str1.to_screen()

@@ -621,7 +621,6 @@ class Run(Piping):
         E = self.material.ymod[temp]
         nu = self.material.nu.value     # poisson's ratio
         G = E / (2 * (1 + nu))          # shear mod, isotropic mats
-
         thk = self.section.thk
 
         # used for rigids
@@ -630,11 +629,8 @@ class Run(Piping):
         Iy = self.section.iyy
         Iz = self.section.izz
         A = self.section.area
-
         self.section.thk = thk  # reset
 
-        Ay = 0  # shear area y
-        Az = 0  # shear area z
         phi_y = 0
         phi_z = 0
         if self.app.models.active_object.settings.timoshenko:
@@ -793,6 +789,9 @@ class Bend(Run):
     def __init__(self, point, dx, dy=0, dz=0, radius="long", flange=0,
                  tol=0.01, from_point=None, section=None, material=None,
                  insulation=None, code=None):
+
+        raise NotImplementedError("implement")
+
         # calls build
         super(Bend, self).__init__(point, dx, dy, dz, from_point, section,
                                    material, insulation, code)
@@ -949,6 +948,9 @@ class Reducer(Run):
     def __init__(self, point, dx, dy=0, dz=0, section2=None, is_concentric=True,
                  from_point=None, section=None, material=None, insulation=None,
                  code=None):
+
+        raise NotImplementedError("implement")
+
         self.section2 = section2
         self.is_concentric = is_concentric
         self._runs = []             # internal run approximations

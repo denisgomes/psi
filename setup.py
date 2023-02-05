@@ -45,19 +45,41 @@ setup(
     install_requires=["scipy", "pint", "tqdm", "jinja2 >= 2.0"],
 
     package_data={
-        "psi.data": ["pipes.csv", "materials.csv", "fluids.csv",
-                     "insulation.csv"],
-        "psi.data.springs": ["anvil_variable.csv", "anvil_constant.csv"],
-        "psi.data.units": ["base.csv", "english.csv", "code_english.csv",
-                           "si.csv"],
-        "psi.templates": ["base_report", "single_case_report",
-            "multiple_case_report", "single_case_movements",
-            "single_case_forces", "single_case_reactions",
-            "single_case_stresses", "single_case_stresses_extended",
-            "single_case_codes", "multiple_case_movements",
-            "multiple_case_forces", "multiple_case_reactions",
-            "multiple_case_stresses", "multiple_case_stresses_extended",
-            "multiple_case_codes" ]
+        "psi.data": [
+            "fluids.csv",
+            "insulation.csv",
+            "materials.csv",
+            "pipes.csv"
+            ],
+        "psi.data.springs": [
+            "anvil_constant.csv",
+            "anvil_variable.csv"
+            ],
+        "psi.data.units": [
+            "base.csv",
+            "code_english.csv",
+            "english.csv",
+            "si.csv"
+            ],
+        "psi.templates": [
+            "base_report",
+            "multiple_case_codes",
+            "multiple_case_forces",
+            "multiple_case_mforces",
+            "multiple_case_movements",
+            "multiple_case_reactions",
+            "multiple_case_report",
+            "multiple_case_stresses",
+            "multiple_case_stresses_extended",
+            "single_case_codes",
+            "single_case_forces",
+            "single_case_mforces",
+            "single_case_movements",
+            "single_case_reactions",
+            "single_case_report",
+            "single_case_stresses",
+            "single_case_stresses_extended"
+            ]
         },
 
     # MANIFEST.in works for source distributions only

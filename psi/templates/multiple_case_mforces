@@ -1,0 +1,40 @@
+{% extends "multiple_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format("") }}{{ "%-10s" | format("") }}{{ "%-s (%s)" | format("FORCES", units.force) | center(30) }}{{ "%-s (%s)" | format("MOMENTS", units.moment_output) | center(30) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%-10s" | format("LOAD CASE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}{{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
+{% endblock %}
+
+{% block body %}
+{%- for i, element in enumerate(loadcases[0].elements) -%}
+{%- for j in range(2) -%}
+{%- for k, loadcase in enumerate(loadcases) -%}
+{%- set result = loadcase.mforces.results[i*12:i*12+12] -%}
+
+{% if j==0 -%}
+
+{% if k==0 %}
+{{ "%-10s" | format(element.from_point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(result[0][0]) }}{{ "% 10.1f" | format(result[1][0]) }}{{ "% 10.1f" | format(result[2][0]) }}{{ "% 10.1f" | format(result[3][0]) }}{{ "% 10.1f" | format(result[4][0]) }}{{ "% 10.1f" | format(result[5][0]) }}
+{%- else %}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(result[0][0]) }}{{ "% 10.1f" | format(result[1][0]) }}{{ "% 10.1f" | format(result[2][0]) }}{{ "% 10.1f" | format(result[3][0]) }}{{ "% 10.1f" | format(result[4][0]) }}{{ "% 10.1f" | format(result[5][0]) }}
+{%- endif %}
+
+{%- elif j==1 -%}
+
+{% if k==0 %}
+{{ "%-10s" | format(element.to_point.name) }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(result[6][0]) }}{{ "% 10.1f" | format(result[7][0]) }}{{ "% 10.1f" | format(result[8][0]) }}{{ "% 10.1f" | format(result[9][0]) }}{{ "% 10.1f" | format(result[10][0]) }}{{ "% 10.1f" | format(result[11][0]) }}
+{%- else %}
+{{ "%-10s" | format(" ") }}{{ "%10s" | format(loadcase.name + " (" + loadcase.stype + ") ") }}{{ "% 10.1f" | format(result[6][0]) }}{{ "% 10.1f" | format(result[7][0]) }}{{ "% 10.1f" | format(result[8][0]) }}{{ "% 10.1f" | format(result[9][0]) }}{{ "% 10.1f" | format(result[10][0]) }}{{ "% 10.1f" | format(result[11][0]) }}
+{%- endif %}
+
+{%- endif %}
+
+{%- endfor %}
+{%- endfor %}
+{% endfor -%}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

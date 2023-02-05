@@ -420,7 +420,7 @@ def test_variable_spring(app):
     anc1 = Anchor('A1', 10)
     anc1.apply([run10])
 
-    spr20 = Spring('Spr20', 20, 1000, 1000)
+    spr20 = Spring('Spr20', 20, 1000, 0)
     spr20.apply([run20])
 
     W1 = Weight('W1', 1)

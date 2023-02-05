@@ -175,6 +175,7 @@ class App(object):
                 "Movements": self.reports.Movements,
                 "Reactions": self.reports.Reactions,
                 "Forces": self.reports.Forces,
+                "MForces": self.reports.MForces,
                 "Stresses": self.reports.Stresses,
                 "StressesExtended": self.reports.StressesExtended,
                 "Codes": self.reports.Codes,

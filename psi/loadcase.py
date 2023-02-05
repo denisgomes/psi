@@ -45,6 +45,7 @@ import numpy as np
 
 from psi.entity import Entity, EntityContainer
 from psi.point import Point
+from psi.elements import Element
 from psi.utils.orderedset import OrderedSet
 from psi import units
 
@@ -515,6 +516,177 @@ class Forces:
         return self._moment.results[2::3]
 
 
+class MemberForces:
+    """Member internal forces and moments with respect to the element local
+    coordinate system.
+
+    .. note::
+       The translation and rotation components are separated because they have
+       different units.
+
+    .. code-block: python
+
+        >>> r1.mforces[elem10]         # returns all comps
+        >>> r1.mforces[elem10][0:3]    # returns fx, fy, fz node i
+        >>> r1.mforces[elem10][3:6]    # returns mx, my, mz node i
+        >>> r1.mforces[elem10].fxi     # return fx node i
+        >>> r1.mforces[elem10].mzi     # returns mz node i
+
+    Slices with strides can also be used such as:
+
+    .. code-block: python
+
+        >>> r1.mforces[elem10][::2]      # returns fxi, fzi, myi, ...
+
+    Data index and corresponding nodal force/moment.
+
+    * 0 = fxi
+    * 1 = fyi
+    * 2 = fzi
+    * 3 = mxi
+    * 4 = myi
+    * 5 = mzi
+    * 6 = fxj
+    * 7 = fyj
+    * 8 = fzj
+    * 9 = mxj
+    * 10 = myj
+    * 11 = mzj
+    """
+
+    Result = namedtuple("Result", "fxi fyi fzi mxi myi mzi \
+                                   fxj fyj fzj mxj myj mzj")
+
+    def __init__(self, app):
+        self._app = app
+        self._forcei = Force()
+        self._forcej = Force()
+        self._momenti = Moment()
+        self._momentj = Moment()
+
+    def __getitem__(self, item):
+        """Get element results."""
+        edof = 12   # degrees of freedom per element
+        if isinstance(item, Element):
+            try:
+                model = self._app.models.active_object
+                idxi = list(model.elements).index(item)
+                niqi, niqj = idxi*edof, idxi*edof + edof
+
+                # note that .results is a column vector
+                return MemberForces.Result(*self.results[niqi:niqj, 0])
+            except:
+                raise ValueError("element is not in results array")
+
+        else:
+            raise ValueError("value not found")
+
+    @property
+    def results(self):
+        fxi = self._forcei.results[::3]
+        fyi = self._forcei.results[1::3]
+        fzi = self._forcei.results[2::3]
+        mxi = self._momenti.results[::3]
+        myi = self._momenti.results[1::3]
+        mzi = self._momenti.results[2::3]
+
+        fxj = self._forcej.results[::3]
+        fyj = self._forcej.results[1::3]
+        fzj = self._forcej.results[2::3]
+        mxj = self._momentj.results[::3]
+        myj = self._momentj.results[1::3]
+        mzj = self._momentj.results[2::3]
+
+        disp = np.array(list(zip(fxi, fyi, fzi, mxi, myi, mzi,
+                                 fxj, fyj, fzj, mxj, myj, mzj)),
+                                 dtype=np.float64)
+        values = disp.flatten().reshape((-1, 1))
+
+        return values
+
+    @results.setter
+    def results(self, data):
+        dataij = data.reshape((-1, 6))
+        datai = dataij[::2].flatten()       # elements node i
+        dataj = dataij[1::2].flatten()      # elements node j
+        self._forcei.results = datai
+        self._momenti.results = datai
+        self._forcej.results = dataj
+        self._momentj.results = dataj
+
+    def fxi(self, func=None):
+        if func:
+            return func(self._forcei.results[::3])
+
+        return self._forcei.results[::3]
+
+    def fyi(self, func=None):
+        if func:
+            return func(self._forcei.results[1::3])
+
+        return self._forcei.results[1::3]
+
+    def fzi(self, func=None):
+        if func:
+            return func(self._forcei.results[2::3])
+
+        return self._forcei.results[2::3]
+
+    def mxi(self, func=None):
+        if func:
+            return func(self._momenti.results[::3])
+
+        return self._momenti.results[::3]
+
+    def myi(self, func=None):
+        if func:
+            return func(self._momenti.results[1::3])
+
+        return self._momenti.results[1::3]
+
+    def mzi(self, func=None):
+        if func:
+            return func(self._momenti.results[2::3])
+
+        return self._momenti.results[2::3]
+
+    def fxj(self, func=None):
+        if func:
+            return func(self._forcej.results[::3])
+
+        return self._forcej.results[::3]
+
+    def fyj(self, func=None):
+        if func:
+            return func(self._forcej.results[1::3])
+
+        return self._forcej.results[1::3]
+
+    def fzj(self, func=None):
+        if func:
+            return func(self._forcej.results[2::3])
+
+        return self._forcej.results[2::3]
+
+    def mxj(self, func=None):
+        if func:
+            return func(self._momentj.results[::3])
+
+        return self._momentj.results[::3]
+
+    def myj(self, func=None):
+        if func:
+            return func(self._momentj.results[1::3])
+
+        return self._momentj.results[1::3]
+
+    def mzj(self, func=None):
+        if func:
+            return func(self._momentj.results[2::3])
+
+        return self._momentj.results[2::3]
+
+
 @units.define(_values="stress")
 class Stress:
     """Element hoop stress due to pressure"""
@@ -806,6 +978,10 @@ class BaseCase(Entity):
         return list(self.app.points)
 
     @property
+    def elements(self):
+        return list(self.app.elements)
+
+    @property
     def supports(self):
         return list(self.app.supports)
 
@@ -873,6 +1049,7 @@ class LoadCase(BaseCase):
         self._movements = Movements(self.app)
         self._reactions = Reactions(self.app)
         self._forces = Forces(self.app)
+        self._mforces = MemberForces(self.app)
         self._stresses = Stresses(self.app)
 
     def __contains__(self, load):
@@ -902,6 +1079,10 @@ class LoadCase(BaseCase):
     def forces(self):
         """Return the force reaction results array."""
         return self._forces
+
+    @property
+    def mforces(self):
+        return self._mforces
 
     @property
     def stresses(self):
@@ -987,6 +1168,7 @@ class LoadComb(BaseCase):
         self._movements = Movements(self.app)
         self._reactions = Reactions(self.app)
         self._forces = Forces(self.app)
+        self._mforces = MemberForces(self.app)
         self._stresses = Stresses(self.app)
 
     @property
@@ -1094,10 +1276,10 @@ class LoadComb(BaseCase):
             elif self._method == "signmax":
                 # overwrite every time through the loop
                 self._reactions.results = np.maximum(self._reactions.results,
-                                                     factor * loadcase.movements.results)
+                                                     factor * loadcase.reactions.results)
             elif self._method == "signmin":
                 self._reactions.results = np.minimum(self._reactions.results,
-                                                     factor * loadcase.movements.results)
+                                                     factor * loadcase.reactions.results)
 
         if self._method == "srss":
             self._reactions.results = np.sqrt(self._reactions.results)
@@ -1130,15 +1312,51 @@ class LoadComb(BaseCase):
             elif self._method == "signmax":
                 # overwrite every time through the loop
                 self._forces.results = np.maximum(self._forces.results,
-                                                  factor * loadcase.movements.results)
+                                                  factor * loadcase.forces.results)
             elif self._method == "signmin":
                 self._forces.results = np.minimum(self._forces.results,
-                                                  factor * loadcase.movements.results)
+                                                  factor * loadcase.forces.results)
 
         if self._method == "srss":
             self._forces.results = np.sqrt(self._forces.results)
 
         return self._forces
+
+    @property
+    def mforces(self):
+        """Return the combined member forces array."""
+        self._mforces.results = np.zeros(len(self.elements) * 12, dtype=np.float64)
+
+        for factor, loadcase in zip_longest(self._factors, self._loadcases,
+                                            fillvalue=1):
+            if self._method in ("algebraic", "scalar"):
+                self._mforces.results += (factor * loadcase.mforces.results)
+            elif self._method == "srss":
+                # note: sign of factor has no effect, always positive
+                self._mforces.results += (factor * loadcase.mforces.results)**2
+            elif self._method == "abs":
+                self._mforces.results += (factor * np.abs(loadcase.mforces.results))
+            elif self._method == "max":
+                # overwrite every time through the loop
+                self._mforces.results = np.array(map(LoadComb._maxfunc,
+                                                    self._mforces.results,
+                                                    factor * loadcase.mforces.results))
+            elif self._method == "min":
+                self._mforces.results = np.array(map(LoadComb._minfunc,
+                                                    self._mforces.results,
+                                                    factor * loadcase.mforces.results))
+            elif self._method == "signmax":
+                # overwrite every time through the loop
+                self._mforces.results = np.maximum(self._mforces.results,
+                                                  factor * loadcase.mforces.results)
+            elif self._method == "signmin":
+                self._mforces.results = np.minimum(self._mforces.results,
+                                                  factor * loadcase.mforces.results)
+
+        if self._method == "srss":
+            self._mforces.results = np.sqrt(self._mforces.results)
+
+        return self._mforces
 
     @property
     def stresses(self):

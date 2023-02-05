@@ -182,9 +182,6 @@ class EntityContainer(object):
         for obj in self._objects.values():
             yield obj
 
-    def iterate(self):
-        pass
-
     def check(self):
         raise NotImplementedError("implement")
 

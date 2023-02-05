@@ -45,20 +45,23 @@ L5 = LoadCase('L5', 'ope', [Wind], [3])
 mdl.analyze()
 
 # reports
-disp = Movements('R1', [L2, L3])
+disp = Movements('R1', [L2])
 disp.to_screen()
 
-cod1 = Codes('R3', [L1, L2, L3])
-cod1.to_screen()
+#cod1 = Codes('R3', [L1, L2, L3])
+#cod1.to_screen()
 
-disp2 = Movements('R5', [L4, L5])
-disp2.to_screen()
+#disp2 = Movements('R5', [L4, L5])
+#disp2.to_screen()
 
-reac = Reactions('R6', [L4, L5])
-reac.to_screen()
+#reac = Reactions('R6', [L4, L5])
+#reac.to_screen()
 
-reac = Reactions('R2', [L2])
-reac.to_screen()
+#reac = Reactions('R2', [L2])
+#reac.to_screen()
 
 forc = Forces('R4', [L2])
 forc.to_screen()
+
+mforc = MForces('R5', [L2])
+mforc.to_screen()

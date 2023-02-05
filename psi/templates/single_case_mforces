@@ -1,0 +1,17 @@
+{% extends "single_case_report" %}
+
+{% block header %}
+{{ super() }}
+{{ "%-10s" | format(" ") }}{{ "          %-s (%s)          " | format("FORCES", units.force) | center(30) }}     {{ "       %-s (%s)       " | format("MOMENTS", units.moment_output) | center(30) }}
+
+{{ "%-10s" | format("NODE") }}{{ "%10s" | format("FX") }}{{ "%10s" | format("FY") }}{{ "%10s" | format("FZ") }}     {{ "%10s" | format("MX") }}{{ "%10s" | format("MY") }}{{ "%10s" | format("MZ") }}
+{% endblock -%}
+
+{%- block body -%}
+{%- for loadcase in loadcases -%}
+{%- for element, result in zip(loadcase.elements, loadcase.mforces.results | batch(12)) %}
+{{ "%-10s" | format(element.from_point.name) }}{{ "% 10.1f" | format(result[0][0]) }}{{ "% 10.1f" | format(result[1][0]) }}{{ "% 10.1f" | format(result[2][0]) }}     {{ "% 10.1f" | format(result[3][0]) }}{{ "% 10.1f" | format(result[4][0]) }}{{ "% 10.1f" | format(result[5][0]) }}
+{{ "%-10s" | format(element.to_point.name) }}{{ "% 10.1f" | format(result[6][0]) }}{{ "% 10.1f" | format(result[7][0]) }}{{ "% 10.1f" | format(result[8][0]) }}     {{ "% 10.1f" | format(result[9][0]) }}{{ "% 10.1f" | format(result[10][0]) }}{{ "% 10.1f" | format(result[11][0]) }}
+{% endfor -%}
+{%- endfor %}
+{% endblock %}
