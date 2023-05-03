@@ -20,8 +20,23 @@
 from itertools import zip_longest
 import math
 
+import numpy as np
+
 from psi.loadcase import LoadCase, LoadComb
 from psi import units
+
+
+def perform_code_check(model):
+    # similar to nodal dof matrix
+    points = list(model.points)
+    nn = len(model.points)
+    for i, loadcase in enumerate(model.loadcases):  # including LoadCombs
+        S = np.zeros((nn, 15), dtype=np.float64)    # stresses
+        C = []  # code used at each node
+        for element in model.elements:
+            element_codecheck(points, loadcase, element, S)
+            C.extend(2 * [element.code.label])
+        loadcase.stresses.results = (S[:, :], C)
 
 
 def element_codecheck(points, loadcase, element, S):

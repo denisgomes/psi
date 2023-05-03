@@ -24,11 +24,11 @@ from collections import OrderedDict
 import numpy as np
 from tqdm import trange
 
-from psi.supports import Inclined, AbstractSupport, Spring
 from psi.loadcase import LoadCase, LoadComb
 from psi.loads import Hanger, Displacement
+from psi.solvers.codecheck import perform_code_check
+from psi.supports import Inclined, AbstractSupport, Spring
 from psi import units
-from .codecheck import element_codecheck
 
 import sys
 from contextlib import redirect_stdout
@@ -438,16 +438,3 @@ def solve(model, loadcase):
     loadcase.reactions.results = -Rs[:, 0]   # action force on support
     loadcase.forces.results = Fg[:, 0]
     loadcase.mforces.results = Fm[:, 0]
-
-
-def perform_code_check(model):
-    # similar to nodal dof matrix
-    points = list(model.points)
-    nn = len(model.points)
-    for i, loadcase in enumerate(model.loadcases):  # including LoadCombs
-        S = np.zeros((nn, 15), dtype=np.float64)    # stresses
-        C = []  # code used at each node
-        for element in model.elements:
-            element_codecheck(points, loadcase, element, S)
-            C.extend(2 * [element.code.label])
-        loadcase.stresses.results = (S[:, :], C)

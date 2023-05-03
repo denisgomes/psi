@@ -758,6 +758,16 @@ class Run(Piping):
 
         return T.transpose() @ self.mlocal() @ T
 
+    @property
+    def nodes(self):
+        """Return a list of node points"""
+        pass
+
+    @property
+    def elements(self):
+        """Return a list of elements for the pipe component"""
+        pass
+
 
 @units.define(_radius="length")
 class Bend(Run):
